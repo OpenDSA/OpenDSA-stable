@@ -1,0 +1,22 @@
+#Temp files
+*~
+modules.json
+modules.csv
+
+#build HTML directory
+build
+
+#RST build directory
+RST/build
+RST/source/ToDo.rst
+RST/source/conf.py
+
+#Ignore the copy we make of khan-site.html
+lib/khan-exercises/exercises/khan-site.html
+
+#ignore compiled Python files
+*pyc
+
+#Ignore live site directories that shouldn't be in the repository
+dev
+DB_Backup
