@@ -1,0 +1,23 @@
+#container {
+  width: 800px;
+  height: 450px;
+}
+
+#left {
+  float: left;
+  width: 60%;
+  margin: 7px 0 0 0;
+}
+
+#right {
+  float: right;
+  width: 35%;
+}
+
+#about {
+  margin-top: 0;
+}
+
+.jsavscroll {
+  height: 240px;
+}

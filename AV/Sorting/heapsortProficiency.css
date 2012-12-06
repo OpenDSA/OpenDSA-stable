@@ -1,0 +1,17 @@
+#container {
+  width: 800px;
+  height: 555px;
+}
+
+#decrement {
+  margin-right: 20px;
+}
+
+.jsavtree {
+  top: -30px;
+}
+
+.jsavline {
+  height: 45px;
+  margin: 0 0 0 20px;
+}

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<entry>
+<id>http://algoviz.org/OpenDSA/AV/Development/quicksortProficiency.html</id>
+<title type='text'>Quicksort Proficiency Exercise</title>
+<description type='text'>Quicksort Proficiency Exercise</description>
+<type>pe</type>  
+<width>822</width>
+<height>600</height>
+<author>
+<name>OpenDSA</name>
+<uri>http://algoviz.org/OpenDSA/</uri>
+</author>
+<covers>sorting</covers>
+<streak>90</streak>
+</entry>

@@ -1,0 +1,14 @@
+#container {
+  width: 800px;
+  height: 480px;
+}
+
+#profArray {
+  margin-top: -15px;
+  margin-bottom: 20px
+}
+
+.jsavline {
+  margin-top: 15px;
+  height: 50px;
+}

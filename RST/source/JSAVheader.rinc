@@ -1,0 +1,19 @@
+.. odsalink:: JSAV/css/JSAV.css
+
+.. raw:: html
+
+   <link href="_static/opendsaMOD.css" rel="stylesheet" type="text/css" />
+
+.. odsascript:: lib/jquery.min.js
+.. odsascript:: lib/jquery-ui.min.js
+ 
+.. odsascript:: JSAV/lib/jquery.transform.light.js 
+.. odsascript:: JSAV/lib/raphael.js 
+
+.. odsascript:: JSAV/build/JSAV-min.js
+
+.. odsascript:: lib/ODSA.js
+
+.. raw:: html
+
+   <script src="_static/opendsaMOD.js"></script>

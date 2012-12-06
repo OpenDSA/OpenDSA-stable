@@ -1,0 +1,62 @@
+.more {
+  display: none;
+}
+.admonition-todo {
+  background-color: #FFC0CB;
+}
+.showHideLink {
+  background-color: #FF0000;
+}
+.jsavcontainer {
+  position: relative;
+}
+.prof_check_mark {
+  position: absolute;
+  bottom: 45px; /* top: 65px; */
+  right: 10px;
+  display: none;
+}
+.mod_complete {
+  color: lime;
+  display: none;
+  position: absolute;
+  right: 20px;
+  top: 0;
+}
+
+.error {
+  color: red;
+  font-size: 20px;
+  text-align: center;
+}
+
+label {  
+  display: block;  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
