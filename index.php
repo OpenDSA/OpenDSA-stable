@@ -102,6 +102,7 @@ exercises.
 
 <a href="Exercises/Development/ODSAindex.html" target="_blank">
 <img border=1px src="site/ka.png" height="250" /></a>
+<a href="AV/Development/HuffmanCoding.html" target="_blank">
 <img border=1px src="site/huffman.png" height="250" /></a>
 
 <p>

@@ -17,6 +17,7 @@ lib/khan-exercises/exercises/khan-site.html
 #ignore compiled Python files
 *pyc
 
-#Ignore live site directories that shouldn't be in the repository
+#Ignore live site directories and files that shouldn't be in the repository
 dev
 DB_Backup
+.htaccess
