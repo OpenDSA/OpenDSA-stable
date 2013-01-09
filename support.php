@@ -8,7 +8,10 @@
 <body>
 <div id="content">
 <h1 style="background: url(site/OpenDSALogo64.png) no-repeat 20px 50%; text-align: center; font-size: 32pt">
-OpenDSA Project Support</h1>
+OpenDSA Project Support
+<a href="http://nsf.gov">
+<img src="site/nsf1.gif" align="right" height="64" alt="NSF Logo" /></a>
+</h1>
 
 <p>
 The OpenDSA team gratefully acknowledges the support provided by the

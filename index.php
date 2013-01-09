@@ -8,15 +8,22 @@
 <body>
 <div id="content">
 <h1 style="background: url(site/OpenDSALogo64.png) no-repeat 20px 50%; text-align: center; font-size: 32pt">
-OpenDSA: An Active-eBook for <br /> Data Structures and Algorithms</h1>
+OpenDSA: Open Source Interactive<br /> Data Structures and Algorithms</h1>
 
 <h5>Click on the images to try things out.</h5>
 
 <p>
 Welcome to the homepage for the OpenDSA Active-eBook Project.
-Our goal is to develop a complete online textbook for data structures
-and algorithms (DSA) courses.
-This will include:
+Our goal is to develop a complete online interactive textbook for data
+structures and algorithms (DSA) courses.
+This page includes a number of screenshots showing various aspects of
+OpenDSA.
+But you can also look at <a href="RST/build/html">the current content</a>.
+</p>
+
+<p>
+Once completed, OpenDSA will include:
+</p>
 
 <ul>
 
@@ -154,9 +161,11 @@ June 30, 2011, Darmstadt, Germany, 97-103.
 For more information, or to get involved, please contact
 Cliff Shaffer at
 <tt><script type="text/javascript" language="JavaScript">
-shaffer = new String (String.fromCharCode
-(115,104,97,102,102,101,114,64,99,115,46,118,116,46,101,100,117))
-document.write (shaffer.link ("mailto:" + shaffer))
+// Make it just a little harder for spammers to pick up email address
+var name = "opendsa";
+var place = "cs.vt.edu";
+var theAddress = name + "@" + place;
+document.write (theAddress.link ("mailto:" + theAddress))
 </script></tt>.
 
 <h2>Support</h2>
@@ -164,7 +173,8 @@ document.write (shaffer.link ("mailto:" + shaffer))
 <p>
 The OpenDSA Project is supported by the National Science Foundation
 (<a href="support.php">see more</a>).
- <img src="site/nsf1.gif" align="right" height="64" alt="NSF Logo" />
+<a href="http://nsf.gov">
+<img src="site/nsf1.gif" align="right" height="64" alt="NSF Logo" /></a>
 </p>
 
 </div>
