@@ -32,8 +32,6 @@ Hundreds of instructional modules, where each
 module is the equivalent to one topic, such as one sorting algorithm,
 corresponding to a couple of pages in a standard textbook.
 Each module is of textbook quality.
-Here are some sample images, but you can see
-<a href="RST/build/html">our current content</a>.
 <br clear=all />
 
 <p></p>
@@ -97,7 +95,7 @@ A major complaint of students in DSA classes is that they do
 not get enough practice problems, or sufficient other means of testing
 their proficiency.
 One of the most important aspects of our vision is a rich
-set of exercise that ensure that the student is understanding the
+set of exercises to ensure that the student understands the
 material as he/she progresses through the book.
 Our modules will contain a mix of content, visualizations, and
 exercises.
