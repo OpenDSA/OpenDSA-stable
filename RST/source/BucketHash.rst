@@ -59,14 +59,13 @@ found or all records in the overflow bucket have been checked.
 If many records are in the overflow bucket, this will be an
 expensive process.
 
-.. inlineav:: buckethashCON1 slideshow
+.. inlineav:: buckethashCON1
    :output: show
 
 Now you can try it yourself.
 
 .. avembed:: Exercises/Hashing/HashingBucketPRO.html
    :showbutton: hide
-   :title: Bucket Hash Exercise
 
 A simple variation on bucket hashing is to hash a key value to some slot
 in the hash table as though bucketing were not being used.
@@ -78,14 +77,13 @@ The advantage of this approach is that initial collisions are reduced,
 because any slot can be a home position rather than just the first slot
 in the bucket.
 
-.. inlineav:: buckethashCON2 slideshow
+.. inlineav:: buckethashCON2
    :output: show
 
 Now you can try this version.
 
 .. avembed:: Exercises/Hashing/HashingBucket2PRO.html
    :showbutton: hide
-   :title: Alternate Bucket Hash Exercise
 
 Bucket methods are good for implementing hash tables stored on disk,
 because the bucket size can be set to the size of a disk block.

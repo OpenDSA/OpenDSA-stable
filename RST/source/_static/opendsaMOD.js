@@ -1,16 +1,46 @@
 "use strict";
-/*global alert: true, console: true, serverEnabled, userLoggedIn,
-warnUserLogin, logUserAction, inLocalStorage, isModulePage, getUsername,
-getNameFromURL, flushStoredData, getJSON, storeProficiencyStatus,
-updateExerProfDisplays, getModuleName, sendEventData, server_url, moduleName */
+/*global alert: true, console: true, debugMode, serverEnabled, userLoggedIn, uiid,
+warnUserLogin, logUserAction, logEvent, inLocalStorage, getUsername, getSessionKey,
+getNameFromURL, getJSON, getModuleName, sendEventData, server_url, moduleName,
+roundPercent, isDefined, storeStatusAndUpdateDisplays, SHA1 */
 
-// Contains a list of all exercises (including AVs) on the page
-var exerList = [];
+/* warnUserLogin and storeStatusAndUpdateDisplays are defined in this file, but due to cyclic dependencies */
+// SHA1 is more of a library and is defined at the bottom
 
-// Contains a list of all Khan Academy-type exercises on the page
-var kaExerList = [];
+// Stores information about each exercise on a page for fast lookup
+//  - type - the exercise type ('ss', 'ka', 'pe')
+//  - uiid - a unique instance identifier which allows events to be tied to an instance of an exercise
+//  - required - whether the exercise is required for module proficiency
+//  - threshold - the score necessary to obtain proficiency (0 to 1.0 for ss and pe, integer for ka)
+//  - points - the number of points an exercise is worth
+var exercises = {};
 
-var readyTime = +new Date();
+// Enumerated type used for tracking the status of an exercise
+var Status = {
+  SUBMITTED: 'SUBMITTED',
+  STORED: 'STORED',
+  ERROR: 'ERROR'
+};
+
+/**
+ * Stores the name of the book, used to uniquely identify a book in the database
+ */
+var bookName = "OpenDSA";
+
+/**
+ * Flag controlling whether or not the system will assign credit (
+ * scores) obtained by anonymous users to the next user to log in
+ */
+var allowAnonCredit = true;
+
+var readyTime = +new Date();  // TODO: For performance testing
+
+/**
+ * Adds an 'endsWith' function to strings
+ */
+String.prototype.endsWith = function (suffix) {
+  return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
 
 function info() { // This is what we pop up
   var outcome = -1;
@@ -33,11 +63,17 @@ function info() { // This is what we pop up
   }
 }
 
-function updateLocalStorage(username) {
-  var myDate = new Date();
-  myDate.setDate(myDate.getDate() + 5);  //the session is valid 5 days
-  var strSession = '{"username" :"' + username + '", "expires" :"' + myDate + '"}';
-  localStorage.opendsa = strSession;
+/**
+ * Store username and session key in localStorage
+ */
+function updateLocalStorage(username, sessionKey) {
+  var exDate = new Date();
+  exDate.setDate(exDate.getDate() + 5);  //the session is valid 5 days
+  var session = {};
+  session.username = username;
+  session.key = sessionKey;
+  session.expires = exDate;
+  localStorage.opendsa = JSON.stringify(session);
 }
 
 function isSessionExpired() {
@@ -48,6 +84,28 @@ function isSessionExpired() {
     return sessionDate <= currentDate;
   }
   return true;
+}
+
+/**
+ * Deletes the session data from local storage, informs the user that their
+ * session has expired and reload the page to reset all exercises
+ */
+function handleExpiredSession(key) {
+  console.warn('Sesson expired');
+
+  var currKey = getSessionKey();
+
+  // Checks key used to submit data against current key to prevent multiple alerts
+  // from popping up when multiple responses come in from multiple messages sent with an invalid session key
+  if (key === currKey) {
+    localStorage.removeItem('opendsa');
+    // Alternatively, trigger updateLogin() and show the login box (won't reset exercises that have been completed)
+    //updateLogin();
+    //showLoginBox();
+    alert('Your account has been logged in on another computer and the\n current session is no longer valid. Please login again to continue.');
+    // Trigger a page reload to reset exercises (in case someone else logs in) and proficiency indicators
+    window.location.reload();
+  }
 }
 
 /**
@@ -88,25 +146,1082 @@ function showHide(btnID) {
   }
 }
 
-String.prototype.endsWith = function (suffix) {
-  return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
+//*****************************************************************************
+//*************      Proficiency Check and Update Displays        *************
+//*****************************************************************************
+
+/**
+ * Given a name, returns whether localStorage has a
+ * record of the current user being proficient
+ */
+function getCachedProf(name, username) {
+  username = (isDefined(username)) ? username : getUsername();
+
+  // Check for proficiency status in localStorage
+  if (inLocalStorage("proficiency_data")) {
+    var profData = getJSON(localStorage.proficiency_data);
+    username = (isDefined(username)) ? username : getUsername();
+
+    // Check whether user has proficiency data and if the specified exercise is listed
+    if (profData[username] && profData[username][name]) {
+      return profData[username][name];
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Stores the user's proficiency status with the specified exercise in localStorage
+ */
+function storeProficiencyStatus(name, status, username) {
+  if (debugMode) {
+    console.group('storeProficiencyStatus(' + name + ', ' + status + ', ' + username + ')');
+  }
+
+  status = (typeof status !== "undefined") ? status : Status.STORED;  // false is a valid status
+  username = (isDefined(username)) ? username : getUsername();
+
+  var profData = getJSON(localStorage.proficiency_data),
+      data = {'status': status};
+
+  // Adds the number of points an exercise is worth (if applicable)
+  if (exercises[name] && exercises[name].points) {
+    data.points = exercises[name].points;
+  }
+
+  if (debugMode) {
+    console.debug('storeProficiencyStatus(' + name + ', ' + status + ', ' + username + ')');
+    console.debug('profData (unmodified):');
+    console.debug(JSON.stringify(profData));
+    console.debug('data:');
+    console.debug(JSON.stringify(data));
+  }
+
+  // Check whether user has an entry
+  if (!profData[username]) {
+    if (debugMode) {
+      console.debug('Creating new proficiency_data entry for ' + ((username) ? username : 'the anonymous user'));
+    }
+    // Add a new entry for the user
+    profData[username] = {};
+  }
+
+  if (status) {
+    // User is proficient, store the data in local proficiency cache
+    profData[username][name] = data;
+  } else if (profData[username][name]) {
+    // User is not proficient, remove any data from the local proficiency cache
+    delete profData[username][name];
+  }
+
+  localStorage.proficiency_data = JSON.stringify(profData);
+
+  if (debugMode) {
+    console.debug('profData (modified):');
+    console.debug(JSON.stringify(profData));
+    console.groupEnd();
+  }
+}
+
+/**
+ * Update the proficiency indicator(s) for the specified exercise or module based on the local proficiency cache
+ *  - If 'name' is not provided, will default to moduleName
+ */
+function updateProfDisplay(name) {
+  name = (isDefined(name)) ? name : moduleName;
+
+  if (debugMode) {
+    console.group('updateProfDisplay(' + name + ')');
+  }
+
+  var username = getUsername(),
+      data = getCachedProf(name),
+      status = (data) ? data.status : false;
+
+  if (exercises[name]) {  // name refers to an exercise
+    if (debugMode) {
+      console.debug('Updating exercise proficiency');
+    }
+
+    var savingMsg = $('#' + name + '_cm_saving_msg'),
+        errorMsg = $('#' + name + '_cm_error_msg'),
+        check = $('#' + name + '_check_mark');
+
+    // Handle proficiency check mark, if it exists
+    if (check.length > 0) {
+      // Hide check mark and messages
+      check.hide();
+      savingMsg.hide();
+      errorMsg.hide();
+
+      if (status === Status.SUBMITTED) {
+        // Display the proficiency check mark and saving message
+        check.show();
+        savingMsg.show();
+      } else if (status === Status.ERROR) {
+        // Display the proficiency check mark and error message
+        check.show();
+        errorMsg.show();
+      } else if (status === Status.STORED) {
+        // Display the proficiency check mark
+        check.show();
+      }
+    }
+
+    // Handle showHide button proficiency indicator, if it exists
+    var btn = $('#' + name + '_showhide_btn');
+
+    // Change AV showhide button to red or green to indicate proficiency, if it exists
+    if (btn.length > 0) {
+      savingMsg = $('#' + name + '_shb_saving_msg');
+      errorMsg = $('#' + name + '_shb_error_msg');
+
+      // Hide both saving and error messages
+      savingMsg.hide();
+      errorMsg.hide();
+
+      if (status === Status.SUBMITTED) {
+        // Turn the button yellow
+        btn.css("background-color", "#FFFF00");
+        savingMsg.show();
+      } else if (status === Status.ERROR) {
+        // Turn the button yellow
+        btn.css("background-color", "#FFFF00");
+        errorMsg.show();
+      } else if (status === Status.STORED) {
+        // Turn the button green
+        btn.css("background-color", "lime");
+      } else {
+        // Turn the button red
+        btn.css("background-color", "#FF0000");
+      }
+    }
+  } else {  // name refers to a module
+    if (debugMode) {
+      console.debug('Updating module proficiency');
+    }
+
+    // Show or hide the 'Module Complete' message on a module page
+    var modCompMsgID = '#' + name + '_complete';
+
+    if ($(modCompMsgID).length > 0) {
+      if (status === Status.SUBMITTED || status === Status.ERROR) {
+        $(modCompMsgID).show();
+        $(modCompMsgID).css('color', '#FFFF00'); // TODO: yellow may be too light
+      } else if (status === Status.STORED) {
+        $(modCompMsgID).show();
+        $(modCompMsgID).css('color', 'lime');
+      } else {
+        $(modCompMsgID).hide();
+      }
+    }
+
+    // Show or hide the check mark next to a module on the index page
+    if ($('li.toctree-l1 > a.reference.internal[href="' + name + '.html"]').length > 0) {
+      var listStyleImage = (status === Status.STORED) ? 'url(_static/Images/small_check_mark_green.gif)' : '';
+
+      // Update the style image
+      $('li.toctree-l1 > a.reference.internal[href="' + name + '.html"]').parent().css('list-style-image', listStyleImage);
+    }
+  }
+
+  if (debugMode) {
+    console.debug('returning: ' + status);
+    console.groupEnd();
+  }
+
+  return status;
+}
+
+/**
+ * Queries the server for the user's proficiency on an exercise or module
+ */
+function checkProficiency(name, username) {
+  name = (name) ? name : moduleName;
+  username = (isDefined(username)) ? username : getUsername();
+
+  if (debugMode) {
+    console.group('checkProficiency(' + name + ', ' + username + ')');
+  }
+
+  // Clear the proficiency display if the current user is not listed as proficient
+  var status = updateProfDisplay(name);
+
+  // If user's proficiency is already stored in local proficiency cache, don't need to verify with the server
+  if (status === Status.STORED) {
+    if (debugMode) {
+      console.debug('Cached status: ' + status);
+      console.groupEnd();
+    }
+
+    return;
+  }
+
+  if (serverEnabled() && userLoggedIn()) {
+    // Request proficiency status from the server
+    var jsonData = {key: getSessionKey()},
+        url;
+
+    if (exercises[name]) {
+      if (debugMode) {
+        console.debug('Querying server for exercise proficiency for ' + username);
+      }
+
+      jsonData.exercise = name;
+      url = '/api/v1/userdata/isproficient/';
+    } else {
+      if (debugMode) {
+        console.debug('Querying server for module proficiency for ' + username);
+      }
+
+      jsonData.module = name;
+      url = '/api/v1/usermodule/ismoduleproficient/';
+    }
+
+    jQuery.ajax({
+      url:  server_url + url,
+      type: "POST",
+      data: jsonData,
+      contentType: "application/json; charset=utf-8",
+      datatype: "json",
+      xhrFields: {withCredentials: true},
+      success: function (data) {
+        data = getJSON(data);
+
+        if (debugMode) {
+          console.group('Server response, checkProficiency(' + name + ', ' + username + ')');
+          console.debug(JSON.stringify(data));
+        }
+
+        // Proficiency indicators were cleared above, only need to
+        // update them again if server responded that the user is proficient
+        if (data.proficient) {
+          storeStatusAndUpdateDisplays(name, Status.STORED, username);
+        }
+
+        if (debugMode) {
+          console.groupEnd();
+        }
+      },
+      error: function (data) {
+        data = getJSON(data);
+
+        if (data.status === 401) {
+          handleExpiredSession(jsonData.key);
+        } else if (data.status === 404) {
+          console.warn(name + ' does not exist in the database');
+        } else {
+          console.group('Error: checkProficiency(' + name + ', ' + username + ')');
+          console.debug("Error checking proficiency: " + name);
+          console.debug(JSON.stringify(data));
+          console.groupEnd();
+        }
+      }
+    });
+  } else if (name === moduleName) {  // Determine whether the anonymous user is proficient with the current module
+    if (debugMode) {
+      console.debug('Determining (client-side) module proficiency for anonymous user');
+    }
+
+    // Can't use this technique from the index page to determine the proficiency of other module pages because there are no exercises on the index page which will cause all modules to be listed as proficient
+
+    // Allow the client to determine module proficiency for anonymous users
+    status = Status.STORED;
+    var exerData;
+
+    // Check whether local proficiency cache lists all exercises required for module proficiency as completed
+    for (var exerName in exercises) {
+      if (exercises.hasOwnProperty(exerName) && exercises[exerName].required) {
+        exerData = getCachedProf(exerName);
+
+        if (!exerData) {
+          // User is not proficient with a required exercise and therefore cannot be proficient with the module
+          if (debugMode) {
+            console.debug(exerName + ': false');
+          }
+
+          status = false;
+          break;
+        } else if (exerData.status && exerData.status !== Status.STORED) {
+          status = exerData.status;
+        }
+
+        if (debugMode) {
+          console.debug(exerName + ': ' + exerData.status);
+        }
+      }
+    }
+
+    // If status is SUBMITTED or STORED, store the proficiency status for the module
+    if (status) {
+      storeStatusAndUpdateDisplays(name, status, username);
+    } else if (debugMode) {
+      console.debug(name + ': false');
+    }
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
+/**
+ * Cache's the user's proficiency status and updates proficiency displays as necessary
+ */
+function storeStatusAndUpdateDisplays(name, status, username) {
+  username = (isDefined(username)) ? username : getUsername();
+
+  if (debugMode) {
+    console.group('storeStatusAndUpdateDisplays(' + name + ' , ' + status + ', ' + username + ')');
+  }
+
+  storeProficiencyStatus(name, status, username);
+  updateProfDisplay(name);
+
+  // If a user is not logged in, check module proficiency if the status is anything other than 'false'
+  // (module proficiency as determined locally has multiple states, unlike when the user is logged in)
+  // If the user is logged in, only check module proficiency is the status is STORED (reduce network traffic)
+  if (exercises[name] && ((!userLoggedIn() && status) || (userLoggedIn() && status === Status.STORED))) {
+    checkProficiency(moduleName);
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
+/**
+ * Queries getgrade endpoint to obtain proficiency status for all exercises and modules
+ * Used on the index page to concisely determine with which modules the user is proficient
+ */
+function syncProficiency() {
+  if (serverEnabled() && userLoggedIn()) {
+    var username = getUsername(),
+        key = getSessionKey();
+
+    // get user points
+    jQuery.ajax({
+      url:   server_url + "/api/v1/userdata/getgrade/",
+      type:  "POST",
+      data: {"key": key, "book": bookName},
+      contentType: "application/json; charset=utf-8",
+      datatype: "json",
+      xhrFields: {withCredentials: true},
+      success: function (data) {
+        data = getJSON(data);
+
+        if (debugMode) {
+          console.group('Server response, syncProficiency()');
+          console.debug(JSON.stringify(data));
+        }
+
+        if (data.grades && data.modules) {
+          // Update local proficiency cache
+          var i,
+              exer,
+              mod,
+              profData;
+
+          // Exercises
+          for (i = 0; i < data.grades.length; i++) {
+            exer = data.grades[i];
+
+            if (exer.points > 0) {
+              storeProficiencyStatus(exer.exercise, Status.STORED, username);
+
+              // Store the points as well
+              profData = getJSON(localStorage.proficiency_data);
+              profData[username][exer.exercise].points = exer.points;
+              localStorage.proficiency_data = JSON.stringify(profData);
+            } else {
+              storeProficiencyStatus(exer.exercise, false, username);
+            }
+
+            updateProfDisplay(exer.exercise);
+          }
+
+          // Modules
+          for (i = 0; i < data.modules.length; i++) {
+            mod = data.modules[i];
+            storeProficiencyStatus(mod.module, (mod.proficient) ? Status.STORED : false, username);
+            updateProfDisplay(mod.module);
+          }
+
+          if (debugMode) {
+            console.debug('profData:');
+            console.debug(JSON.stringify(profData));
+          }
+        }
+
+        if (debugMode) {
+          console.groupEnd();
+        }
+      },
+      error: function (data) {
+        data = getJSON(data);
+
+        if (data.status === 401) {
+          handleExpiredSession(key);
+        } else {
+          console.debug("Error getting user's points");
+          console.debug(JSON.stringify(data));
+        }
+      }
+    });
+  }
+}
+
+/**
+ * Sends all the data necessary to load a module to the server
+ */
+function loadModule(modName) {
+  modName = (isDefined(modName)) ? modName : moduleName;
+
+  if (debugMode) {
+    console.group('loadModule(' + modName + ')');
+  }
+
+
+  // Trigger loading the gradebook
+  if (modName === "Gradebook") {
+    $("body").trigger("gradebook-load");
+  }
+
+  var exerName;
+
+  if (serverEnabled() && userLoggedIn()) {
+    // Sends all the data necessary to load a module to the server
+    // All modules must be loaded this way to ensure event data will be logged successfully
+
+    if (modName === 'index') {
+      // Query the server for user proficiency data, update local storage and proficiency indicators
+      syncProficiency();
+    }
+
+    if (debugMode) {
+      console.debug('Querying server for module data');
+    }
+
+    var username = getUsername(),
+        modData = {},
+        exerData = {},
+        exerList = [];
+
+    // Package exercises into a list so it can be stringified
+    for (exerName in exercises) {
+      if (exercises.hasOwnProperty(exerName)) {
+        // Update proficiency displays based on localStorage to make the page
+        // more responsive (don't have to wait until the server responds to see your proficiency)
+        updateProfDisplay(exerName);
+
+        // Make a deep copy of the 'exercises' object, so we can add the
+        // exercise name and remove uiid without affecting 'exercises'
+        exerData = $.extend(true, {}, exercises[exerName]);
+        exerData.exercise = exerName;
+        delete exerData.uiid;
+        exerList.push(exerData);
+      }
+    }
+
+    // Package the module data
+    modData.key = getSessionKey();
+    modData.book = bookName;
+    // Calculate the URL of the book, relative to the current module page
+    modData.url = location.href.substring(0, location.href.lastIndexOf('/') + 1);
+    modData.module = modName;
+    // Hack to parse the long form module name from the module page title
+    // TODO: Create a more reliable way to get this information
+    if (modName === 'index') {
+      modData.name = 'Contents';
+    } else {
+      modData.name = document.title.slice(document.title.indexOf(' ') + 1, document.title.indexOf('\u2014') - 1);
+    }
+    modData.exercises = JSON.stringify(exerList);
+
+    if (debugMode) {
+      console.debug('Sending modData:');
+      console.debug(JSON.stringify(modData));
+    }
+
+    jQuery.ajax({
+      url:  server_url + "/api/v1/module/loadmodule/",
+      type: "POST",
+      data: modData,
+      contentType: "application/json; charset=utf-8",
+      datatype: "json",
+      xhrFields: {withCredentials: true},
+      success: function (data) {
+        data = getJSON(data);
+
+        if (debugMode) {
+          console.group('Server response, loadModule(' + modName + ', ' + username + ')');
+          console.debug(JSON.stringify(data));
+        }
+
+        // Loop through all the exercises listed in the server's response and update the user's status for each exercise
+        for (var exerName in data) {
+          if (data.hasOwnProperty(exerName)) {
+            // Update the user's status for the exercise
+            // Since the server is the ultimate authority for logged in users,
+            // if the user's proficiency comes back as false, it will remove
+            // their local proficiency to keep the client in sync with the server
+            if (exercises[exerName]) {  // Exercise proficiency
+              storeProficiencyStatus(exerName, (data[exerName].proficient) ? Status.STORED : false, username);
+              updateProfDisplay(exerName);
+
+              // Store the user's progress for Khan Academy exercises
+              if (exercises[exerName].type === 'ka' && isDefined(data[exerName].progress)) {
+                exercises[exerName].progress = data[exerName].progress;
+
+                // Load any existing data
+                exerData = getJSON(localStorage.khan_exercise);
+                exerData[exerName] = exercises[exerName].progress;
+                localStorage.khan_exercise = JSON.stringify(exerData);
+
+                /*
+                // TODO: get the correct function to trigger
+                // Trigger progress bar update on KA exercise page, if its loaded
+                if ($('#' + exerName + '_iframe')) {
+                document.getElementById(exerName + '_iframe').contentWindow.updateProgressBar();
+                }
+                */
+              }
+            } else {  // Module proficiency
+              storeProficiencyStatus(exerName, (data[exerName]) ? Status.STORED : false, username);
+              updateProfDisplay(exerName);
+            }
+          }
+        }
+
+        if (debugMode) {
+          console.groupEnd();
+        }
+      },
+      error: function (data) {
+        data = getJSON(data);
+        console.group("Error loading module: " + modName);
+        console.debug(JSON.stringify(data));
+        console.groupEnd();
+
+        if (data.status === 401) {
+          handleExpiredSession(modData.key);
+        }
+      }
+    });
+  } else if (modName === 'index') {
+    // Get every module page link on the index page and determine if the user is proficient
+    $('li.toctree-l1 > a.reference.internal').each(function (index, item) {
+      if ($(item).attr('href').endsWith('.html')) {
+        modName = getNameFromURL($(item).attr('href'));
+        
+        if (modName !== 'Gradebook') {
+          // Update the proficiency indicators based on what is currently in local storage
+          updateProfDisplay(modName);
+        }
+      }
+    });
+  } else { // Load anonymous user data from localStorage
+    if (debugMode) {
+      console.debug('Load anonymous user data from localStorage');
+    }
+
+    // Update exercise proficiency displays to reflect the proficiency of the current user
+    for (exerName in exercises) {
+      if (exercises.hasOwnProperty(exerName)) {
+        updateProfDisplay(exerName);
+
+        // Update Khan Academy exercise progress bar
+        /*
+        if (exercises[exerName].type === 'ka') {
+
+        }
+        */
+      }
+    }
+
+    // Check for module proficiency
+    checkProficiency(moduleName);
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
+
+
+
+//*****************************************************************************
+//***********                    Scoring System                     ***********
+//*****************************************************************************
+
+/**
+ * Adds the specified score data to the user's list
+ *   - newScoreData - the score data to store
+ *   - username (optional) - the user to whom the score belongs
+ */
+function storeScoreData(newScoreData, username) {
+  username = (username) ? username : getUsername();
+
+  if (allowAnonCredit || username !== '') {
+    if (debugMode) {
+      console.group('storeScoreData(' + JSON.stringify(newScoreData) + ', ' + ((username) ? username : 'the anonymous user') + ')');
+    }
+
+    if (serverEnabled()) {
+      // Load stored score_data if it exists
+      var scoreData = getJSON(localStorage.score_data);
+
+      if (debugMode) {
+        console.debug('Storing exercise score for ' + ((username) ? username : 'the anonymous user'));
+        console.debug('scoreData (unmodified):');
+        console.debug(JSON.stringify(scoreData));
+      }
+
+      if (!scoreData) {
+        scoreData = {};
+      }
+
+      // If user does not have an entry in score data, create one
+      if (!scoreData[username]) {
+        if (debugMode) {
+          console.debug('Creating a new score_data entry for ' + ((username) ? username : 'the anonymous user'));
+        }
+
+        scoreData[username] = [];
+      }
+
+      scoreData[username].push(newScoreData);
+      localStorage.score_data = JSON.stringify(scoreData);
+
+      if (debugMode) {
+        console.debug('scoreData (modified):');
+        console.debug(JSON.stringify(scoreData));
+      }
+    }
+
+    if (debugMode) {
+      console.groupEnd();
+    }
+  }
+}
+
+/**
+ * Assigns the anonymous score data to the given user
+ */
+function assignAnonScoreData(username) {
+  if (allowAnonCredit) {
+    username = (isDefined(username)) ? username : getUsername();
+
+    // Return is specified user is the anonymous user
+    if (!username) {
+      return;
+    }
+
+    if (debugMode) {
+      console.group('assignAnonScoreData(' + username + ')');
+    }
+
+    // Load score data
+    var scoreData = getJSON(localStorage.score_data);
+
+    // Create a deep copy of anonymous user's data so that the original can be
+    // cleared and saved immediately to prevent accidentally overwriting data
+    var anonData = $.extend(true, [], scoreData['']);
+
+    if (debugMode) {
+      console.debug('scoreData (unmodified):');
+      console.debug(JSON.stringify(scoreData));
+    }
+
+    // Clear list of anonymous user's score objects
+    scoreData[''] = [];
+    localStorage.score_data = JSON.stringify(scoreData);
+
+    var validDate = new Date();
+    validDate.setDate(validDate.getDate() - 5);
+
+    // Associate each score object with the given user, if the
+    // exercise was completed within the last 5 days
+    for (var i = 0; i < anonData.length; i++) {
+      if (anonData[i].submit_time > +validDate) {
+        storeScoreData(anonData[i], username);
+      }
+    }
+
+    if (debugMode) {
+      console.debug('scoreData (modified):');
+      console.debug(JSON.stringify(scoreData));
+      console.groupEnd();
+    }
+  }
+}
+
+/**
+ * Stores the user's score for an AV / exercise
+ */
+function storeExerciseScore(exerName, score, username) {
+  // TODO: Fix the localStorage concurrency problem
+  username = (isDefined(username)) ? username : getUsername();
+
+  if (debugMode) {
+    console.group('storeExerciseScore(' + exerName + ', ' + score + ', ' + username + ')');
+  }
+
+  // Return if exerName is not a valid exercise
+  if (!exercises[exerName]) {
+    console.warn('storeExerciseScore(' + exerName + ', ' + score + ', ' + username + '): invalid reference ' + exerName);
+
+    if (debugMode) {
+      console.groupEnd();
+    }
+
+    return;
+  }
+
+  if (serverEnabled() && (allowAnonCredit || userLoggedIn())) {
+    var data = {};
+    data.exercise = exerName;
+    data.submit_time = (new Date()).getTime();
+    data.module = moduleName;
+    data.score = score;
+    data.total_time = 0;  // TODO: Figure out how to record total time
+    data.uiid = exercises[exerName].uiid;
+
+    if (debugMode) {
+      console.debug('Storing exercise score for ' + ((username) ? username : 'the anonymous user'));
+      console.debug('data:');
+      console.debug(JSON.stringify(data));
+    }
+
+    // Save the score data in localStorage
+    storeScoreData(data, username);
+  }
+
+  // If the score is above the threshold and the server isn't enabled or it
+  // is and no one is logged in, award proficiency to the anonymous user
+  if (score >= exercises[exerName].threshold && (!serverEnabled() || !userLoggedIn())) {
+    if (debugMode) {
+      console.debug('Award anonymous user proficiency');
+    }
+
+    storeStatusAndUpdateDisplays(exerName, Status.STORED, username);
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
+/**
+ * Sends the score for a single exercise
+ */
+function sendExerciseScore(exerData, username, sessionKey) {
+  if (debugMode) {
+    console.group('sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ')');
+    console.debug(JSON.stringify(exerData));
+  }
+
+  if (serverEnabled()) {
+    // Issue a warning if called without exercise data
+    if (!exerData) {
+      console.warn('Invalid exercise data: ' + JSON.stringify(exerData));
+      if (debugMode) {
+        console.groupEnd();
+      }
+      return;
+    }
+
+    sessionKey = (sessionKey) ? sessionKey : getSessionKey();
+    username = (isDefined(username)) ? username : getUsername();
+
+    if (debugMode) {
+      console.debug('sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ')');
+    }
+
+    if (!username) {
+      // If a user performs an action that submits an AV score,
+      // but they are not logged in, warn them they will not
+      // receive credit without logging in
+      warnUserLogin();
+
+      if (debugMode) {
+        console.debug('No user is logged in');
+        console.groupEnd();
+      }
+      return;
+    }
+
+    // Determine if the user is already proficient
+    var profData = getCachedProf(exerData.exercise, username),
+        profStored = false;
+
+    // If user's proficiency is already confirmed by the server, don't confuse them by changing the status
+    if (profData && profData.status === Status.STORED) {
+      profStored = true;
+    } else {
+      // Update exercise status to SUBMITTED
+      storeStatusAndUpdateDisplays(exerData.exercise, Status.SUBMITTED, username);
+    }
+
+    // Append the session key to the exercise data
+    exerData.key = sessionKey;
+
+    if (debugMode) {
+      console.debug('Sending exerData:');
+      console.debug(JSON.stringify(exerData));
+    }
+
+    // Submit the user's score
+    jQuery.ajax({
+      url:   server_url + "/api/v1/user/exercise/attemptpe/",
+      type:  "POST",
+      data: exerData,
+      contentType: "application/json; charset=utf-8",
+      datatype: "json",
+      xhrFields: {withCredentials: true},
+      success: function (data) {
+        data = getJSON(data);
+
+        if (debugMode) {
+          console.group('Server response, sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ')');
+          console.debug(JSON.stringify(data));
+        }
+
+        // Clear the saved data once it has been successfully transmitted
+        if (data.success) {
+          // Check whether the user is proficient
+          if (data.proficient) {
+            // If the status is already STORED, don't need to change it
+            if (!profStored) {
+              storeStatusAndUpdateDisplays(exerData.exercise, Status.STORED, username);
+            }
+          } else {
+            // If server successfully replies, but user's proficiency is not verified, revoke their proficiency on the client (to keep everything in sync)
+            storeStatusAndUpdateDisplays(exerData.exercise, false, username);
+          }
+        } else if (!profStored) {  // TODO: In some cases, we want to put the score data back into the buffer such as if a user logged in on another computer and their other session went inactive
+          // If server replies as unsuccessful, stored status as ERROR
+          storeStatusAndUpdateDisplays(exerData.exercise, Status.ERROR, username);
+        }
+
+        if (debugMode) {
+          console.groupEnd();
+        }
+      },
+      error: function (data) {
+        data = getJSON(data);
+
+        if (debugMode) {
+          console.group('Error: sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ')');
+          console.debug(JSON.stringify(data));
+        }
+
+        // If user's proficiency is already confirmed by the server, don't confuse them by changing the status
+        if (!profStored) {
+          // Mark the exercise as having encountered a server error
+          storeStatusAndUpdateDisplays(exerData.exercise, Status.ERROR, username);
+        }
+
+        if (data.status === 400) {    // Bad request
+          console.debug("Score rejected by server: " + exerData.exercise + " for " + username);
+          console.debug(JSON.stringify(data));
+        } else {
+          // Failed to send the score data which has already been
+          // removed from the buffer, so save it back to the buffer
+          var key = exerData.key;
+          delete exerData.key;
+          storeScoreData(exerData, username);
+
+          if (data.status === 401) {
+            handleExpiredSession(key);
+          } else if (data.status === 404) {
+            console.warn('Exercise does not exist in the database');
+          } else {
+            console.debug("Error sending exercise score: " + exerData.exercise + " for " + username);
+            console.debug(JSON.stringify(data));
+          }
+        }
+
+        if (debugMode) {
+          console.groupEnd();
+        }
+      }
+    });
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
+/**
+ * Loops through and sends all buffered exercise scores for the given user
+ */
+function sendExerciseScores(username, sessionKey) {
+  if (debugMode) {
+    console.group('sendExerciseScores(' + username + ', ' + sessionKey + ')');
+  }
+
+  // User must have a valid session in order to send scores
+  // This provides integrity by preventing users submitting
+  // scores for someone else and allows us to determine who
+  // the scores belong to because the username is derived from the session
+  if (serverEnabled() && userLoggedIn() && inLocalStorage("score_data")) {
+    username = (isDefined(username)) ? username : getUsername();
+    sessionKey = (sessionKey) ? sessionKey : getSessionKey();
+
+    // Load buffered score data
+    var scoreData = getJSON(localStorage.score_data);
+
+    // Create a deep copy of user's score data so the original can be
+    // cleared and saved to prevent accidentally overwriting data
+    var userData = $.extend(true, [], scoreData[username]);
+
+    if (debugMode) {
+      console.debug('sendExerciseScores(' + username + ', ' + sessionKey + ')');
+      console.debug('scoreData:');
+      console.debug(JSON.stringify(scoreData));
+      console.debug('userData:');
+      console.debug(JSON.stringify(userData));
+    }
+
+    scoreData[username] = [];
+    localStorage.score_data = JSON.stringify(scoreData);
+
+    // Send score data for the specified user
+    for (var i = 0; i < userData.length; i++) {
+      sendExerciseScore(userData[i], username, sessionKey);
+    }
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
+/**
+ * Sends all stored event and AV score data to the server
+ */
+function flushStoredData() {
+  if (debugMode) {
+    console.group('flushStoredData()');
+  }
+
+  if (serverEnabled()) {
+    sendExerciseScores();
+    sendEventData();
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
+/**
+ * Handle data from events generated on the module page or received from embedded pages
+ */
+function processEventData(data) {
+  if (debugMode) {
+    console.group('processEventData(data)');
+    console.debug(JSON.stringify(data));
+  }
+
+  var flush = false,
+      discardEvents = ["jsav-init", "jsav-recorded", "jsav-exercise-model-init", "jsav-exercise-model-recorded"],
+      ssEvents = ['jsav-forward', 'jsav-backward', 'jsav-begin', 'jsav-end', 'jsav-exercise-model-forward', 'jsav-exercise-model-backward', 'jsav-exercise-model-begin', 'jsav-exercise-model-end'];
+
+  // Filter out events we aren't interested in
+  if (discardEvents.indexOf(data.type) > -1) {
+    return;
+  }
+
+  // Overwrite the av attribute with the correct value
+  data.av = data.av.replace('_avc', '');
+
+  // Initialize uiid if it doesn't exist
+  if (!data.uiid) {
+    if (exercises[data.av]) {
+      // If the event belongs to an exercise, use the exercises uiid
+      data.uiid = exercises[data.av].uiid;
+    } else {
+      // If the event doesn't belong to an exercise, use the uiid of the page
+      data.uiid = uiid;
+    }
+  }
+
+  // If data.desc doesn't exist or is empty, initialize it
+  if (!data.desc || data.desc === '') {
+    data.desc = data.type;
+  }
+
+  var score,
+      complete;
+
+  // TODO: Make sure all additional fields of JSAV events are logged somewhere
+  if (ssEvents.indexOf(data.type) > -1) {
+    data.desc = data.currentStep + " / " + data.totalSteps;
+
+    // User reached the end of a slideshow, award them credit
+    if (data.type === "jsav-forward" && data.currentStep === data.totalSteps) {
+      storeExerciseScore(data.av, 1);
+      updateProfDisplay(data.av);
+      flush = true;
+    }
+  } else if (data.type === "jsav-array-click") {
+    data.desc = JSON.stringify({'index': data.index, 'arrayid': data.arrayid});
+  } else if (data.type === "jsav-exercise-grade-change") {
+    // On grade change events, log the user's score and submit it
+    score = roundPercent((data.score.student - data.score.fix) / data.score.total);
+    complete = roundPercent((data.score.student + data.score.fix) / data.score.total);
+    data.desc = JSON.stringify({'score': score, 'complete': complete});
+    
+    // Store the user's score when they complete the exercise
+    if (complete === 1) {
+      storeExerciseScore(data.av, score);
+      updateProfDisplay(data.av);
+      flush = true;
+    }
+  } else if (data.type === "odsa-award-credit") {
+    // Store completion credit
+    storeExerciseScore(data.av, 1);
+    updateProfDisplay(data.av);
+    flush = true;
+  }
+
+  if (serverEnabled()) {
+    // Save the event in localStorage
+    if (!data.logged) {
+      delete data.logged;  // In case it explicitly says 'false'
+      logEvent(data);
+    }
+
+    if (flush) {
+      flushStoredData();
+    }
+  }
+
+  if (debugMode) {
+    console.groupEnd();
+  }
+}
+
 
 //*****************************************************************************
 //*************           LOGIN AND REGISTRATION BOXES            *************
 //*****************************************************************************
-
 
 /**
  * Opens the registration window
  */
 function showRegistrationBox() {
   if (serverEnabled()) {
-    logUserAction('', 'registration-box-open', 'registration box was opened');
+    logUserAction('registration-box-open', 'registration box was opened');
 
     var server_regist_url = server_url + "/accounts/register/",
         registrationBox = '#registration-box',
-        regBoxWidth = 300,
+        regBoxWidth = $(registrationBox).width(),
         left = ($(window).width() / 2) - (regBoxWidth / 2),
         registration_page = '<center><iframe id="registration_iframe" src="' + server_regist_url + '" type="text/javascript" width="' + regBoxWidth + '" height="510" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe></center>';
 
@@ -138,7 +1253,7 @@ function showRegistrationBox() {
  * Opens the login window
  */
 function showLoginBox() {
-  logUserAction('', 'login-box-open', 'Login box was opened');
+  logUserAction('login-box-open', 'Login box was opened');
 
   var loginBox = '#login-box',
       username = localStorage.name,
@@ -162,6 +1277,9 @@ function showLoginBox() {
   // Add the mask to body
   $('body').append('<div id="mask"></div>');
   $('#mask').fadeIn(300);
+
+  // Set the focus to the username box
+  $('#username').focus();
 }
 
 /**
@@ -175,7 +1293,11 @@ function isPopupBoxShowing() {
  * Closes the login or registration window
  */
 function hidePopupBox() {
-  logUserAction('', 'login/registration-box-close', 'Login/Registration box was closed');
+  if ($('#login-box').is(':visible')) {
+    logUserAction('login-box-close', 'Login box was closed');
+  } else if ($('#registration-box').is(':visible')) {
+    logUserAction('registration-box-close', 'Registration box was closed');
+  }
 
   $('#mask , .login-popup, .registration-popup').fadeOut(300, function () {
     $('#mask').remove();
@@ -183,270 +1305,24 @@ function hidePopupBox() {
   return false;
 }
 
-//*****************************************************************************
-//*************      Proficiency Check and Update Displays        *************
-//*****************************************************************************
-
 /**
- * If true, shows the module complete message, otherwise hides it
+ * Warn the user they will not receive credit unless they log in,
+ * but only:
+ *   - If a login server is enabled
+ *   - They are on a module page
+ *   - They have not been prompted before
  */
-function updateModuleProfDisplay(modName, status) {
-  // Show or hide the 'Module Complete' message on a module page
-  var modCompMsgID = '#' + modName + '_complete';
-
-  if ($(modCompMsgID).length > 0) {
-    if (status) {
-      $(modCompMsgID).show();
-    } else {
-      $(modCompMsgID).hide();
-    }
-  }
-
-  // Show or hide the check mark next to a module on the index page
-  if ($('li.toctree-l1 > a.reference.internal[href="' + modName + '.html"]').length > 0) {
-    var listStyleImage = '';
-
-    if (status) {
-      listStyleImage = 'url(_static/Images/small_check_mark_green.gif)';
-    }
-
-    // Update the style image
-    $('li.toctree-l1 > a.reference.internal[href="' + modName + '.html"]').parent().css('list-style-image', listStyleImage);
-  }
-}
-
-/**
- * Given a name, returns whether localStorage has a
- * record of the current user being proficient
- */
-function checkProfLocalStorage(name) {
-  // Check for proficiency status in localStorage
-  if (inLocalStorage("proficiency_data")) {
-    var username = getUsername(),
-        profData = getJSON(localStorage.proficiency_data);
-
-    // Check whether user has an entry
-    if (profData[username]) {
-      var profList = profData[username];
-
-      // Check to see if the item exists in the user's proficiency list
-      if (profList.indexOf(name) > -1) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-/**
- * Queries the server for the user's proficiency on an exercise
- */
-function checkExerProficiency(exerName) {
-  var profStatus = checkProfLocalStorage(exerName);
-
-  // Clear the proficiency display if the current user is not listed as proficient
-  updateExerProfDisplays(exerName, profStatus);
-
-  if (profStatus) {
-    return;
-  }
-
-  // Check server for proficiency status
-  if (serverEnabled() && userLoggedIn()) {
-    // Check proficiency of an exercise
-    jQuery.ajax({
-      url:   server_url + "/api/v1/userdata/isproficient/",
-      type:  "POST",
-      data: {"username": getUsername(), "exercise": exerName },
-      contentType: "application/json; charset=utf-8",
-      datatype: "json",
-      xhrFields: {withCredentials: true},
-      success: function (data) {
-        data = getJSON(data);
-
-        // Proficiency indicators were cleared above, only need to
-        // update them again if server responded that the user is proficient
-        if (data.proficient) {
-          updateExerProfDisplays(exerName, true);
-        }
-      },
-      error: function (data) {
-        data = getJSON(data);
-        console.error("Error checking for exercise proficiency: " + exerName);
-        console.error(data);
-      }
-    });
-  }
-}
-
-/**
- * Queries the server for the user's proficiency on an exercise or module
- */
-function checkModuleProficiency(modName) {
-  modName = (modName) ? modName : moduleName;
-  var profStatus = checkProfLocalStorage(modName);
-
-  // Clear the proficiency display if the current user is not listed as proficient
-  updateModuleProfDisplay(modName, profStatus);
-
-  if (profStatus) {
-    return;
-  }
-
-  // Check server for proficiency status
-  if (serverEnabled() && userLoggedIn()) {
-    // Check proficiency of the module
-    jQuery.ajax({
-      url:   server_url + "/api/v1/usermodule/ismoduleproficient/",
-      type:  "POST",
-      data: {"username": getUsername(), "module": modName },
-      contentType: "application/json; charset=utf-8",
-      datatype: "json",
-      xhrFields: {withCredentials: true},
-      success: function (data) {
-        data = getJSON(data);
-
-        if (data.proficient) {
-          storeProficiencyStatus(modName);
-          updateModuleProfDisplay(modName, true);
-        }
-      },
-      error: function (data) {
-        data = getJSON(data);
-        
-        console.error("Error checking module proficiency: " + modName);
-        console.error(data);
-      }
-    });
-  }
-}
-
-/**
- * Queries the server for the progress of a KA exercise
- * and writes it to localStorage
- */
-function storeKAExerProgress(exerName) {
-  jQuery.ajax({
-    url:   server_url + "/api/v1/user/exercise/getprogress/",
-    type:  "POST",
-    data: {"username": getUsername(), "exercise": exerName },
-    contentType: "application/json; charset=utf-8",
-    datatype: "json",
-    xhrFields: {withCredentials: true},
-    success: function (data) {
-      data = getJSON(data);
-
-      // Get the progress from the response
-      if (data.progress) {
-        var exerData = {};
-
-        // Load any existing data
-        if (inLocalStorage('khan_exercise')) {
-          exerData = getJSON(localStorage.khan_exercise);
-        }
-
-        exerData[exerName] = data.progress;
-        localStorage.khan_exercise = JSON.stringify(exerData);
-
-        /*
-        // TODO: get the correct function to trigger
-        // Trigger progress bar update on KA exercise page, if its loaded
-        if ($('#' + exerName + '_iframe')) {
-          document.getElementById(exerName + '_iframe').contentWindow.updateProgressBar();
-        }
-        */
-      }
-    },
-    error: function (data) {
-      data = getJSON(data);
-      
-      console.error("Error getting KA exercise progress: " + exerName);
-      console.error(data);
-    }
-  });
-}
-
-/**
- * Populates the grade table on the student page
- */
-function gradeDisplays(data) {
-  // Create the table header
-  var i = 0,
-      total = 0,
-      type,
-      max,
-      points,
-      row = '<tr class="header">';
-
-  row += '<th style=""><a href="#" class="sort"><span>Exercises</span></a></th>';
-  row += '<th style=""><a href="#" class="sort"><span>Modules</span></a></th>';
-  row += '<th style=""><a href="#" class="sort"><span>Points</span></a></th>';
-  row += '</tr>';
-  $(row).appendTo('table.data');
-
-  row = '';
-  for (i = 0; i < data.grades.length; i++) {
-    row += '<tr id="' + i + '">';
-    row += '<td>' + data.grades[i].exercise + '</td>';
-    row += '<td>' + data.grades[i].module + '</td>';
-
-    type = (data.grades[i].type !== "") ? data.grades[i].type : 'ss';
-    max = data.max_points[type];
-    points = parseFloat(data.grades[i].points);
-
-    row += (points > 0) ? '<td bgcolor="#00FF00">' : '<td>';
-    row += points.toFixed(2) + '/' + parseFloat(max).toFixed(2) + '</td></tr>';
-    total += points;
-  }
-  $(row).appendTo('table.data');
-
-  // Create the table footer with
-  row = '<tr class="header">';
-  row += '<th></th><th><span>Total</span></th>';
-  row += '<th><span>' + total.toFixed(2) + '</span></th>';
-  row += '</tr>';
-  $(row).appendTo('table.data');
-  $('#pointsBox').hide();
-  $('#example').css('margin', '10px');
-}
-
-/**
- * Queries the server for the user's points
- */
-function getUserPoints() {
-  // Check server for user's points
-  if (serverEnabled() && userLoggedIn()) {
-    // get user points
-    jQuery.ajax({
-      url:   server_url + "/api/v1/userdata/getgrade/",
-      type:  "POST",
-      data: {"username": getUsername()},
-      contentType: "application/json; charset=utf-8",
-      datatype: "json",
-      xhrFields: {withCredentials: true},
-      success: function (data) {
-        data = getJSON(data);
-
-        if (data.grades) {
-          gradeDisplays(data);
-        } else {
-          // Remove the loading message and display an error message to the user
-          $('#pointsBox').hide();
-          $('table.data').replaceWith('<div class="error">The server did not respond.  Please try again later.</div>');
-        }
-      },
-      error: function (data) {
-        data = getJSON(data);
-        
-        // Remove the loading message and display an error message to the user
-        $('#pointsBox').hide();
-        $('table.data').replaceWith('<div class="error">The server did not respond.  Please try again later.</div>');
-        
-        console.error("Error getting user's points");
-        console.error(data);
-      }
-    });
+function warnUserLogin()
+{
+  /*
+   * Only warn the user:
+   *   - If the server is enabled
+   *   - If they haven't been warned before or since they last logged out
+   */
+  if (serverEnabled() && (!inLocalStorage("warn_login") || localStorage.warn_login !== "false")) {
+    logUserAction('login-warn-message', 'User warned they must login to receive credit');
+    alert('You must be logged in to receive credit');
+    localStorage.warn_login = "false";
   }
 }
 
@@ -455,16 +1331,21 @@ function getUserPoints() {
  * or lack there of
  */
 function updateLogin() {
-  if (serverEnabled() && isModulePage()) {
+  if (debugMode) {
+    console.group('updateLogin()');
+  }
+
+  if (serverEnabled()) {
     var username = getUsername(),
         updated = false;
 
     if (inLocalStorage('opendsa') && $('a.username-link').text() !== username) {
-      updated = true;
-
-      if (getNameFromURL() === "student") {
-        getUserPoints();
+      if (debugMode) {
+        console.debug(username + ' has logged in since the last page refresh, update the page');
       }
+
+      // If a user is logged in, but its not the one that appears logged in on the page, update the page
+      updated = true;
 
       // Update display to show logged in user
       $('a.login-window').text('Logout');
@@ -481,6 +1362,11 @@ function updateLogin() {
       // Flush any stored data
       flushStoredData();
     } else if (!inLocalStorage('opendsa') && $('a.login-window').text() !== 'Login') {
+      if (debugMode) {
+        console.debug($('a.login-window').text() + ' has logged out since the last page refresh, update the page');
+      }
+
+      // If a user was logged in on the page, but has since logged out, update the page with the anonymous user state
       updated = true;
 
       // Update display to show that no user is logged in
@@ -496,47 +1382,16 @@ function updateLogin() {
       // Remove the variable storing the user's progress on KA exercises
       if (inLocalStorage('khan_exercise')) {
         localStorage.removeItem('khan_exercise');
-
-        /*
-        // TODO: get the correct function to trigger
-        // Trigger progress bar update for each exercise
-        for (var i = 0; i < kaExerList.length; i++) {
-          // Trigger progress bar update on KA exercise page
-          if ($('#' + kaExerList[i] + '_iframe')) {
-            document.getElementById(kaExerList[i] + '_iframe').contentWindow.updateProgressBar();
-          }
-        }
-        */
       }
     }
 
     if (updated) {
-      if (moduleName === 'index') {
-        // Get every module page link on the index page and determine if the user is proficient
-        $('li.toctree-l1 > a.reference.internal').each(function (index, item) {
-          if ($(item).attr('href').endsWith('.html')) {
-            var modName = getNameFromURL($(item).attr('href'));
-            checkModuleProficiency(modName);
-          }
-        });
-      } else {
-        // Update exercise proficiency displays to reflect the proficiency of the current user
-        var i;
-        for (i = 0; i < exerList.length; i++) {
-          checkExerProficiency(exerList[i]);
-        }
-
-        // Check for module proficiency
-        checkModuleProficiency();
-
-        if (userLoggedIn()) {
-          // Check and store the progress of all KA exercises
-          for (i = 0; i < kaExerList.length; i++) {
-            storeKAExerProgress(kaExerList[i]);
-          }
-        }
-      }
+      loadModule();
     }
+  }
+
+  if (debugMode) {
+    console.groupEnd();
   }
 }
 
@@ -545,20 +1400,58 @@ function updateLogin() {
 //*****************************************************************************
 
 $(document).ready(function () {
-  // Append the module complete code to the header
-  $('h1 > a.headerlink').parent().css('position', 'relative');
-  $('h1 > a.headerlink').parent().append('<div id="' + moduleName + '_complete" class="mod_complete">Module Complete</div>');
+  // Dynamically add obfuscated email address to discourage spammers
 
-  // Populate the list of AVs on the page
-  // Add all AVs that have a showhide button
-  $('.showHideLink').each(function (index, item) {
-    var avName = $(item).attr('id').replace('_showhide_btn', '');
+  // Email obfuscator script 2.1 by Tim Williams, University of Arizona
+  // Random encryption key feature by Andrew Moulden, Site Engineering Ltd
+  // This code is freeware provided these four comment lines remain intact
+  // A wizard to generate this code is at http://www.jottings.com/obfuscator/
+  var coded = "czSpsiM@Ei.ZT.Ssv",
+      key = "81fRgEkPiQjWvw4aTnyq5IKJCX3xeZ0HMoprdUGA2NbYFSlh7mcz6sDBVuOL9t",
+      shift = coded.length,
+      link = "";
 
-    exerList.push(avName);
+  for (var i = 0; i < coded.length; i++) {
+    if (key.indexOf(coded.charAt(i)) === -1) {
+      link += coded.charAt(i);
+    } else {
+      link += key.charAt((key.indexOf(coded.charAt(i)) - shift + key.length) % key.length);
+    }
+  }
 
-    // If the item is an exercise add it to a list of exercises
-    if ($(item).attr('data-frame-src') && $(item).attr('data-frame-src').indexOf('Exercises') > -1) {
-      kaExerList.push(avName);
+  $('.email_div').append('<a id="contact_us" class="contact" style="float:left;color:blue;" rel="nofollow" href="mailto:' + link + '">Contact Us</a>');
+
+  if (moduleName !== 'Gradebook') {
+    // Append the module complete code to the header
+    $('h1 > a.headerlink').parent().css('position', 'relative');
+    $('h1 > a.headerlink').parent().append('<div id="' + moduleName + '_complete" class="mod_complete">Module Complete</div>');
+  }
+  
+  // Populate the exercises hash
+  // Iterate through all showHide buttons, iframe and slideshows and add exercises (as necessary)
+  $('.showHideLink, iframe, .ssAV').each(function (index, item) {
+    var exerName = $(item).data('exer-name'),
+        exerData = {};
+
+    // Return if exerName is already in exercises to avoid duplicates
+    if (exercises[exerName]) {
+      return;
+    }
+
+    exerData.name = $(item).data('long-name');
+    exerData.points = $(item).data('points');
+    exerData.required = ($(item).data('required') === "True");
+    exerData.threshold = $(item).data('threshold');
+    exerData.type = $(item).data('type');
+    exerData.uiid = +new Date();
+
+    // Save the exercise data
+    exercises[exerName] = exerData;
+
+    // Append error and saving messages to showHide buttons
+    if ($(item).hasClass('showHideLink')) {
+      $(item).after("<span id='" + exerName + "_shb_error_msg' class='shb_msg'><img src='_static/Images/warning.png' class='shb_warning_icon' /> Server Error <a class='resubmit_link' href='#'>Resubmit</a></span>");
+      $(item).after("<span id='" + exerName + "_shb_saving_msg' class='shb_msg'>Saving...</span>");
     }
   });
 
@@ -579,18 +1472,44 @@ $(document).ready(function () {
   });
   */
 
-  // Add all AVs that have a proficiency check mark that are not already in the list
-  $('img.prof_check_mark').each(function (index, item) {
-    var avName = $(item).attr('id').replace("_check_mark", '');
-
-    if (exerList.indexOf(avName) === -1) {
-      exerList.push(avName);
-    }
+  // Listen for and process JSAV events
+  $("body").on("jsav-log-event", function (e, data) {
+    processEventData(data);
   });
+
+  // Listen for and process JSAV events
+  $("body").on("odsa-session-expired", function (e, data) {
+    handleSessionExpired(data.key);
+  });
+
+  // Create event handler to listen for JSAV events from embedded exercises
+  var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent",
+      eventer = window[eventMethod],
+      messageEvent = (eventMethod === "attachEvent") ? "onmessage" : "message";
+
+  // Listen to message from embedded exercise
+  eventer(messageEvent, function (e) {
+    // The location where exercises are hosted, we will accept post messages from this origin
+    var exerciseOrigin = "http://algoviz.org";
+
+    if (e.origin !== exerciseOrigin) {
+      return;
+    }
+    var data = getJSON(e.data);
+
+    if (data.exercise && data.proficient) {
+      // Store status of Khan Academy exercise
+      storeStatusAndUpdateDisplays(data.exercise, Status.STORED, getUsername());
+    } else {
+      // Reset the uiid stored by the module page to match the one generated on the embedded page
+      exercises[data.av].uiid = data.uiid;
+      processEventData(data);
+    }
+  }, false);
 
   if (serverEnabled()) {
     // Log the browser ready event
-    logUserAction('', 'document-ready', 'User loaded the ' + moduleName + ' module page');
+    logUserAction('document-ready', 'User loaded the ' + moduleName + ' module page');
 
     // Suggest the user login if they don't have a valid session,
     // update the login link with their name if they do
@@ -601,33 +1520,41 @@ $(document).ready(function () {
       if (!inLocalStorage("warn_login")) {
         showLoginBox();
       }
+      loadModule();
     } else {
       updateLogin();
     }
 
+    // Attach event handlers
     $(window).focus(function (e) {
-      // When the user switches tabs, make sure the loging display on the new tab is correct
+      // When the user switches tabs, make sure the login display on the new tab is correct
       updateLogin();
 
-      logUserAction('', 'window-focus', 'User looking at ' + moduleName + ' window');
+      logUserAction('window-focus', 'User looking at ' + moduleName + ' window');
     });
 
     $(window).blur(function (e) {
       // When the user leaves an OpenDSA window, log it
-      logUserAction('', 'window-blur', 'User is no longer looking at ' + moduleName + ' window');
+      logUserAction('window-blur', 'User is no longer looking at ' + moduleName + ' window');
     });
-    
+
     $(window).on('beforeunload', function () {
       // Log the browser unload event
-      logUserAction('', 'window-unload', 'User closed or refreshed ' + moduleName + ' window');
+      logUserAction('window-unload', 'User closed or refreshed ' + moduleName + ' window');
+    });
+
+    // Attach a click handler to all resubmit links that flushes stored data,
+    // return false to prevent the focus from jumping to the top of the page
+    $('.resubmit_link').click(function (e) {
+      flushStoredData();
+      return false;
     });
 
     // Attempts to log the user in when they click submit on the login window
     $('button.submit-button').click(function (event) {
-      //authenticate user
       var username = $('#username').attr('value'),
           password = $('#password').attr('value');
-      //password = SHA1(password);
+
       jQuery.ajax({
         url:   server_url + "/api/v1/users/login/",
         type:  "POST",
@@ -638,17 +1565,28 @@ $(document).ready(function () {
         success: function (data) {
           data = getJSON(data);
 
+          if (debugMode) {
+            console.group('User logged in');
+          }
+
           if (data.success) {
-            updateLocalStorage(username);
+            updateLocalStorage(username, data.key);
             localStorage.name = username;
-            logUserAction('', 'user-login', 'User logged in');
+            logUserAction('user-login', 'User logged in');
+            // Assign anonymous user's score data to the user who just logged in
+            assignAnonScoreData(username);
             updateLogin();
+          }
+
+          if (debugMode) {
+            console.groupEnd();
           }
         },
         error: function (data) {
           data = getJSON(data);
-          console.error("Error logging in");
-          console.error(data);
+          console.group("Error logging in");
+          console.debug(data);
+          console.groupEnd();
 
           if (data.status === 401) {
             alert("Incorrect username / password combination");
@@ -679,7 +1617,7 @@ $(document).ready(function () {
         jQuery.ajax({
           url:   server_url + "/api/v1/users/logout/",
           type:  "GET",
-          data: {"username":  getUsername() },
+          data: {key: getSessionKey()},
           contentType: "application/json; charset=utf-8",
           datatype: "json",
           xhrFields: {withCredentials: true},
@@ -688,20 +1626,21 @@ $(document).ready(function () {
           },
           error: function (data) {
             data = getJSON(data);
-            
-            console.error("Error logging out");
-            console.error(data);
+
+            console.group("Error logging out");
+            console.debug(data);
+            console.groupEnd();
           }
         });
 
         // Log out the user locally
-        logUserAction('', 'user-logout', 'User logged out');
+        logUserAction('user-logout', 'User logged out');
         localStorage.removeItem('opendsa');
-        updateLogin();
-      }
+        //updateLogin();
 
-      // Force the page to reload to reset all exercises
-      window.location.reload();
+        // Force the page to reload to reset all exercises
+        window.location.reload();
+      }
     });
 
     //Brings the registration form from the login popup page
@@ -725,14 +1664,16 @@ $(document).ready(function () {
       warnUserLogin();
       hidePopupBox();
     });
-  } else {
-    // If a backend server is NOT enabled
-
+  } else {  // Backend server is NOT enabled
     // Hide page elements that don't make sense when there is no backend server
     $('a#logon').hide();  // Login link
     $('a#registration').hide();  // Registration link
+
+    // Update proficiency indicators based on local proficiency cache
+    loadModule();
   }
 
+  // Attach handler to show / hide buttons
   $("input.showHideLink").click(function (event) {
     var btnID = event.target.id;
     showHide(btnID);
@@ -741,22 +1682,6 @@ $(document).ready(function () {
   $("a.abt").click(function (event) {
     info();
   });
-
-  var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent",
-      eventer = window[eventMethod],
-      messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-
-  // Listen to message from child window
-  eventer(messageEvent, function (e) {
-    //if (e.origin !== odsa_url) {
-    //  return;
-    //}
-    var msg = getJSON(e.data);
-    updateExerProfDisplays(msg.exercise, msg.proficient);
-
-    // Check for module proficiency
-    checkModuleProficiency();
-  }, false);
 });
 
 $(window).load(function () {

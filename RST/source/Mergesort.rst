@@ -62,7 +62,7 @@ Here is pseudocode for merge on lists::
       List answer = new List();
       while (L1 != NULL || L2 != NULL) {
         if (L1 == NULL) { // Done L1
-	  answer.append(L2);
+          answer.append(L2);
           L2 = NULL;
         }
         else if (L2 == NULL) { // Done L2
@@ -83,20 +83,18 @@ Here is pseudocode for merge on lists::
 
 Here is a visualization for the merge operation.
 
-.. inlineav:: mergesortCON1 slideshow
+.. inlineav:: mergesortCON1
    :output: show
 
 Here is a mergesort warmup exercise to practice merging.
 
 .. avembed:: Exercises/Sorting/MergesortPRO.html
    :showbutton: hide
-   :title: Mergesort Merging Exercise
 
 Now here is a full proficiency exercise to put it all together.
 
 .. avembed:: AV/Sorting/mergesortProficiency.html
    :showbutton: show
-   :title: Mergesort Proficiency Exercise
 
 Analysis of Mergesort is straightforward, despite the fact that it is
 a recursive algorithm.
@@ -139,6 +137,5 @@ Now here are summary questions.
 
 .. avembed:: Exercises/Sorting/MergesortSumm.html
    :showbutton: hide
-   :title: Mergesort Review Questions
 
 .. odsascript:: AV/Sorting/mergesortCON.js

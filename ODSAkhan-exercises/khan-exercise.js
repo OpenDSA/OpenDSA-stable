@@ -34,8 +34,9 @@
 
 */
 
-// ODSA book url
-var odsa_url = "http://algoviz.org";
+// The domain where the OpenDSA modules are hosted, used by postMessage to send data to the parent module page
+var moduleOrigin = "http://algoviz-beta7.cc.vt.edu";
+
 var Khan = (function() {
   function warn( message, showClose ) {
     jQuery(function() {
@@ -131,7 +132,7 @@ var Khan = (function() {
 
   // The main server we're connecting to for saving data
   server = typeof apiServer !== "undefined" ? apiServer :
-    testMode ? "http://opendsa.cc.vt.edu" : "",
+    testMode ? "https://opendsa.cc.vt.edu" : "",
 
   // The name of the exercise
   exerciseName = typeof userExercise !== "undefined" ? userExercise.exercise : ((/([^\/.]+)(?:\.html)?$/.exec( window.location.pathname ) || [])[1]),
@@ -2840,7 +2841,7 @@ var Khan = (function() {
     }
     $('li.streak-icon').text(total +  "%");
     if (total >= 100) {
-        parent.postMessage('{"exercise":"' + exerciseName + '", "proficient":' + true + '}',odsa_url);
+        parent.postMessage('{"exercise":"' + exerciseName + '", "proficient":' + true + '}',moduleOrigin);
         console.log ('{"exercise":"' + exerciseName + '", "proficient":' + true + '}');
     }
 

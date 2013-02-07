@@ -50,14 +50,14 @@ Here is an implementation for Selection Sort.
 
 Consider the example of the following array.
 
-.. inlineav:: SelsortCON1 slideshow
+.. inlineav:: SelsortCON1
    :output: show
 
 Now we continue with the second pass.
 However, since the largest record is already at the right end,
 we will not need to look at it again.
 
-.. inlineav:: SelsortCON2 slideshow
+.. inlineav:: SelsortCON2
    :output: show
 
 Selection Sort continues in this way until the entire array is sorted.
@@ -69,7 +69,6 @@ Now try for yourself to see if you understand how Selection Sort works.
 
 .. avembed:: Exercises/Sorting/SelsortPRO.html
    :showbutton: hide
-   :title: Selection Sort Exercise
 
 Any algorithm can be written in slightly different ways.
 For example, we could have written Selection Sort to find the smallest
@@ -143,6 +142,5 @@ Selection Sort.
 
 .. avembed:: Exercises/Sorting/SelsortSumm.html
    :showbutton: hide
-   :title: Review Questions
 
 .. odsascript:: AV/Sorting/selectionsortCON.js

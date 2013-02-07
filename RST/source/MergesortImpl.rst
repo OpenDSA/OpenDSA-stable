@@ -71,13 +71,12 @@ merge them back to the original array.
 Here is a complete implementation for mergesort following this
 approach.
 
-.. literalinclude:: ../../SourceCode/Processing/Sorting/Mergesort/Mergesort.pde
-   :start-after: /* *** ODSATag: Mergesort *** */
-   :end-before: /* *** ODSAendTag: Mergesort *** */
+.. codeinclude:: Sorting/Mergesort/Mergesort.pde
+   :tag: Mergesort
 
 Here is a visualization for the merge step.
 
-.. inlineav:: mergeImplCON1 slideshow
+.. inlineav:: mergeImplCON1
    :output: show
 
 An optimized Mergesort implementation is shown below.
@@ -91,19 +90,17 @@ This version also has a second optimization:
 It uses Insertion Sort to sort small subarrays whenever the size of
 the array is smaller than a value defined by ``THRESHOLD``.
 
-.. literalinclude:: ../../SourceCode/Processing/Sorting/MergesortOpt/MergesortOpt.pde
-   :start-after: /* *** ODSATag: MergesortOpt *** */
-   :end-before: /* *** ODSAendTag: MergesortOpt *** */
+.. codeinclude:: Sorting/MergesortOpt/MergesortOpt.pde
+   :tag: MergesortOpt
 
 Here is a visualization for the optimized merge step.
 
-.. inlineav:: mergeImplCON2 slideshow
+.. inlineav:: mergeImplCON2
    :output: show
 
 Now here are some review questions.
 
 .. avembed:: Exercises/Sorting/MergeImplSumm.html
    :showbutton: hide
-   :title: Mergesort Implementation Questions
 
 .. odsascript:: AV/Sorting/mergeImplCON.js

@@ -7,7 +7,7 @@ all: lint
 clean:
 	- $(RM) *~
 	- $(RM) Doc/build
-	- $(RM) RST/build
+	- $(RM) Books
 
 lint: csslint jshint
 
@@ -31,20 +31,30 @@ jshint:
 update:
 	$(RM) AV
 	cp -r dev/OpenDSA/AV AV
+	$(RM) Books
+	$(RM) config
+	cp -r dev/OpenDSA/config config
+	cp dev/OpenDSA/configure.py configure.py
 	$(RM) Doc
 	cp -r dev/OpenDSA/Doc Doc
 	$(RM) Exercises
-	cp -r dev/OpenDSA/Exercies Exercises
+	cp -r dev/OpenDSA/Exercises Exercises
+	cp dev/OpenDSA/JSAV/build/JSAV-min.js JSAV/build
+	$(RM) JSAV/lib
+	cp -r dev/OpenDSA/JSAV/lib JSAV/lib
+	$(RM) JSAV/css
+	cp -r dev/OpenDSA/JSAV/css JSAV/css
+	$(RM) JSAV/extras
+	cp -r dev/OpenDSA/JSAV/extras JSAV/extras
 	$(RM) lib
 	cp -r dev/OpenDSA/lib lib
 	$(RM) RST
+	cp -r dev/OpenDSA/RST RST
 	$(RM) ODSAkhan-exercises
 	cp -r dev/OpenDSA/ODSAkhan-exercises ODSAkhan-exercises
-	cp -r dev/OpenDSA/RST RST
 	$(RM) Scripts
 	cp -r dev/OpenDSA/Scripts Scripts
 	$(RM) SourceCode
 	cp -r dev/OpenDSA/SourceCode SourceCode
 	cp dev/OpenDSA/WebServer .
 	- $(RM) Doc/build
-	- $(RM) RST/build

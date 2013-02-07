@@ -29,10 +29,10 @@ def setup(app):
 
 
 CODE = """\
-<div id="%(div_id)s">
+<div id="%(exer_name)s">
 <p></p>
 <center> 
-<iframe id="%(div_id)s_iframe" data-av="%(div_id)s" src="%(av_address)s" type="text/javascript" width="%(width)s" height="%(height)s" frameborder="0" marginwidth="0" marginheight="0" scrolling="no">
+<iframe id="%(exer_name)s_iframe" data-exer-name="%(exer_name)s" data-points="%(points)s" data-required="%(required)s" data-threshold="%(threshold)s" data-type="%(type)s" src="%(av_address)s" type="text/javascript" width="%(width)s" height="%(height)s" frameborder="0" marginwidth="0" marginheight="0" scrolling="no">
 </iframe>
 </center>
 </div>
@@ -41,12 +41,18 @@ CODE = """\
 
 SHOWHIDE = """\
 <input type="button" 
-    id="%(div_id)s_showhide_btn"
+    id="%(exer_name)s_showhide_btn"
     class="showHideLink"
+    data-exer-name="%(exer_name)s" 
+    data-long-name="%(long_name)s" 
     data-frame-src="%(av_address)s"
     data-frame-width="%(width)s"
     data-frame-height="%(height)s"
-    value="%(show_hide_text)s %(title)s"/>
+    data-points="%(points)s"
+    data-required="%(required)s"
+    data-threshold="%(threshold)s"
+    data-type="%(type)s" 
+    value="%(show_hide_text)s %(long_name)s"/>
 """
 
 
@@ -97,11 +103,15 @@ def showbutton(argument):
 
 class avembed(Directive):
     required_arguments = 1
-    optional_arguments = 2 
+    optional_arguments = 6
     final_argument_whitespace = True
     has_content = True
     option_spec = {'showbutton':showbutton,
-                   'title': directives.unchanged,
+                   'required': directives.unchanged,
+                   'long_name': directives.unchanged,
+                   'points': directives.unchanged,
+                   'threshold': directives.unchanged,
+                   'type': directives.unchanged,
                    }
 
     def run(self):
@@ -110,25 +120,42 @@ class avembed(Directive):
         self.options['address'] = self.arguments[0] 
 
         embed = embedlocal(self.arguments[0])   
-        self.options['div_id'] = embed[0]
+        self.options['exer_name'] = embed[0]
         self.options['av_address'] = embed[1]
         self.options['width'] = embed[2]
         self.options['height'] = embed[3]
+ 
+        if 'required' not in self.options:
+          self.options['required'] = False
+        
+        if 'points' not in self.options:
+          self.options['points'] = 0
+        
+        if 'threshold' not in self.options:
+          self.options['threshold'] = 1.0
+          
+        if 'long_name' not in self.options:
+          self.options['long_name'] = self.options['exer_name']
+          
+        if 'type' not in self.options:
+          if 'Exercise' in self.options['av_address']:
+            self.options['type'] = 'ka'
+          else:
+            self.options['type'] = 'pe'
  
         if 'showbutton' in self.options:
             if self.options['showbutton'] == "show":
                 self.options['show_hide_text'] = "Hide"
                 res = SHOWHIDE % (self.options)
                 res += CODE % (self.options)
-                return [nodes.raw('', res, format='html')]
             else:
                 self.options['show_hide_text'] = "Show"
                 res = SHOWHIDE % (self.options)
-                return [nodes.raw('', res, format='html')]
 
         else:
             res = CODE % self.options 
-            return [nodes.raw('', res, format='html')]
+        
+        return [nodes.raw('', res, format='html')]
 
 
 
@@ -137,7 +164,6 @@ This is some text.
 
 .. avembed:: address 
    :showbutton:
-   :title: 
 
 
 This is some more text.

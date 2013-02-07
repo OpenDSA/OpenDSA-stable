@@ -57,14 +57,14 @@ An implementation is as follows.
 
 Consider the example of the following array.
 
-.. inlineav:: BubsortCON1 slideshow
+.. inlineav:: BubsortCON1
    :output: show
 
 Now we continue with the second pass. However, since the largest
 record has "bubbled" to the very right, we will not need to look at
 it again.
 
-.. inlineav:: BubsortCON2 slideshow
+.. inlineav:: BubsortCON2
    :output: show
 
 Bubble Sort continues in this way until the entire array is sorted.
@@ -76,7 +76,6 @@ Now try for yourself to see if you understand how Bubble Sort works.
 
 .. avembed:: Exercises/Sorting/BubsortPRO.html
    :showbutton: hide
-   :title: Bubble Sort Exercise
 
 Determining Bubble Sort's number of comparisons is easy.
 Regardless of the arrangement of the values in the array, the number
@@ -100,6 +99,5 @@ to that performed by Insertion Sort.
 
 .. avembed:: Exercises/Sorting/BubsortSumm.html
    :showbutton: hide
-   :title: Review Questions
 
 .. odsascript:: AV/Sorting/bubblesortCON.js

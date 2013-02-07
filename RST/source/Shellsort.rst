@@ -81,7 +81,7 @@ If we reach a point where the remaining sublists have only one
 record (as will be the case for each of the sublists beginning with
 records 4 through 7), then we can skip processing them.
 
-.. inlineav:: shellsortCON1 slideshow
+.. inlineav:: shellsortCON1
 
 Shellsort will sort each of these sublists of length 2 using Insertion
 Sort.
@@ -92,12 +92,12 @@ They are swapped if necessary to put them in sort order.
 (Of course, since these first sublists are each of length 2 when
 the two items are being compared you won't see anything yellow anymore!)
 
-.. inlineav:: shellsortCON2 slideshow
+.. inlineav:: shellsortCON2
 
 At the end of the first pass, the resulting array is "a little better
 sorted".
 
-.. inlineav:: shellsortCON3 diagram
+.. inlineav:: shellsortCON3
 
 The second pass of Shellsort looks at fewer, bigger sublists.
 In our example, the second pass will have an increment of size 4,
@@ -112,28 +112,28 @@ and so on.
 As you click through the slides, you will see the sublists for
 increment size 4.
 
-.. inlineav:: shellsortCON4 slideshow
+.. inlineav:: shellsortCON4
 
 Each sublist of 3 records would also be sorted using an Insertion
 Sort, as shown next.
 
-.. inlineav:: shellsortCON5 slideshow
+.. inlineav:: shellsortCON5
 
 At the end of processing sublists with increment 4, the array is
 "even more sorted".
 
-.. inlineav:: shellsortCON6 diagram
+.. inlineav:: shellsortCON6
 
 The third pass will be made on sublists with increment 2.
 The effect is that we process 2 lists, one consisting of the odd
 positions and the other consisting of the even positions.
 As usual, we sort the sublists using Insertion Sort.
 
-.. inlineav:: shellsortCON7 slideshow
+.. inlineav:: shellsortCON7
 
 At this point, we are getting close to sorted.
 
-.. inlineav:: shellsortCON8 diagram
+.. inlineav:: shellsortCON8
 
 Shellsort's final pass will always use an increment of 1,
 which means a "regular" Insertion Sort of all records.
@@ -141,21 +141,19 @@ But the list is far closer to sorted than it was at the start,
 so this final call to Insertion Sort runs far faster than if we had
 run Insertion Sort on the original array.
 
-.. inlineav:: shellsortCON9 slideshow
+.. inlineav:: shellsortCON9
 
 Finally, the array is sorted.
 
 Here is a code implementation for Shellsort.
 
-.. literalinclude:: ../../SourceCode/Processing/Sorting/Shellsort/Shellsort.pde
-   :start-after: /* *** ODSATag: Shellsort *** */
-   :end-before: /* *** ODSAendTag: Shellsort *** */
+.. codeinclude:: Sorting/Shellsort/Shellsort.pde
+   :tag: Shellsort
 
 Now, test your understanding of the sublist concept.
 
 .. avembed:: Exercises/Sorting/ShellsortSublist.html
    :showbutton: hide
-   :title: Sublist Exercise
 
 There is a lot of flexibility to picking the increment series.
 It does not need to start with the greatest power of less than
@@ -177,14 +175,12 @@ Next, let's review what makes for a legal increment series.
 
 .. avembed:: Exercises/Sorting/ShellsortSeries.html
    :showbutton: hide
-   :title: Series Exercise
 
 Now test yourself to see how well you understand Shellsort.
 Can you reproduce its behavior?
 
 .. avembed:: AV/Sorting/ShellsortProficiency.html
    :showbutton: show
-   :title: Proficiency Exercise
 
 Some choices for the series of increments will make Shellsort
 run more efficiently than others.
@@ -208,7 +204,6 @@ how they affect the cost of Shellsort.
 
 .. avembed:: AV/Sorting/ShellsortPerformance.html
    :showbutton: hide
-   :title: Performance Simulator
 
 A theoretical analysis of Shellsort is difficult, so we must accept
 without proof that the average-case performance of Shellsort
@@ -228,7 +223,6 @@ Here are some review questions to check that you understand Shellsort.
 
 .. avembed:: Exercises/Sorting/ShellsortSumm.html
    :showbutton: hide
-   :title: Review Questions
 
 Notes
 -----

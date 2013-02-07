@@ -1,28 +1,84 @@
 "use strict";
-/*global alert: true, console: true, serverEnabled, userLoggedIn, flushStoredData, sendEventData, AV_NAME: true, getNameFromURL, logExerciseInit, logUserAction */
+/*global alert: true, console: true, serverEnabled: true, sendEventData: true, moduleOrigin: true, uiid: true, AV_NAME: true, getNameFromURL: true, logUserAction: true, logEvent: true, roundPercent */
 
+/** This file should only be referenced by AVs (not modules) */
+
+// Create empty definitions for functions in ODSA.js (eliminates dependence of opendsaAV.js on ODSA.js)
+if (typeof AV_NAME === "undefined") {
+  // Define the console object if it doesn't exist to support IE without developer tools
+  if (!(window.console && console.log)) {
+    console = {
+      log: function () {},
+      debug: function () {},
+      info: function () {},
+      warn: function () {},
+      error: function () {}
+    };
+  }
+
+  var AV_NAME = '',
+      moduleOrigin = '',
+      uiid = +new Date();
+
+  var serverEnabled = function () {
+    return false;
+  };
+
+  var getNameFromURL = function () {
+    return '';
+  };
+
+  var sendEventData = function () {},
+      logUserAction = function (type, desc, exerName, eventUiid) {},
+      logEvent = function (data) {};
+
+  console.warn('ODSA.js was not included, using fallback function definitions');
+}
 
 /**
- * Initialize the global AV_NAME variable
+ * The avcontainer element
  */
-AV_NAME = getNameFromURL();
-
-/**
- * The ID of the avcontainer element
- */
-var avcId = AV_NAME + '_avc';
-
-// Generate the appropriate ID for the avcontainer element
-$('.avcontainer').attr('id', avcId);
+var avc = '';
 
 /**
  * Stores the empty contents of the avcontainer, used for reset
  */
-var emptyContent = $('#' + avcId).html();
+var emptyContent = '';
+
+/**
+ * Set a flag indicating the user cannot receive credit for the
+ * current exercise instance after viewing the model answer
+ */
+var allowCredit = true;
 
 //*****************************************************************************
 //*************                    AV FUNCTIONS                   *************
 //*****************************************************************************
+
+/**
+ * Generates a JSAV event to log the initial state of an AV or exercise
+ *   - initData - A JSON object that contains the initial state of an exercise
+ *     Conventions:
+ *       - The key for automatically generated data should have a prefix 'gen_'
+ *         - Ex: an automatically generated array would be 'gen_array'
+ *       - The key for user generated data should have a prefix 'user_'
+ *         - Ex: Array data the user enters in the textbox should have a key 'user_array'
+ */
+function logExerciseInit(initData) {
+  // Reset the uiid (unique instance identifier)
+  uiid = +new Date();
+
+  var data = {av: AV_NAME, type: 'odsa-exercise-init', desc: JSON.stringify(initData)};
+  $("body").trigger("jsav-log-event", [data]);
+}
+/**
+ * Generates a JSAV event which triggers the code to give a user credit for an exercise
+ */
+function awardCompletionCredit() {
+  var data = {av: AV_NAME, type: 'odsa-award-credit'};
+  $("body").trigger("jsav-log-event", [data]);
+}
+
 /**
  * Initializes the arraysize drop down list
  */
@@ -54,7 +110,7 @@ function initArraySize(min, max, selected) {
  */
 function reset(flag) {
   // Replace the contents of the avcontainer with the save initial state
-  $('#' + avcId).unbind().html(emptyContent);
+  avc.unbind().html(emptyContent);
 
   // Clear the array values field, when no params given and reset button hit
   if (flag !== true && !$('#arrayValues').prop("disabled")) {
@@ -131,7 +187,6 @@ function processArrayValues(upperLimit) {
   return arrValues;
 }
 
-
 (function ($) {
 //*****************************************************************************
 //*************                  JSAV Extensions                  *************
@@ -149,17 +204,7 @@ function processArrayValues(upperLimit) {
     return array;
   };
 
-  /**
-   * Extends the JSAV array with an isEmpty method that returns true
-   * if the array contains no values
-   */
-  JSAV._types.ds.AVArray.prototype.isEmpty = function () {
-    for (var i = 0; i < this.size(); i++) {
-      if (this.value(i) !== "") { return false; }
-    }
-    return true;
-  };
-
+  // TODO: Reimplement this using JSAV's built-in addClass and removeClass methods
   /**
    * Convenience function for highlighting the pivot value in blue
    */
@@ -173,96 +218,6 @@ function processArrayValues(upperLimit) {
   JSAV._types.ds.AVArray.prototype.markSorted = function (index) {
     this.css(index, {"background-color": "#ffffcc" });
   };
-
-  /**
-   * Creates a left bound indicator above the specified indices
-   * Does nothing if the element already has a left bound arrow above it
-   */
-  JSAV._types.ds.AVArray.prototype.setLeftArrow = JSAV.anim(function (indices) {
-    var $elems = JSAV.utils._helpers.getIndices($(this.element).find("li"), indices);
-
-    // Sets the arrow for every element specified
-    $elems.each(function (index, item) {
-      if (!$elems.hasClass("jsavarrow")) {
-        $elems.toggleClass("jsavarrow");
-      }
-
-      if ($elems.hasClass("rightarrow")) {
-        // If the selected index already has a right arrow, remove it
-        // and add leftrightarrow class
-        $elems.toggleClass("rightarrow");
-        $elems.toggleClass("leftrightarrow");
-      } else if (!$elems.hasClass("leftarrow")) {
-        // If the index does not have a right arrow, add a left one
-        $elems.toggleClass("leftarrow");
-      }
-    });
-  });
-
-  /**
-   * Creates a right bound indicator above the specified indices
-   * Does nothing if the element already has a right bound arrow above it
-   */
-  JSAV._types.ds.AVArray.prototype.setRightArrow = JSAV.anim(function (indices) {
-    var $elems = JSAV.utils._helpers.getIndices($(this.element).find("li"), indices);
-
-    // Sets the arrow for every element specified
-    $elems.each(function (index, item) {
-      if (!$elems.hasClass("jsavarrow")) {
-        $elems.toggleClass("jsavarrow");
-      }
-
-      if ($elems.hasClass("leftarrow")) {
-        // If the selected index already has a left arrow, remove it
-        // and add leftrightarrow class
-        $elems.toggleClass("leftarrow");
-        $elems.toggleClass("leftrightarrow");
-      } else if (!$elems.hasClass("rightarrow")) {
-        // If the index does not have a left arrow, add a right one
-        $elems.toggleClass("rightarrow");
-      }
-    });
-  });
-
-  /**
-   * Removes a left arrow (if it exists) from above the specified indices
-   */
-  JSAV._types.ds.AVArray.prototype.clearLeftArrow = JSAV.anim(function (indices) {
-    var $elems = JSAV.utils._helpers.getIndices($(this.element).find("li"), indices);
-
-    // Clears the arrow for every element specified
-    $elems.each(function (index, item) {
-      if ($elems.hasClass("leftrightarrow")) {
-        // Replace the shared bound indicator with a right bound indicator
-        $elems.toggleClass("leftrightarrow");
-        $elems.toggleClass("rightarrow");
-      } else if ($elems.hasClass("leftarrow")) {
-        // Remove the left arrow
-        $elems.toggleClass("leftarrow");
-        $elems.toggleClass("jsavarrow");
-      }
-    });
-  });
-
-  /**
-   * Removes a right arrow (if it exists) from above the specified indices
-   */
-  JSAV._types.ds.AVArray.prototype.clearRightArrow = JSAV.anim(function (indices) {
-    var $elems = JSAV.utils._helpers.getIndices($(this.element).find("li"), indices);
-
-    // Clears the arrow for every element specified
-    $elems.each(function (index, item) {
-      if ($(item).hasClass("leftrightarrow")) {
-        // Replace the shared bound indicator with a left bound indicator
-        $(item).toggleClass("leftrightarrow");
-        $(item).toggleClass("leftarrow");
-      } else if ($(item).hasClass("rightarrow")) {
-        // Remove the right arrow
-        $(item).toggleClass("rightarrow");
-        $(item).toggleClass("jsavarrow");
-      }
-    });
-  });
 
   /**
    * toString function for JSAV arrays, useful for debugging
@@ -286,28 +241,104 @@ function processArrayValues(upperLimit) {
 //*************                      LOGGING                      *************
 //*****************************************************************************
   $(document).ready(function () {
-    if (serverEnabled()) {
-      // Log the browser ready event
-      logUserAction(AV_NAME, 'document-ready', 'User loaded the ' + AV_NAME + ' AV');
+    // Initialize the global AV_NAME variable
+    AV_NAME = getNameFromURL();
 
-      // Send any stored event data when the page loads
-      if (userLoggedIn()) {
-        flushStoredData();
-      } else {
-        sendEventData();
+    avc = $('.avcontainer');
+    emptyContent = $(avc).html();
+
+    // Listen for JSAV events and forward them to the parent page
+    $("body").on("jsav-log-event", function (e, data) {
+
+      var flush = false,
+          discardEvents = ["jsav-init", "jsav-recorded", "jsav-exercise-model-init", "jsav-exercise-model-recorded"],
+          ssEvents = ['jsav-forward', 'jsav-backward', 'jsav-begin', 'jsav-end', 'jsav-exercise-model-forward', 'jsav-exercise-model-backward', 'jsav-exercise-model-begin', 'jsav-exercise-model-end'];
+
+      // Filter out events we aren't interested in
+      if (discardEvents.indexOf(data.type) > -1) {
+        return;
       }
 
+      // Overwrite the av attribute with the correct value and append the uiid
+      data.av = AV_NAME;
+      data.uiid = uiid;
+
+      // If data.desc doesn't exist or is empty, initialize it
+      if (!data.desc || data.desc === '') {
+        data.desc = data.type;
+      }
+
+      if (ssEvents.indexOf(data.type) > -1) {
+        data.desc = data.currentStep + " / " + data.totalSteps;
+
+        // Flush event data when the end of a slideshow is reached
+        if (data.currentStep === data.totalSteps) {
+          flush = true;
+        }
+      } else if (data.type === "jsav-array-click") {
+        data.desc = JSON.stringify({'index': data.index, 'arrayid': data.arrayid});
+      } else if (data.type === "jsav-exercise-grade-change") {
+        // On grade change events, log the user's score and submit it
+        var score = roundPercent((data.score.student - data.score.fix) / data.score.total);
+        var complete = roundPercent((data.score.student + data.score.fix) / data.score.total);
+        data.desc = JSON.stringify({'score': score, 'complete': complete});
+        flush = true;
+      } else if (data.type === "jsav-exercise-model-open") {
+        // If user looks at the model answer before they are done and
+        // they haven't already lost credit, warn them they can no longer
+        // receive credit and prevent them from getting credit for the exercise
+        if (allowCredit && $('span.jsavamidone').html() !== "DONE") {
+          allowCredit = false;
+
+          alert("You can no longer receive credit for the current instance of this exercise.\nClick 'Reset' or refresh the page to get a new problem instance.");
+
+          // Hide the score widget and display and appropriate message in its place
+          $('span.jsavscore').hide();
+          $('span.jsavscore').parent().append('<span id="credit_disabled_msg">Credit not given for this instance</span>');
+        }
+      } else if (data.type === "jsav-exercise-reset") {
+        // If the student looked at the model answer for the previous
+        // attempt, allow them to get credit for the new instance
+        if (!allowCredit) {
+          allowCredit = true;
+
+          $('span.jsavscore').show();
+          $('#credit_disabled_msg').remove();
+        }
+      }
+
+      // Mark data as logged on the client side, then send to message to the parent window
+      data.logged = true;
+      parent.postMessage(data, moduleOrigin);
+
+      // Save the event in localStorage
+      if (serverEnabled()) {
+        logEvent(data);
+
+        if (flush) {
+          sendEventData();
+        }
+      }
+    });
+
+    if (serverEnabled()) {
+      // Log the browser ready event
+      logUserAction('document-ready', 'User loaded the ' + AV_NAME + ' AV');
+
+      // Send any stored event data when the page loads
+      sendEventData();
+
       $(window).focus(function (e) {
-        logUserAction(AV_NAME, 'window-focus', 'User looking at ' + AV_NAME + ' window');
+        logUserAction('window-focus', 'User looking at ' + AV_NAME + ' window');
       });
 
       $(window).blur(function (e) {
-        logUserAction(AV_NAME, 'window-blur', 'User is no longer looking at ' + AV_NAME + ' window');
+        logUserAction('window-blur', 'User is no longer looking at ' + AV_NAME + ' window');
       });
 
       $(window).on('beforeunload', function () {
         // Log the browser unload event
-        logUserAction(AV_NAME, 'window-unload', 'User closed or refreshed ' + AV_NAME + ' window');
+        logUserAction('window-unload', 'User closed or refreshed ' + AV_NAME + ' window');
       });
     }
   });

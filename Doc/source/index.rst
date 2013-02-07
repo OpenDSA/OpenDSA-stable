@@ -13,7 +13,9 @@ Table of Contents
    Structure
    Extensions
    Exercise 
-   BackendSpecs            
+   BackendSpecs
    FrontendJSSpecs
+   Configuration
+   Client-sideFramework
 
  

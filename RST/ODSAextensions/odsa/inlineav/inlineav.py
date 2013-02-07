@@ -26,67 +26,86 @@ def setup(app):
 
 
 DIAGRAM = """\
-<div id="%(avId)s">
+<div id="%(exer_name)s">
 </div>
 """
 
-
+# div.jsavcanvas is required to ensure it appears before the error message otherwise the container appears over top of the message, blocking the 'Resubmit' link from being clicked
 SLIDESHOW = """\
-<div id="%(avId)s">
+<div id="%(exer_name)s" class="ssAV" data-exer-name="%(exer_name)s" data-points="%(points)s" data-threshold="%(threshold)s" data-type="%(type)s" data-required="%(required)s" data-long-name="%(long_name)s">
  <span class="jsavcounter"></span>
  <a class="jsavsettings" href="#">Settings</a>
  <div class="jsavcontrols"></div>
- <img id="%(avId)s_check_mark" class="prof_check_mark" src="%(odsa_path)s/lib/Images/green_check.png" />
-</div>
-"""
-
-
-SSOUTPUT = """\
-<div id="%(avId)s">
- <span class="jsavcounter"></span>
- <a class="jsavsettings" href="#">Settings</a>
- <div class="jsavcontrols"></div>
- <p class="jsavoutput jsavline" readonly="readonly"></p>
- <img id="%(avId)s_check_mark" class="prof_check_mark" src="%(odsa_path)s/lib/Images/green_check.png" />
+ %(output_code)s
+ <div class="jsavcanvas"></div>
+ <img id="%(exer_name)s_check_mark" class="prof_check_mark" src="%(odsa_path)s/lib/Images/green_check.png" />
+ <span id="%(exer_name)s_cm_saving_msg" class="cm_saving_msg">Saving...</span>
+ <span id="%(exer_name)s_cm_error_msg" class="cm_error_msg">
+  <img id="%(exer_name)s_cm_warning_icon" class="cm_warning_icon" src="_static/Images/warning.png" /><br />
+  Server Error<br />
+  <a href="#" class="resubmit_link">Resubmit</a>
+ </span>
 </div>
 """
 
 
 def output(argument):
-    """Conversion function for the "type" option."""
+    """Conversion function for the "output" option."""
     return directives.choice(argument, ('show', 'hide'))
 
+def type(argument):
+    """Conversion function for the "output" option."""
+    return directives.choice(argument, ('ss', 'diagram'))
 
 class inlineav(Directive):
-    required_arguments = 2
-    optional_arguments = 1 
+    required_arguments = 1
+    optional_arguments = 6
     final_argument_whitespace = True
     option_spec = {
                    'output':output,
+                   'required': directives.unchanged,
+                   'long_name': directives.unchanged,
+                   'points': directives.unchanged,
+                   'threshold': directives.unchanged,
+                   'type': type,
                   }
 
     def run(self):
         """ Restructured text extension for including inline JSAV content on module pages """
-        self.options['avId'] = self.arguments[0]
-        self.options['type'] = self.arguments[1]
+        self.options['exer_name'] = self.arguments[0]
         self.options['odsa_path'] = os.path.relpath(conf.odsa_path,conf.ebook_path)
-        if self.options['type'] == "diagram":
-            res = DIAGRAM % self.options
+        
+        if 'required' not in self.options:
+          self.options['required'] = False
+        
+        if 'points' not in self.options:
+          self.options['points'] = 0
+        
+        if 'threshold' not in self.options:
+          self.options['threshold'] = 1.0
+          
+        if 'type' not in self.options:
+          self.options['type'] = 'diagram'
+        
+        if 'long_name' not in self.options:
+          self.options['long_name'] = self.options['exer_name']
+        
+        if 'output' in self.options and self.options['output'] == "show":
+          self.options['output_code'] = '<p class="jsavoutput jsavline" readonly="readonly"></p>'
         else:
-            if 'output' in self.options:
-                if self.options['output'] == "show":
-                    res = SSOUTPUT % self.options
-                else:
-                    res = SLIDESHOW % self.options
-            else:
-                res = SLIDESHOW % self.options
+          self.options['output_code'] = ''
+        
+        if self.options['type'] == "diagram":
+          res = DIAGRAM % self.options
+        else:
+          res = SLIDESHOW % self.options
         return [nodes.raw('', res, format='html')]
 
 
 source = """\
 This is some text.
 
-.. inlineav:: avId type
+.. inlineav:: exer_name
    :output:
 
 This is some more text.

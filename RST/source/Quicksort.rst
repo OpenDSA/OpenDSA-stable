@@ -13,7 +13,7 @@
 .. _Quicksort:
 
 .. include:: JSAVheader.rinc
-.. odsascript:: AV/opendsaAV.js
+.. odsascript:: AV/Sorting/quicksortCODE.js
 
 .. index:: ! Quicksort
 
@@ -97,9 +97,8 @@ indices, respectively, for the subarray being sorted.
 The initial call to Quicksort would be
 ``quicksort(array, 0, n-1)``.
 
-.. literalinclude:: ../../SourceCode/Processing/Sorting/Quicksort/Quicksort.pde
-   :start-after: /* *** ODSATag: Quicksort *** */
-   :end-before: /* *** ODSAendTag: Quicksort *** */
+.. codeinclude:: Sorting/Quicksort/Quicksort.pde
+   :tag: Quicksort
 
 Function ``partition`` will move records to the
 appropriate partition and then return ``k``, the first
@@ -126,15 +125,13 @@ expensive, and we can do nearly as well by selecting the middle
 position in the array.
 Here is a simple ``findpivot`` function.
 
-.. literalinclude:: ../../SourceCode/Processing/Sorting/Quicksort/Quicksort.pde
-   :start-after: /* *** ODSATag: findpivot *** */
-   :end-before: /* *** ODSAendTag: findpivot *** */
+.. codeinclude:: Sorting/Quicksort/Quicksort.pde
+   :tag: findpivot
 
 Now you can have some practice.
 
 .. avembed:: Exercises/Sorting/QuicksortPivotPRO.html
    :showbutton: hide
-   :title: Quicksort Find Pivot Exercise
 
 We now turn to function ``partition``.
 If we knew in advance how many keys are less than the pivot,
@@ -148,9 +145,8 @@ ends of the subarray, swapping values as necessary until the two
 indices meet.
 Here is a Java implementation for the partition step.
 
-.. literalinclude:: ../../SourceCode/Processing/Sorting/Quicksort/Quicksort.pde
-   :start-after: /* *** ODSATag: partition *** */
-   :end-before: /* *** ODSAendTag: partition *** */
+.. codeinclude:: Sorting/Quicksort/Quicksort.pde
+   :tag: partition
 
 Note the check that ``right >= left`` in the second inner
 ``while`` loop.
@@ -161,7 +157,7 @@ Function ``partition`` returns the first index of the right
 partition (the place where ``left`` ends at) so that the subarray
 bound for the recursive calls to ``qsort`` can be determined.
 
-.. inlineav:: QuicksortCON1 slideshow
+.. inlineav:: QuicksortCON1
    :output: show
 
 
@@ -171,7 +167,6 @@ Now for some partition practice.
 
 .. avembed:: Exercises/Sorting/QuicksortPartitPRO.html
    :showbutton: hide
-   :title: Quicksort Partition Exercise
 
 Here is a visualization for the entire Quicksort algorithm.
 This visualization shows you how the logical decomposition caused by
@@ -188,7 +183,6 @@ Quicksort.
 
 .. avembed:: AV/Sorting/quicksortProficiency.html
    :showbutton: hide
-   :title: Quicksort Proficiency Exercise
 
 To analyze Quicksort, we first analyze the ``findpivot`` and
 ``partition`` functions when operating on a subarray of length
@@ -394,6 +388,5 @@ Now for review questions.
 
 .. avembed:: Exercises/Sorting/QuicksortSumm.html
    :showbutton: hide
-   :title: Quicksort Review Questions
 
 .. odsascript:: AV/Sorting/quicksortCON.js
