@@ -34,7 +34,6 @@ update:
 	$(RM) Books
 	$(RM) config
 	cp -r dev/OpenDSA/config config
-	cp dev/OpenDSA/configure.py configure.py
 	$(RM) Doc
 	cp -r dev/OpenDSA/Doc Doc
 	$(RM) Exercises
@@ -46,15 +45,29 @@ update:
 	cp -r dev/OpenDSA/JSAV/css JSAV/css
 	$(RM) JSAV/extras
 	cp -r dev/OpenDSA/JSAV/extras JSAV/extras
+	$(RM) JSAV/doc
+	cp -r dev/OpenDSA/JSAV/doc JSAV/doc
+	$(RM) JSAV/examples
+	cp -r dev/OpenDSA/JSAV/examples JSAV/examples
 	$(RM) lib
 	cp -r dev/OpenDSA/lib lib
 	$(RM) RST
 	cp -r dev/OpenDSA/RST RST
 	$(RM) ODSAkhan-exercises
 	cp -r dev/OpenDSA/ODSAkhan-exercises ODSAkhan-exercises
-	$(RM) Scripts
-	cp -r dev/OpenDSA/Scripts Scripts
 	$(RM) SourceCode
 	cp -r dev/OpenDSA/SourceCode SourceCode
 	cp dev/OpenDSA/WebServer .
 	- $(RM) Doc/build
+	cd Doc; make
+
+CS3114:
+	python lib/configure.py config/CS3114.json
+
+OpenDSA:
+	python lib/configure.py config/OpenDSA.json
+
+T1061220:
+	python lib/configure.py config/T1061220.json
+
+allBooks: CS3114 OpenDSA T1061220

@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>OpenDSA Project Homepage</title>
-<link href="lib/site.css" rel="stylesheet" type="text/css">
+  <title>OpenDSA Project Homepage</title>
+  <meta charset="utf-8" />
+  <link href="lib/site.css" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    body {
+      min-width: 980px;
+    }
+    .rightimg {
+      float: right;
+    }
+  </style>
 </head>
 
 <body>
 <div id="content">
-<h1 style="background: url(site/OpenDSALogo64.png) no-repeat 20px 50%; text-align: center; font-size: 32pt">
-OpenDSA: Open Source Interactive<br /> Data Structures and Algorithms</h1>
+<div id="mytitle">
+<h1>
+OpenDSA: Open Source Interactive<br /> Data Structures and Algorithms
+</h1>
+<img src="site/OpenDSALogo64.png" alt="OpenDSA logo"
+     style="position:relative; bottom: 85px; height: 50px"/>
+</div>
 
-<h5>Click on the images to try things out.</h5>
+<div id="maintext">
+<h5 id="firsttitle">Click on the images to try things out.</h5>
 
 <p>
 Welcome to the homepage for the OpenDSA Active-eBook Project.
@@ -18,7 +33,9 @@ Our goal is to develop a complete online interactive textbook for data
 structures and algorithms (DSA) courses.
 This page includes a number of screenshots showing various aspects of
 OpenDSA.
-But you can also look at <a href="RST/build/html">the current content</a>.
+But you can also look at <a href="Books/OpenDSA/build/html">the current content</a>.
+We also have a number of samples
+<a href="http://algoviz.org/algoviz-wiki/index.php/Samples">here</a>.
 </p>
 
 <p>
@@ -32,11 +49,11 @@ Hundreds of instructional modules, where each
 module is the equivalent to one topic, such as one sorting algorithm,
 corresponding to a couple of pages in a standard textbook.
 Each module is of textbook quality.
-<br clear=all />
+<br />
 
 <p></p>
-<a href="RST/build/html/InsertionSort.html" target="_blank">
-<img border="1px" src="site/Inssort.png" width="400" /></a>
+<a href="Books/OpenDSA/build/html/InsertionSort.html" target="_blank">
+<img src="site/Inssort.png" width="400" alt="Insertion Sort Module" /></a>
 <p></p>
 </li>
 
@@ -45,12 +62,12 @@ Every algorithm or data structure is illustrated by an
 interactive algorithm visualization. Students could enter their own
 test cases to see how the algorithm or data structure works on that
 input, and they can control the pacing of the visualization.
-<br clear=all />
+<br />
 
 <p></p>
 <a href="AV/Sorting/insertionsortAV.html" target="_blank">
-<img border="1px" src="site/insertionsort.png" width="400" /></a>
-<br clear=all />
+<img src="site/insertionsort.png" width="400" alt="Insertion Sort AV" /></a>
+<br />
 <p></p>
 
 </li>
@@ -60,18 +77,17 @@ Every module contains multiple interactive assessment activities
 that give students immediate feedback on their proficiency with the
 material.
 This means many hundreds of exercises.
-<br clear=all />
+<br />
 
 <p></p>
 <a href="AV/Sorting/ShellsortProficiency.html" target="_blank">
-<img border="1px" src="site/Shellsort_prof.png" width="400" /></a>
+<img src="site/Shellsort_prof.png" width="400" alt="Shellsort AV" /></a>
 <a href="AV/Sorting/heapsortProficiency.html" target="_blank">
-<img border="1px" src="site/heapsort.png" width="400" /></a>
-<br clear=all />
+<img src="site/heapsort.png" width="400" alt="Heapsort AV" /></a>
+<br />
 </li>
 
 </ul>
-</p>
 
 <p>
 We will accomplish this through an open-source, creative commons
@@ -106,9 +122,9 @@ exercises.
 </p>
 
 <a href="Exercises/Development/ODSAindex.html" target="_blank">
-<img border=1px src="site/ka.png" height="250" /></a>
+<img src="site/ka.png" height="250" alt="Khan Academy Exercise" /></a>
 <a href="AV/Development/HuffmanCoding.html" target="_blank">
-<img border=1px src="site/huffman.png" height="250" /></a>
+<img src="site/huffman.png" height="250" alt="Huffman Coding AV" /></a>
 
 <p>
 For more details on our project infrastructure, status, and issues,
@@ -125,7 +141,7 @@ If you are a new developer on the project, see
 </p>
 
 <a href="http://algoviz.org/OpenDSA/AV/Sorting/ShellsortPerformance.html" target="_blank">
-<img border=1px src="site/Shellsort_perf.png" height="300" /></a>
+<img src="site/Shellsort_perf.png" height="300" alt="Shellsort Performance" /></a>
 
 <h2>Publications and Presentations</h2>
 
@@ -153,35 +169,43 @@ June 30, 2011, Darmstadt, Germany, 97-103.
 
 </ol>
 
-<img src="site/IMG_2457.JPG" align="right" height="100" alt="Team members" />
+<img class="rightimg" src="site/IMG_2457.JPG" height="100" alt="Team members" />
 <h2>Contact</h2>
 
+<p>
 For more information, or to get involved, please contact
 Cliff Shaffer at
-<tt><script type="text/javascript" language="JavaScript">
+<kbd><script type="text/javascript">
 // Make it just a little harder for spammers to pick up email address
 var name = "opendsa";
 var place = "cs.vt.edu";
 var theAddress = name + "@" + place;
 document.write (theAddress.link ("mailto:" + theAddress))
-</script></tt>.
+</script></kbd>.
+</p>
 
+<div id="support">
 <h2>Support</h2>
 
+
+<a href="http://nsf.gov">
+<img src="site/nsf1.gif" class="rightimg" height="64" alt="NSF Logo" 
+     style="position:relative; bottom: 20px"/></a>
 <p>
 The OpenDSA Project is supported by the National Science Foundation
 (<a href="support.php">see more</a>).
-<a href="http://nsf.gov">
-<img src="site/nsf1.gif" align="right" height="64" alt="NSF Logo" /></a>
 </p>
+</div>
 
+</div>
 </div>
 
 <div id="footer">
-<hr />
-
 <p class="footertext">
-[Last updated: <? echo date( "m/d/Y", filemtime( __FILE__ )); ?>]
+Last modified:
+<script type="text/javascript">
+document.write(document.lastModified);
+</script>
 </p>
 </div>
 

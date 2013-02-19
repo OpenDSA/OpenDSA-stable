@@ -5,22 +5,28 @@
 #   - Auto-detects the OpenDSA root directory location
 #   - Converts the OpenDSA root directory and specified code and output directories into Unix-style paths so that relative paths are calculated correctly
 #     - Handles absolute or relative paths for output and code directories (relative paths are rooted at the OpenDSA directory)
-#   - Builds JSAV to make sure the library is up-to-date
-#   - Initilizes necessary files and directories in the output directory
+#   - Builds JSAV to make sure the library is up-to-date, if specified in the configuration file
+#   - Initializes necessary files and directories in the output directory
 #     - Alters the Makefile to correctly point to the .htaccess file
 #   - Copies additional files and directories to the output directory (if specified in the config file)
-#     - Its possible for the output directory to be outside of the OpenDSA root directory and web-accessible when the ODSA root directory is not.  In this case, a several directories must be copied to the output directory in order for OpenDSA to function correctly.  These files / directories include:
+#     - Its possible for the output directory to be outside of the OpenDSA root directory and web-accessible when the ODSA root directory is not.  In this case, several directories must be copied to the output directory in order for OpenDSA to function correctly.  These files / directories include:
 #       - AV
 #       - Exercises
 #       - JSAV-min.js and supporting JS and CSS files
 #       - Khan Academy files
 #       - lib files
-#   - Reads each module file and removes exercises or adds arguments to the directives that create them
-#     - Specifically adds 'points', 'required' and 'threshold'
+#       - SourceCode files (only the language specified in the config file is copied)
+#   - Reads each module RST file and removes sphinx directives for exercises that do no appear in the config file (causing those exercises not to be included) or adds arguments to the sphinx directives that create them
+#     - Appends a raw JavaScript flag to each module indicating whether or not the module has completion requirements (if the module has required exercises)
+#     - Specifically adds 'long_name', 'points', 'required', 'threshold' and 'type'
 #   - Creates a conf.py file in the source directory
 #   - Generates an index.rst file based on which modules were specified in the config file
-#   - Updates the server_url variable in ODSA.js and khanexercise.js based on the value specified in the config file
-#   - Runs make on the output directory to build the textbook
+#   - Updates variables in JS files based on the values specified in the config file
+#     - serverURL, bookName and moduleOrigin variables in ODSA.js
+#     - exerciseOrigin and allowAnonCredit in opendsaMOD.js
+#     - The server address and moduleOrigin in khanexercise.js
+#   - Generates an index.html file in the output directory of the new book which redirects (via JavaScript) to the build/html directory
+#   - Runs make on the output directory to build the textbook, if specified in the configuration file
 
 import sys
 import os
@@ -53,6 +59,12 @@ index_header = '''.. This file is part of the OpenDSA eTextbook project. See
 
 .. _index:
 
+.. raw:: html
+   
+   <script>
+   var dispModComp = false;
+   </script>
+
 .. include:: JSAVheader.rinc
 
 .. chapnum::
@@ -60,6 +72,8 @@ index_header = '''.. This file is part of the OpenDSA eTextbook project. See
    :prefix: Chapter
 
 '''
+
+
 
 def process_path(path, abs_prefix):
   # If the path is relative, make it absolute
@@ -77,7 +91,7 @@ def process_path(path, abs_prefix):
 def process_section(section, index_file, depth):  
   for subsect in section:
     if ('exercises' in section[subsect]):
-      process_module(subsect, section[subsect]['exercises'], index_file, depth + 1)
+      process_module(subsect, section[subsect], index_file, depth + 1)
     else:
       print ("  " * depth) + subsect
       index_file.write(subsect + '\n')
@@ -89,27 +103,44 @@ def process_section(section, index_file, depth):
   
   index_file.write("\n")
 
-def process_module(module, exercises, index_file, depth):
-  print ("  " * depth) + module
-  index_file.write("   " + module + "\n")
+def process_module(mod_name, mod_attrib, index_file, depth):
+  exercises = mod_attrib['exercises']
   
-  if module == 'ToDo':
+  print ("  " * depth) + mod_name
+  index_file.write("   " + mod_name + "\n")
+  
+  if mod_name == 'ToDo':
     return
   
-  with open(odsa_dir + 'RST/source/' + module + '.rst','r') as mod_file:
+  with open(odsa_dir + 'RST/source/' + mod_name + '.rst','r') as mod_file:
     # Read the contents of the module RST file from the ODST RST source directory
     mod_data = mod_file.readlines()
   mod_file.close()
   
   new_mod_data = []
+
+  # Find the end-of-line character for the file
+  eol = mod_data[0].replace(mod_data[0].rstrip(), '')
   
   # Alter the module RST contents based on the RST file
   i = 0
   while i < len(mod_data):
-    if '.. inlineav::' in mod_data[i] or '.. avembed::' in mod_data[i]:
-      # Find the end-of-line character for the file
-      eol = mod_data[i].replace(mod_data[i].rstrip(), '')
+    if '.. include:: JSAVheader.rinc' in mod_data[i] and 'dispModComp' in mod_attrib:
+      # If config file explicitly lists whether module can be completed 
+      new_mod_data.append(mod_data[i])
+      new_mod_data.append(eol)
+      new_mod_data.append('.. raw:: html' + eol)
+      new_mod_data.append(eol)
+      new_mod_data.append('   <script>' + eol)
       
+      if mod_attrib['dispModComp']:
+        new_mod_data.append('   dispModComp = true;' + eol)
+      else:
+        new_mod_data.append('   dispModComp = false;' + eol)
+        
+      new_mod_data.append('   </script>' + eol)
+      new_mod_data.append(eol)
+    elif '.. inlineav::' in mod_data[i] or '.. avembed::' in mod_data[i]:
       # Parse the exercise name from the line
       av_name = mod_data[i].split(' ')[2]
       av_name = av_name.rstrip()
@@ -137,7 +168,7 @@ def process_module(module, exercises, index_file, depth):
     
     i = i + 1
   
-  with open(src_dir + module + '.rst','w') as mod_file:
+  with open(src_dir + mod_name + '.rst','w') as mod_file:
     # Write the contents of the module RST file to the output src directory
     mod_file.writelines(new_mod_data)
   mod_file.close()
@@ -424,7 +455,6 @@ sourcecode_path = '%(code_dir)s'
 
 
 
-
 # Process script arguments
 if len(sys.argv) != 2:
   print "Invalid config filename"
@@ -584,16 +614,21 @@ odsa.close()
 # changes depending on whether static files are copied or not
 with open(options['odsa_dir'] + 'lib/ODSA.js','w') as odsa:
   replaced = 0
-  total_replacements = 2
+  total_replacements = 3
   
   for i in range(len(odsa_data)):
-    if 'var server_url = "' in odsa_data[i]:
+    if 'var serverURL = "' in odsa_data[i]:
       odsa_data[i] = re.sub(r'(.+ = ").*(";.*)', r'\1' + conf_data['backend_address'].rstrip('/') + r'\2', odsa_data[i])
       replaced = replaced + 1
       if replaced == total_replacements:
         break
 
-  for i in range(len(odsa_data)):
+    if 'var bookName = "' in odsa_data[i]:
+      odsa_data[i] = re.sub(r'(.+ = ").*(";.*)', r'\1' + conf_data['name'] + r'\2', odsa_data[i])
+      replaced = replaced + 1
+      if replaced == total_replacements:
+        break
+    
     if 'var moduleOrigin = "' in odsa_data[i]:
       odsa_data[i] = re.sub(r'(.+ = ").*(";.*)', r'\1' + conf_data['module_origin'] + r'\2', odsa_data[i])
       replaced = replaced + 1
@@ -614,17 +649,11 @@ odsaMOD.close()
 # opendsaMOD.js is always copied to the build location, so write the updated data to the output source directory
 with open(src_dir + '_static/opendsaMOD.js','w') as odsaMOD:
   replaced = 0
-  total_replacements = 3
+  total_replacements = 2
   
   for i in range(len(odsaMOD_data)):
     if 'var exerciseOrigin = "' in odsaMOD_data[i]:
       odsaMOD_data[i] = re.sub(r'(.+ = ").*(";.*)', r'\1' + conf_data['exercise_origin'] + r'\2', odsaMOD_data[i])
-      replaced = replaced + 1
-      if replaced == total_replacements:
-        break
-      
-    if 'var bookName = "' in odsaMOD_data[i]:
-      odsaMOD_data[i] = re.sub(r'(.+ = ").*(";.*)', r'\1' + conf_data['name'] + r'\2', odsaMOD_data[i])
       replaced = replaced + 1
       if replaced == total_replacements:
         break
@@ -663,6 +692,23 @@ with open(options['odsa_dir'] + 'ODSAkhan-exercises/khan-exercise.js','w') as kh
         break
   khan_exer.writelines(ke_data)
 khan_exer.close()
+
+
+
+# Add the index.html file that redirects to the build/html directory
+indexHTML = """\
+<html>
+<head>
+  <script>
+    window.location.replace(window.location.href.replace(/\/(index.html)?$/, '/build/html/'));
+  </script>
+</head>
+</html>
+"""
+
+with open(output_dir + 'index.html','w') as indexFile:
+  indexFile.writelines(indexHTML)
+indexFile.close()
 
 
 

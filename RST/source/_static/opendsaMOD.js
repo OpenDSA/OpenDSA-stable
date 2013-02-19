@@ -1,11 +1,10 @@
 "use strict";
 /*global alert: true, console: true, debugMode, serverEnabled, userLoggedIn, uiid,
-warnUserLogin, logUserAction, logEvent, inLocalStorage, getUsername, getSessionKey,
-getNameFromURL, getJSON, getModuleName, sendEventData, server_url, moduleName,
-roundPercent, isDefined, storeStatusAndUpdateDisplays, SHA1 */
+warnUserLogin, logUserAction, logEvent, getUsername, getSessionKey,
+getNameFromURL, getJSON, getModuleName, sendEventData, serverURL, moduleName,
+roundPercent, storeStatusAndUpdateDisplays, bookName, handleSessionExpired */
 
 /* warnUserLogin and storeStatusAndUpdateDisplays are defined in this file, but due to cyclic dependencies */
-// SHA1 is more of a library and is defined at the bottom
 
 // Stores information about each exercise on a page for fast lookup
 //  - type - the exercise type ('ss', 'ka', 'pe')
@@ -23,17 +22,18 @@ var Status = {
 };
 
 /**
- * Stores the name of the book, used to uniquely identify a book in the database
- */
-var bookName = "OpenDSA";
-
-/**
  * Flag controlling whether or not the system will assign credit (
  * scores) obtained by anonymous users to the next user to log in
  */
 var allowAnonCredit = true;
 
 var readyTime = +new Date();  // TODO: For performance testing
+
+/**
+ * Flag indicating whether or not the "Module Complete" message should be displayed
+ */
+var dispModComp = false;
+
 
 /**
  * Adds an 'endsWith' function to strings
@@ -67,19 +67,19 @@ function info() { // This is what we pop up
  * Store username and session key in localStorage
  */
 function updateLocalStorage(username, sessionKey) {
-  var exDate = new Date();
-  exDate.setDate(exDate.getDate() + 5);  //the session is valid 5 days
+  var expireDate = new Date();
+  expireDate.setDate(expireDate.getDate() + 5);  //the session is valid 5 days
   var session = {};
   session.username = username;
   session.key = sessionKey;
-  session.expires = exDate;
-  localStorage.opendsa = JSON.stringify(session);
+  session.expires = expireDate;
+  localStorage.session = JSON.stringify(session);
 }
 
 function isSessionExpired() {
-  if (inLocalStorage("opendsa")) {
-    var bj = JSON.parse(localStorage.opendsa),
-        sessionDate = bj.expires,
+  if (localStorage.session) {
+    var session = JSON.parse(localStorage.session),
+        sessionDate = session.expires,
         currentDate = new Date();
     return sessionDate <= currentDate;
   }
@@ -98,7 +98,7 @@ function handleExpiredSession(key) {
   // Checks key used to submit data against current key to prevent multiple alerts
   // from popping up when multiple responses come in from multiple messages sent with an invalid session key
   if (key === currKey) {
-    localStorage.removeItem('opendsa');
+    localStorage.removeItem('session');
     // Alternatively, trigger updateLogin() and show the login box (won't reset exercises that have been completed)
     //updateLogin();
     //showLoginBox();
@@ -154,17 +154,17 @@ function showHide(btnID) {
  * Given a name, returns whether localStorage has a
  * record of the current user being proficient
  */
-function getCachedProf(name, username) {
-  username = (isDefined(username)) ? username : getUsername();
-
+function getProficiencyStatus(name, username, book) {
   // Check for proficiency status in localStorage
-  if (inLocalStorage("proficiency_data")) {
+  if (localStorage.proficiency_data) {
+    username = (username) ? username : getUsername();
+    book = (book) ? book : bookName;
+
     var profData = getJSON(localStorage.proficiency_data);
-    username = (isDefined(username)) ? username : getUsername();
 
     // Check whether user has proficiency data and if the specified exercise is listed
-    if (profData[username] && profData[username][name]) {
-      return profData[username][name];
+    if (profData[username] && profData[username][book] && profData[username][book][name]) {
+      return profData[username][book][name];
     }
   }
 
@@ -174,45 +174,47 @@ function getCachedProf(name, username) {
 /**
  * Stores the user's proficiency status with the specified exercise in localStorage
  */
-function storeProficiencyStatus(name, status, username) {
+function storeProficiencyStatus(name, status, username, book) {
   if (debugMode) {
-    console.group('storeProficiencyStatus(' + name + ', ' + status + ', ' + username + ')');
+    console.group('storeProficiencyStatus(' + name + ', ' + status + ', ' + username + ', ' + book + ')');
   }
 
   status = (typeof status !== "undefined") ? status : Status.STORED;  // false is a valid status
-  username = (isDefined(username)) ? username : getUsername();
+  username = (username) ? username : getUsername();
+  book = (book) ? book : bookName;
 
-  var profData = getJSON(localStorage.proficiency_data),
-      data = {'status': status};
-
-  // Adds the number of points an exercise is worth (if applicable)
-  if (exercises[name] && exercises[name].points) {
-    data.points = exercises[name].points;
-  }
+  var profData = getJSON(localStorage.proficiency_data);
 
   if (debugMode) {
-    console.debug('storeProficiencyStatus(' + name + ', ' + status + ', ' + username + ')');
+    console.debug('storeProficiencyStatus(' + name + ', ' + status + ', ' + username + ', ' + book + ')');
     console.debug('profData (unmodified):');
     console.debug(JSON.stringify(profData));
-    console.debug('data:');
-    console.debug(JSON.stringify(data));
   }
 
   // Check whether user has an entry
   if (!profData[username]) {
     if (debugMode) {
-      console.debug('Creating new proficiency_data entry for ' + ((username) ? username : 'the anonymous user'));
+      console.debug('Creating new proficiency_data entry for ' + username);
     }
     // Add a new entry for the user
     profData[username] = {};
   }
 
+  // Check whether user has an entry for the given book
+  if (!profData[username][book]) {
+    if (debugMode) {
+      console.debug('Creating new book entry for ' + username);
+    }
+    // Add a new entry for the user
+    profData[username][book] = {};
+  }
+
   if (status) {
-    // User is proficient, store the data in local proficiency cache
-    profData[username][name] = data;
-  } else if (profData[username][name]) {
-    // User is not proficient, remove any data from the local proficiency cache
-    delete profData[username][name];
+    // User is proficient, store their status in local proficiency cache
+    profData[username][book][name] = status;
+  } else {
+    // User is not proficient, remove any related data from the local proficiency cache
+    delete profData[username][book][name];
   }
 
   localStorage.proficiency_data = JSON.stringify(profData);
@@ -229,15 +231,14 @@ function storeProficiencyStatus(name, status, username) {
  *  - If 'name' is not provided, will default to moduleName
  */
 function updateProfDisplay(name) {
-  name = (isDefined(name)) ? name : moduleName;
+  name = (name) ? name : moduleName;
 
   if (debugMode) {
     console.group('updateProfDisplay(' + name + ')');
   }
 
   var username = getUsername(),
-      data = getCachedProf(name),
-      status = (data) ? data.status : false;
+      status = getProficiencyStatus(name, username, bookName);
 
   if (exercises[name]) {  // name refers to an exercise
     if (debugMode) {
@@ -337,12 +338,13 @@ function updateProfDisplay(name) {
 /**
  * Queries the server for the user's proficiency on an exercise or module
  */
-function checkProficiency(name, username) {
+function checkProficiency(name, username, book) {
   name = (name) ? name : moduleName;
-  username = (isDefined(username)) ? username : getUsername();
+  username = (username) ? username : getUsername();
+  book = (book) ? book : bookName;
 
   if (debugMode) {
-    console.group('checkProficiency(' + name + ', ' + username + ')');
+    console.group('checkProficiency(' + name + ', ' + username + ', ' + book + ')');
   }
 
   // Clear the proficiency display if the current user is not listed as proficient
@@ -360,8 +362,11 @@ function checkProficiency(name, username) {
 
   if (serverEnabled() && userLoggedIn()) {
     // Request proficiency status from the server
-    var jsonData = {key: getSessionKey()},
+    var jsonData = {},
         url;
+
+    jsonData.key = getSessionKey();
+    jsonData.book = book;
 
     if (exercises[name]) {
       if (debugMode) {
@@ -380,7 +385,7 @@ function checkProficiency(name, username) {
     }
 
     jQuery.ajax({
-      url:  server_url + url,
+      url:  serverURL + url,
       type: "POST",
       data: jsonData,
       contentType: "application/json; charset=utf-8",
@@ -419,23 +424,23 @@ function checkProficiency(name, username) {
         }
       }
     });
-  } else if (name === moduleName) {  // Determine whether the anonymous user is proficient with the current module
+  } else if (name === moduleName) {  // Determine whether the guest account is proficient with the current module
     if (debugMode) {
-      console.debug('Determining (client-side) module proficiency for anonymous user');
+      console.debug('Determining (client-side) module proficiency for guest');
     }
 
     // Can't use this technique from the index page to determine the proficiency of other module pages because there are no exercises on the index page which will cause all modules to be listed as proficient
 
-    // Allow the client to determine module proficiency for anonymous users
+    // Allow the client to determine module proficiency for guest
     status = Status.STORED;
-    var exerData;
+    var exerStatus;
 
     // Check whether local proficiency cache lists all exercises required for module proficiency as completed
     for (var exerName in exercises) {
       if (exercises.hasOwnProperty(exerName) && exercises[exerName].required) {
-        exerData = getCachedProf(exerName);
+        exerStatus = getProficiencyStatus(exerName, username, bookName);
 
-        if (!exerData) {
+        if (!exerStatus) {
           // User is not proficient with a required exercise and therefore cannot be proficient with the module
           if (debugMode) {
             console.debug(exerName + ': false');
@@ -443,12 +448,12 @@ function checkProficiency(name, username) {
 
           status = false;
           break;
-        } else if (exerData.status && exerData.status !== Status.STORED) {
-          status = exerData.status;
+        } else if (exerStatus !== Status.STORED) {
+          status = exerStatus;
         }
 
         if (debugMode) {
-          console.debug(exerName + ': ' + exerData.status);
+          console.debug(exerName + ': ' + exerStatus);
         }
       }
     }
@@ -470,7 +475,7 @@ function checkProficiency(name, username) {
  * Cache's the user's proficiency status and updates proficiency displays as necessary
  */
 function storeStatusAndUpdateDisplays(name, status, username) {
-  username = (isDefined(username)) ? username : getUsername();
+  username = (username) ? username : getUsername();
 
   if (debugMode) {
     console.group('storeStatusAndUpdateDisplays(' + name + ' , ' + status + ', ' + username + ')');
@@ -502,7 +507,7 @@ function syncProficiency() {
 
     // get user points
     jQuery.ajax({
-      url:   server_url + "/api/v1/userdata/getgrade/",
+      url:   serverURL + "/api/v1/userdata/getgrade/",
       type:  "POST",
       data: {"key": key, "book": bookName},
       contentType: "application/json; charset=utf-8",
@@ -527,17 +532,7 @@ function syncProficiency() {
           for (i = 0; i < data.grades.length; i++) {
             exer = data.grades[i];
 
-            if (exer.points > 0) {
-              storeProficiencyStatus(exer.exercise, Status.STORED, username);
-
-              // Store the points as well
-              profData = getJSON(localStorage.proficiency_data);
-              profData[username][exer.exercise].points = exer.points;
-              localStorage.proficiency_data = JSON.stringify(profData);
-            } else {
-              storeProficiencyStatus(exer.exercise, false, username);
-            }
-
+            storeProficiencyStatus(exer.exercise, (exer.points > 0) ? Status.STORED : false, username);
             updateProfDisplay(exer.exercise);
           }
 
@@ -576,12 +571,11 @@ function syncProficiency() {
  * Sends all the data necessary to load a module to the server
  */
 function loadModule(modName) {
-  modName = (isDefined(modName)) ? modName : moduleName;
+  modName = (modName) ? modName : moduleName;
 
   if (debugMode) {
     console.group('loadModule(' + modName + ')');
   }
-
 
   // Trigger loading the gradebook
   if (modName === "Gradebook") {
@@ -645,7 +639,7 @@ function loadModule(modName) {
     }
 
     jQuery.ajax({
-      url:  server_url + "/api/v1/module/loadmodule/",
+      url:  serverURL + "/api/v1/module/loadmodule/",
       type: "POST",
       data: modData,
       contentType: "application/json; charset=utf-8",
@@ -671,7 +665,7 @@ function loadModule(modName) {
               updateProfDisplay(exerName);
 
               // Store the user's progress for Khan Academy exercises
-              if (exercises[exerName].type === 'ka' && isDefined(data[exerName].progress)) {
+              if (exercises[exerName].type === 'ka' && data[exerName].progress) {
                 exercises[exerName].progress = data[exerName].progress;
 
                 // Load any existing data
@@ -714,16 +708,16 @@ function loadModule(modName) {
     $('li.toctree-l1 > a.reference.internal').each(function (index, item) {
       if ($(item).attr('href').endsWith('.html')) {
         modName = getNameFromURL($(item).attr('href'));
-        
-        if (modName !== 'Gradebook') {
+
+        if (dispModComp) {
           // Update the proficiency indicators based on what is currently in local storage
           updateProfDisplay(modName);
         }
       }
     });
-  } else { // Load anonymous user data from localStorage
+  } else { // Load guest data from localStorage
     if (debugMode) {
-      console.debug('Load anonymous user data from localStorage');
+      console.debug('Load guest data from localStorage');
     }
 
     // Update exercise proficiency displays to reflect the proficiency of the current user
@@ -760,13 +754,15 @@ function loadModule(modName) {
  * Adds the specified score data to the user's list
  *   - newScoreData - the score data to store
  *   - username (optional) - the user to whom the score belongs
+ *   - book (optional) - the book, the exercise is associated with
  */
-function storeScoreData(newScoreData, username) {
+function storeScoreData(newScoreData, username, book) {
   username = (username) ? username : getUsername();
+  book = (book) ? book : bookName;
 
-  if (allowAnonCredit || username !== '') {
+  if (serverEnabled() && (allowAnonCredit || userLoggedIn())) {
     if (debugMode) {
-      console.group('storeScoreData(' + JSON.stringify(newScoreData) + ', ' + ((username) ? username : 'the anonymous user') + ')');
+      console.group('storeScoreData(' + JSON.stringify(newScoreData) + ', ' + username + ', ' + book + ')');
     }
 
     if (serverEnabled()) {
@@ -774,25 +770,30 @@ function storeScoreData(newScoreData, username) {
       var scoreData = getJSON(localStorage.score_data);
 
       if (debugMode) {
-        console.debug('Storing exercise score for ' + ((username) ? username : 'the anonymous user'));
+        console.debug('Storing exercise score for ' + username);
         console.debug('scoreData (unmodified):');
         console.debug(JSON.stringify(scoreData));
-      }
-
-      if (!scoreData) {
-        scoreData = {};
       }
 
       // If user does not have an entry in score data, create one
       if (!scoreData[username]) {
         if (debugMode) {
-          console.debug('Creating a new score_data entry for ' + ((username) ? username : 'the anonymous user'));
+          console.debug('Creating a new score_data entry for ' + username);
         }
 
-        scoreData[username] = [];
+        scoreData[username] = {};
+      }
+      
+      // If user does not have an entry for the given book, create one
+      if (!scoreData[username][book]) {
+        if (debugMode) {
+          console.debug('Creating a new book entry for ' + username);
+        }
+
+        scoreData[username][book] = [];
       }
 
-      scoreData[username].push(newScoreData);
+      scoreData[username][book].push(newScoreData);
       localStorage.score_data = JSON.stringify(scoreData);
 
       if (debugMode) {
@@ -810,33 +811,35 @@ function storeScoreData(newScoreData, username) {
 /**
  * Assigns the anonymous score data to the given user
  */
-function assignAnonScoreData(username) {
+function assignAnonScoreData(username, book) {
   if (allowAnonCredit) {
-    username = (isDefined(username)) ? username : getUsername();
+    username = (username) ? username : getUsername();
+    book = (book) ? book : bookName;
 
     // Return is specified user is the anonymous user
-    if (!username) {
+    if (username === "guest") {
+      return;
+    }
+    
+    // Load score data
+    var scoreData = getJSON(localStorage.score_data);
+    
+    if (!scoreData.guest || !scoreData.guest[book]) {
       return;
     }
 
     if (debugMode) {
-      console.group('assignAnonScoreData(' + username + ')');
-    }
-
-    // Load score data
-    var scoreData = getJSON(localStorage.score_data);
-
-    // Create a deep copy of anonymous user's data so that the original can be
-    // cleared and saved immediately to prevent accidentally overwriting data
-    var anonData = $.extend(true, [], scoreData['']);
-
-    if (debugMode) {
+      console.group('assignAnonScoreData(' + username + ', ' + book + ')');
       console.debug('scoreData (unmodified):');
       console.debug(JSON.stringify(scoreData));
     }
+    
+    // Create a deep copy of anonymous user's data so that the original can be
+    // cleared and saved immediately to prevent accidentally overwriting data
+    var anonData = $.extend(true, [], scoreData.guest[book]);
 
-    // Clear list of anonymous user's score objects
-    scoreData[''] = [];
+    // Clear list of guest's score objects for given book
+    delete scoreData.guest[book];
     localStorage.score_data = JSON.stringify(scoreData);
 
     var validDate = new Date();
@@ -846,7 +849,7 @@ function assignAnonScoreData(username) {
     // exercise was completed within the last 5 days
     for (var i = 0; i < anonData.length; i++) {
       if (anonData[i].submit_time > +validDate) {
-        storeScoreData(anonData[i], username);
+        storeScoreData(anonData[i], username, book);
       }
     }
 
@@ -861,17 +864,18 @@ function assignAnonScoreData(username) {
 /**
  * Stores the user's score for an AV / exercise
  */
-function storeExerciseScore(exerName, score, username) {
+function storeExerciseScore(exerName, score, totalTime, username, book) {
   // TODO: Fix the localStorage concurrency problem
-  username = (isDefined(username)) ? username : getUsername();
+  username = (username) ? username : getUsername();
+  book = (book) ? book : bookName;
 
   if (debugMode) {
-    console.group('storeExerciseScore(' + exerName + ', ' + score + ', ' + username + ')');
+    console.group('storeExerciseScore(' + exerName + ', ' + score + ', ' + totalTime + ', ' + username + ', ' + book + ')');
   }
 
   // Return if exerName is not a valid exercise
   if (!exercises[exerName]) {
-    console.warn('storeExerciseScore(' + exerName + ', ' + score + ', ' + username + '): invalid reference ' + exerName);
+    console.warn('storeExerciseScore(' + exerName + ', ' + score + ', ' + totalTime + ', ' + username + ', ' + book + '): invalid reference ' + exerName);
 
     if (debugMode) {
       console.groupEnd();
@@ -883,20 +887,20 @@ function storeExerciseScore(exerName, score, username) {
   if (serverEnabled() && (allowAnonCredit || userLoggedIn())) {
     var data = {};
     data.exercise = exerName;
-    data.submit_time = (new Date()).getTime();
     data.module = moduleName;
+    data.tstamp = (new Date()).getTime();
     data.score = score;
-    data.total_time = 0;  // TODO: Figure out how to record total time
+    data.total_time = totalTime;
     data.uiid = exercises[exerName].uiid;
 
     if (debugMode) {
-      console.debug('Storing exercise score for ' + ((username) ? username : 'the anonymous user'));
+      console.debug('Storing exercise score for ' + username);
       console.debug('data:');
       console.debug(JSON.stringify(data));
     }
 
     // Save the score data in localStorage
-    storeScoreData(data, username);
+    storeScoreData(data, username, book);
   }
 
   // If the score is above the threshold and the server isn't enabled or it
@@ -917,7 +921,7 @@ function storeExerciseScore(exerName, score, username) {
 /**
  * Sends the score for a single exercise
  */
-function sendExerciseScore(exerData, username, sessionKey) {
+function sendExerciseScore(exerData, username, sessionKey, book) {
   if (debugMode) {
     console.group('sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ')');
     console.debug(JSON.stringify(exerData));
@@ -934,13 +938,14 @@ function sendExerciseScore(exerData, username, sessionKey) {
     }
 
     sessionKey = (sessionKey) ? sessionKey : getSessionKey();
-    username = (isDefined(username)) ? username : getUsername();
+    username = (username) ? username : getUsername();
+    book = (book) ? book : bookName;
 
     if (debugMode) {
-      console.debug('sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ')');
+      console.debug('sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ', ' + book + ')');
     }
 
-    if (!username) {
+    if (username === "guest") {
       // If a user performs an action that submits an AV score,
       // but they are not logged in, warn them they will not
       // receive credit without logging in
@@ -954,11 +959,10 @@ function sendExerciseScore(exerData, username, sessionKey) {
     }
 
     // Determine if the user is already proficient
-    var profData = getCachedProf(exerData.exercise, username),
-        profStored = false;
+    var profStored = false;
 
     // If user's proficiency is already confirmed by the server, don't confuse them by changing the status
-    if (profData && profData.status === Status.STORED) {
+    if (getProficiencyStatus(exerData.exercise, username, book) === Status.STORED) {
       profStored = true;
     } else {
       // Update exercise status to SUBMITTED
@@ -967,6 +971,7 @@ function sendExerciseScore(exerData, username, sessionKey) {
 
     // Append the session key to the exercise data
     exerData.key = sessionKey;
+    exerData.book = book;
 
     if (debugMode) {
       console.debug('Sending exerData:');
@@ -975,7 +980,7 @@ function sendExerciseScore(exerData, username, sessionKey) {
 
     // Submit the user's score
     jQuery.ajax({
-      url:   server_url + "/api/v1/user/exercise/attemptpe/",
+      url:   serverURL + "/api/v1/user/exercise/attemptpe/",
       type:  "POST",
       data: exerData,
       contentType: "application/json; charset=utf-8",
@@ -1014,7 +1019,7 @@ function sendExerciseScore(exerData, username, sessionKey) {
         data = getJSON(data);
 
         if (debugMode) {
-          console.group('Error: sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ')');
+          console.group('Error: sendExerciseScore(exerData, ' + username + ', ' + sessionKey + ', ' + book + ')');
           console.debug(JSON.stringify(data));
         }
 
@@ -1032,7 +1037,8 @@ function sendExerciseScore(exerData, username, sessionKey) {
           // removed from the buffer, so save it back to the buffer
           var key = exerData.key;
           delete exerData.key;
-          storeScoreData(exerData, username);
+          delete exerData.book;
+          storeScoreData(exerData, username, book);
 
           if (data.status === 401) {
             handleExpiredSession(key);
@@ -1059,7 +1065,7 @@ function sendExerciseScore(exerData, username, sessionKey) {
 /**
  * Loops through and sends all buffered exercise scores for the given user
  */
-function sendExerciseScores(username, sessionKey) {
+function sendExerciseScores(username, sessionKey, book) {
   if (debugMode) {
     console.group('sendExerciseScores(' + username + ', ' + sessionKey + ')');
   }
@@ -1068,31 +1074,34 @@ function sendExerciseScores(username, sessionKey) {
   // This provides integrity by preventing users submitting
   // scores for someone else and allows us to determine who
   // the scores belong to because the username is derived from the session
-  if (serverEnabled() && userLoggedIn() && inLocalStorage("score_data")) {
-    username = (isDefined(username)) ? username : getUsername();
+  if (serverEnabled() && userLoggedIn() && localStorage.score_data) {
+    username = (username) ? username : getUsername();
     sessionKey = (sessionKey) ? sessionKey : getSessionKey();
+    book = (book) ? book : bookName;
 
     // Load buffered score data
     var scoreData = getJSON(localStorage.score_data);
+    
+    if (scoreData[username] && scoreData[username][book]) {
+      // Create a deep copy of user's score data (for the given book) so the
+      // original can be cleared and saved to prevent accidentally overwriting data
+      var userData = $.extend(true, [], scoreData[username][book]);
 
-    // Create a deep copy of user's score data so the original can be
-    // cleared and saved to prevent accidentally overwriting data
-    var userData = $.extend(true, [], scoreData[username]);
+      if (debugMode) {
+        console.debug('sendExerciseScores(' + username + ', ' + sessionKey + ', ' + book + ')');
+        console.debug('scoreData:');
+        console.debug(JSON.stringify(scoreData));
+        console.debug('userData:');
+        console.debug(JSON.stringify(userData));
+      }
 
-    if (debugMode) {
-      console.debug('sendExerciseScores(' + username + ', ' + sessionKey + ')');
-      console.debug('scoreData:');
-      console.debug(JSON.stringify(scoreData));
-      console.debug('userData:');
-      console.debug(JSON.stringify(userData));
-    }
+      delete scoreData[username][book];
+      localStorage.score_data = JSON.stringify(scoreData);
 
-    scoreData[username] = [];
-    localStorage.score_data = JSON.stringify(scoreData);
-
-    // Send score data for the specified user
-    for (var i = 0; i < userData.length; i++) {
-      sendExerciseScore(userData[i], username, sessionKey);
+      // Send score data for the specified user
+      for (var i = 0; i < userData.length; i++) {
+        sendExerciseScore(userData[i], username, sessionKey, book);
+      }
     }
   }
 
@@ -1163,9 +1172,22 @@ function processEventData(data) {
   if (ssEvents.indexOf(data.type) > -1) {
     data.desc = data.currentStep + " / " + data.totalSteps;
 
+    // Initializes the start time for a slideshow, the first time a user clicks on it
+    if (!exercises[data.av].startTime) {
+      exercises[data.av].startTime = +new Date();
+    }
+
     // User reached the end of a slideshow, award them credit
     if (data.type === "jsav-forward" && data.currentStep === data.totalSteps) {
-      storeExerciseScore(data.av, 1);
+      if (!data.totalTime) {
+        data.totalTime = +new Date() - exercises[data.av].startTime;
+
+        // TODO: Do we really want to delete this?
+        // Remove the start time because the user just finished
+        delete exercises[data.av].startTime;
+      }
+
+      storeExerciseScore(data.av, 1, data.totalTime);
       updateProfDisplay(data.av);
       flush = true;
     }
@@ -1174,18 +1196,18 @@ function processEventData(data) {
   } else if (data.type === "jsav-exercise-grade-change") {
     // On grade change events, log the user's score and submit it
     score = roundPercent((data.score.student - data.score.fix) / data.score.total);
-    complete = roundPercent((data.score.student + data.score.fix) / data.score.total);
+    complete = roundPercent(data.score.student / data.score.total);
     data.desc = JSON.stringify({'score': score, 'complete': complete});
-    
+
     // Store the user's score when they complete the exercise
     if (complete === 1) {
-      storeExerciseScore(data.av, score);
+      storeExerciseScore(data.av, score, data.totalTime);
       updateProfDisplay(data.av);
       flush = true;
     }
   } else if (data.type === "odsa-award-credit") {
     // Store completion credit
-    storeExerciseScore(data.av, 1);
+    storeExerciseScore(data.av, 1, data.totalTime);
     updateProfDisplay(data.av);
     flush = true;
   }
@@ -1219,7 +1241,7 @@ function showRegistrationBox() {
   if (serverEnabled()) {
     logUserAction('registration-box-open', 'registration box was opened');
 
-    var server_regist_url = server_url + "/accounts/register/",
+    var server_regist_url = serverURL + "/accounts/register/",
         registrationBox = '#registration-box',
         regBoxWidth = $(registrationBox).width(),
         left = ($(window).width() / 2) - (regBoxWidth / 2),
@@ -1319,7 +1341,7 @@ function warnUserLogin()
    *   - If the server is enabled
    *   - If they haven't been warned before or since they last logged out
    */
-  if (serverEnabled() && (!inLocalStorage("warn_login") || localStorage.warn_login !== "false")) {
+  if (serverEnabled() && (!localStorage.warn_login || localStorage.warn_login !== "false")) {
     logUserAction('login-warn-message', 'User warned they must login to receive credit');
     alert('You must be logged in to receive credit');
     localStorage.warn_login = "false";
@@ -1339,7 +1361,7 @@ function updateLogin() {
     var username = getUsername(),
         updated = false;
 
-    if (inLocalStorage('opendsa') && $('a.username-link').text() !== username) {
+    if (localStorage.session && $('a.username-link').text() !== username) {
       if (debugMode) {
         console.debug(username + ' has logged in since the last page refresh, update the page');
       }
@@ -1361,7 +1383,7 @@ function updateLogin() {
 
       // Flush any stored data
       flushStoredData();
-    } else if (!inLocalStorage('opendsa') && $('a.login-window').text() !== 'Login') {
+    } else if (!localStorage.session && $('a.login-window').text() !== 'Login') {
       if (debugMode) {
         console.debug($('a.login-window').text() + ' has logged out since the last page refresh, update the page');
       }
@@ -1374,15 +1396,10 @@ function updateLogin() {
       $('a.username-link').text('');
       $('a.username-link').hide();
       $('a.registration-window').show();
-
-      if (inLocalStorage('warn_login')) {
-        localStorage.removeItem('warn_login');
-      }
+      localStorage.removeItem('warn_login');
 
       // Remove the variable storing the user's progress on KA exercises
-      if (inLocalStorage('khan_exercise')) {
-        localStorage.removeItem('khan_exercise');
-      }
+      localStorage.removeItem('khan_exercise');
     }
 
     if (updated) {
@@ -1419,14 +1436,8 @@ $(document).ready(function () {
     }
   }
 
-  $('.email_div').append('<a id="contact_us" class="contact" style="float:left;color:blue;" rel="nofollow" href="mailto:' + link + '">Contact Us</a>');
+  $('.email_div').append('<a id="contact_us" class="contact" style="float:left;color:blue;" rel="nofollow" href="mailto:' + link + '">Contact Us |</a><a style="float:left;color:blue;" rel="nofollow" href="Privacy.html">| Privacy</a>');
 
-  if (moduleName !== 'Gradebook') {
-    // Append the module complete code to the header
-    $('h1 > a.headerlink').parent().css('position', 'relative');
-    $('h1 > a.headerlink').parent().append('<div id="' + moduleName + '_complete" class="mod_complete">Module Complete</div>');
-  }
-  
   // Populate the exercises hash
   // Iterate through all showHide buttons, iframe and slideshows and add exercises (as necessary)
   $('.showHideLink, iframe, .ssAV').each(function (index, item) {
@@ -1454,6 +1465,20 @@ $(document).ready(function () {
       $(item).after("<span id='" + exerName + "_shb_saving_msg' class='shb_msg'>Saving...</span>");
     }
   });
+  
+  // Set dispModComp to true if the module contains any required exercises
+  for (var exer in exercises) {
+    if (exercises.hasOwnProperty(exer) && exer.required) {
+      dispModComp = true;
+      break;
+    }
+  }
+  
+  if (dispModComp) {
+    // Append the module complete code to the header
+    $('h1 > a.headerlink').parent().css('position', 'relative');
+    $('h1 > a.headerlink').parent().append('<div id="' + moduleName + '_complete" class="mod_complete">Module Complete</div>');
+  }
 
   /*
   // TODO: Attempt to dynamically add proficiency check marks to AVs that don't have showhide buttons
@@ -1516,8 +1541,8 @@ $(document).ready(function () {
     if (isSessionExpired()) {
       // Flush any old data before forcing a user to logout
       flushStoredData();
-      localStorage.removeItem("opendsa");
-      if (!inLocalStorage("warn_login")) {
+      localStorage.removeItem('session');
+      if (!localStorage.warn_login) {
         showLoginBox();
       }
       loadModule();
@@ -1556,7 +1581,7 @@ $(document).ready(function () {
           password = $('#password').attr('value');
 
       jQuery.ajax({
-        url:   server_url + "/api/v1/users/login/",
+        url:   serverURL + "/api/v1/users/login/",
         type:  "POST",
         data: {"username":  username, "password": password  },
         contentType: "application/json; charset=utf-8",
@@ -1615,7 +1640,7 @@ $(document).ready(function () {
 
         // Inform the server the user is logging out
         jQuery.ajax({
-          url:   server_url + "/api/v1/users/logout/",
+          url:   serverURL + "/api/v1/users/logout/",
           type:  "GET",
           data: {key: getSessionKey()},
           contentType: "application/json; charset=utf-8",
@@ -1635,7 +1660,7 @@ $(document).ready(function () {
 
         // Log out the user locally
         logUserAction('user-logout', 'User logged out');
-        localStorage.removeItem('opendsa');
+        localStorage.removeItem('session');
         //updateLogin();
 
         // Force the page to reload to reset all exercises

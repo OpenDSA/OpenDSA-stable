@@ -4,9 +4,11 @@
   padding: 0.7em;
   border: 1px solid black;
   background-color: white;
+  position: relative;
 }
 .jsavcanvas {
   position: relative;
+  background-color: inherit;
 }
 
 .jsavnode {
@@ -15,7 +17,7 @@
   text-align: center;
   line-height: 45px;
   border: 1px solid black;
-  background: white;
+  background-color: white;
   color: black;
   opacity: 1;
   padding: 0;
@@ -34,6 +36,9 @@
 .jsavvalue {
   height: 100%;
   width: 100%;
+  min-height: inherit;
+  min-width: inherit;
+  background-color: inherit;
 }
 
 .jsavautoresize .jsavnode {
@@ -221,9 +226,6 @@
 /***** END STYLING OF THE ARRAY DATA STRUCTURE *****/
 
 /*** OUTPUT STYLING ***/
-.jsavoutput {
-  width:100%;
-}
 .jsavline {
   overflow: visible;
   border: none;
@@ -430,8 +432,9 @@ a.jsavdialogclose {
 
 /********* TREE / GRAPH DATA STRUCTURE *******/
 
-.jsavtree, .jsavgraph {
+.jsavtree, .jsavgraph, .jsavlist {
   position: relative;
+  background-color: inherit;
 }
 .jsavtreenode, .jsavgraphnode {
   border-radius: 23px;
@@ -449,7 +452,7 @@ a.jsavdialogclose {
 }
 
 .jsavedgelabel {
-  text-shadow: 1px 1px 0 white, -1px -1px white;
+  background-color: inherit;
   z-index: 700;
 }
 
@@ -473,9 +476,6 @@ a.jsavdialogclose {
   height: 10px;
   position: absolute;
   width: 100%;
-}
-.jsavlist {
-  position: relative;
 }
 .jsavhorizontallist.jsavautoresize .jsavnode {
   min-width: 33px;
@@ -517,4 +517,20 @@ ul.jsavcode {
 }
 .jsavhiddencode {
   display: none !important;
+}
+
+
+
+/******** Event prevention DIV shutter ******/
+.jsavshutter {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+}
+.jsavplaying .jsavshutter {
+  display: block;
 }

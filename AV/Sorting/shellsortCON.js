@@ -87,7 +87,6 @@ function showDifference(container, a) {
   var arr = theArray2;
   doSweep("shellsortCON5", arr, 4);
 }(jQuery));
-
 (function ($) {
   var arr = theArray3;
   showDifference("shellsortCON6", arr);

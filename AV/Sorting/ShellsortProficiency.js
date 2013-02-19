@@ -1,5 +1,5 @@
 "use strict";
-/*global alert: true, logExerciseInit, avc */
+/*global alert: true, logExerciseInit */
 (function ($) {
   $(document).ready(function () {
     /* **************************************************************
@@ -17,7 +17,7 @@
           "label": "Array layout: ", "value": "array"});
 
     //containing HTML element with id ShellsortProficiency.
-    var av = new JSAV(avc, {settings: settings});
+    var av = new JSAV($('.avcontainer'), {settings: settings});
     av.recorded();
 
     // Create a convenience function named tell for writing to the
@@ -111,7 +111,7 @@
     // Process reset button: Re-initialize everything, including the increments
     function initialize() {
       generateIncrements();
-      $('#incrField').val(incrs);
+      $('#increments').val(incrs);
     
       var htmldata = "";
       for (var i = ArraySize; i > 0; i--) {

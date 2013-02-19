@@ -1,10 +1,10 @@
 {
   "config_version": 0.1,
-  "title": "OpenDSA Sorting and Hashing: Spring 2013",
+  "title": "Sorting and Hashing: CS3114",
   "output_dir": "Books/CS3114",
   "code_dir": "SourceCode/Processing",
-  "module_origin": "http://algoviz-beta7.cc.vt.edu",
-  "exercise_origin": "http://algoviz-beta7.cc.vt.edu",
+  "module_origin": "http://algoviz.org",
+  "exercise_origin": "http://algoviz.org",
   "backend_address": "https://opendsa.cc.vt.edu/",
   "copy_static_files": true,
   "build_JSAV": false,
@@ -54,6 +54,13 @@
             "threshold": 1.0,
             "type": "ss"
           },
+          "insertionsortAV": {
+            "long_name": "Insertion Sort Visualization",
+            "required": false,
+            "points": 0,
+            "threshold": 1.0,
+            "type": "ss"
+          },
           "InssortPRO": {
             "long_name": "Insertion Sort Proficiency",
             "required": true,
@@ -72,6 +79,7 @@
       },
       "InsertOpt": {
         "long_name": "Optimizing Insertion Sort",
+        "dispModComp": true,
         "exercises": {}
       },
       "BubbleSort": {
@@ -88,6 +96,13 @@
             "long_name": "Bubble Sort Slideshow 2",
             "required": true,
             "points": 0.1,
+            "threshold": 1.0,
+            "type": "ss"
+          },
+          "bubblesortAV": {
+            "long_name": "Bubble Sort Visualization",
+            "required": false,
+            "points": 0,
             "threshold": 1.0,
             "type": "ss"
           },
@@ -121,6 +136,13 @@
             "long_name": "Selection Sort Slideshow 2",
             "required": true,
             "points": 0.1,
+            "threshold": 1.0,
+            "type": "ss"
+          },
+          "selectionsortAV": {
+            "long_name": "Selection Sort Visualization",
+            "required": false,
+            "points": 0,
             "threshold": 1.0,
             "type": "ss"
           },
@@ -200,7 +222,8 @@
             "long_name": "Shellsort Slideshow 4",
             "required": true,
             "points": 0.1,
-            "threshold": 1.0
+            "threshold": 1.0,
+            "type": "ss"
           },
           "shellsortCON6": {},
           "shellsortCON7": {
@@ -265,6 +288,13 @@
       "Mergesort": {
         "long_name": "Mergesort Concepts",
         "exercises": {
+          "mergesortAV": {
+            "long_name": "Mergesort Visualization",
+            "required": false,
+            "points": 0,
+            "threshold": 1.0,
+            "type": "ss"
+          },
           "mergesortCON1": {
             "long_name": "Mergesort Concepts Slideshow 1",
             "required": true,
@@ -430,6 +460,13 @@
       "RadixSort": {
         "long_name": "Radix Sort",
         "exercises": {
+          "radixLinkAV": {
+            "long_name": "Radix Sort Linked Visualization",
+            "required": false,
+            "points": 0,
+            "threshold": 1.0,
+            "type": "ss"
+          },
           "RadixsortPRO": {
             "long_name": "Radixsort Proficiency",
             "required": true,
@@ -437,7 +474,14 @@
             "threshold": 5,
             "type": "ka"
           },
-          "RadixsortSumm": {
+          "radixArrayAV": {
+            "long_name": "Radix Sort Array Visualization",
+            "required": false,
+            "points": 0,
+            "threshold": 1.0,
+            "type": "ss"
+          },
+          "RadixSortSumm": {
             "long_name": "Radixsort Summary",
             "required": true,
             "points": 1,
@@ -734,6 +778,13 @@
             "threshold": 5,
             "type": "ka"
           },
+          "hashAV": {
+            "long_name": "Hashing Exercise",
+            "required": false,
+            "points": 0,
+            "threshold": 1.0,
+            "type": "pe"
+          },
           "HashCollisionSumm": {
             "long_name": "Improved Collision Resolution Summary",
             "required": true,
@@ -839,6 +890,10 @@
       },
       "Gradebook": {
         "long_name": "Gradebook",
+        "exercises": {}
+      },
+      "Privacy": {
+        "long_name": "Privacy",
         "exercises": {}
       }
     }

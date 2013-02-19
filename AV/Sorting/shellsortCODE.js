@@ -14,13 +14,16 @@ function inssort(av, arr, start, incr) {
     setBlue(arr, i);
     for (j = i; j >= incr; j -= incr) {
       setBlue(arr, j - incr);
+      av.umsg("Compare");
       av.step();
       if (arr.value(j) < arr.value(j - incr)) {
         arr.swap(j, j - incr); // swap the two indices
+        av.umsg("Swap");
         av.step();
       }
       else {
         arr.highlight([j - incr, j]);
+        av.umsg("Done this element");
         break; // Done pushing element, leave for loop
       }
       arr.highlight(j);
