@@ -13,20 +13,21 @@ lint: csslint jshint
 
 csslint:
 	@echo 'running csslint'
-	@csslint $(CSSLINTFLAGS) AV/*.css
 	@csslint $(CSSLINTFLAGS) AV/Sorting/*.css
 	@csslint $(CSSLINTFLAGS) AV/Hashing/*.css
+	@csslint $(CSSLINTFLAGS) AV/*.css
 	@csslint $(CSSLINTFLAGS) Doc/*.css
+	@csslint $(CSSLINTFLAGS) RST/source/_static/opendsaMOD.css
 
 jshint:
 	@echo 'running jshint'
-	@jshint AV/*.js
-	@jshint AV/Hashing/*.js
-	@jshint AV/Sorting/*.js
-	@jshint Exercises/Hashing/*.js
-	@jshint Exercises/Sorting/*.js
-	@jshint lib/ODSA.js
-	@jshint RST/source/_static/opendsaMOD.js
+	-@jshint AV/Sorting/*.js
+	-@jshint AV/Hashing/*.js
+	-@jshint AV/*.js
+	-@jshint Exercises/Hashing/*.js
+	-@jshint lib/ODSA.js
+	-@jshint RST/source/_static/opendsaMOD.js
+	-@jshint RST/source/_static/gradebook.js
 
 update:
 	$(RM) AV
