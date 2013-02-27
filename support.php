@@ -33,6 +33,10 @@ of University of Wisconsin-Madison, Auburn University, and Virginia
 Tech to work with Aalto University, Finland.
 See the <a href="SAVI2012.pdf">NSF-EAGER 2011 Grant Proposal</a>
 (funded beginning January 2013).
+This is part of an NSF SAVI program to support US/Finnish
+collaborations for
+<a href="http://nsf.gov/news/news_summ.jsp?cntn_id=127063&org=NSF&from=news">
+innovations in STEM education</a>.
 
 </ul>
 

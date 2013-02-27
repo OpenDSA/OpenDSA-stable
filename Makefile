@@ -1,4 +1,5 @@
 RM = rm -rf
+CONFIG_SCRIPT = lib/configure.py
 TARGET = build
 CSSLINTFLAGS = --quiet --errors=empty-rules,import,errors --warnings=duplicate-background-images,compatible-vendor-prefixes,display-property-grouping,fallback-colors,duplicate-properties,shorthand,gradients,font-sizes,floats,overqualified-elements,import,regex-selectors,rules-count,unqualified-attributes,vendor-prefix,zero-units
 
@@ -62,13 +63,19 @@ update:
 	- $(RM) Doc/build
 	cd Doc; make
 
-CS3114:
-	python lib/configure.py config/CS3114.json
+CS223:
+	python $(CONFIG_SCRIPT) config/CS223.json
+
+CS3114a:
+	python $(CONFIG_SCRIPT) config/CS3114a.json
+
+CS3114b:
+	python $(CONFIG_SCRIPT) config/CS3114b.json
 
 OpenDSA:
-	python lib/configure.py config/OpenDSA.json
+	python $(CONFIG_SCRIPT) config/OpenDSA.json
 
 T1061220:
-	python lib/configure.py config/T1061220.json
+	python $(CONFIG_SCRIPT) config/T1061220.json
 
-allBooks: CS3114 OpenDSA T1061220
+allBooks: CS223 CS3114a CS3114b OpenDSA T1061220

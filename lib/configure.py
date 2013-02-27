@@ -38,6 +38,9 @@ import collections
 import re
 import subprocess
 
+# The location in the output directory where the built HTML files go
+ebook_suffix = 'html/'
+
 sphinx_header_chars = ['=', '-', '`', "'", '.', '*', '+', '^']
 
 missing_exercises = []
@@ -57,7 +60,6 @@ index_header = '''.. This file is part of the OpenDSA eTextbook project. See
    :author: OpenDSA Contributors
    :prerequisites:
    :topic: Data Structures
-   :short_name: index
 
 .. _index:
 
@@ -72,6 +74,40 @@ index_header = '''.. This file is part of the OpenDSA eTextbook project. See
 .. chapnum::
    :start: 0
    :prefix: Chapter
+
+'''
+
+makefile_data = '''\
+# Makefile for Sphinx documentation
+#
+# You can set these variables from the command line.
+SPHINXBUILD   = sphinx-build
+BUILDDIR      = build
+HTMLDIR       = %(ebook_suffix)s
+
+# Internal variables.
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees source
+
+.PHONY: clean html
+
+all: html
+
+clean:
+	-rm -rf $(BUILDDIR)/*
+	-rm -rf $(HTMLDIR)/*
+	-rm source/ToDo.rst
+
+cleanbuild: clean html
+
+preprocessor:
+	python "%(odsa_dir)sRST/preprocessor.py" source/ $(HTMLDIR)
+
+html: preprocessor
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(HTMLDIR)
+	cp "%(odsa_dir)slib/.htaccess" $(HTMLDIR)
+	rm *.json
+	@echo
+	@echo "Build finished. The HTML pages are in $(HTMLDIR)."
 
 '''
 
@@ -346,10 +382,17 @@ ebook_path = '%(ebook_dir)s'
 #path (from the RST home) to the sourcecode directory that I want to use
 sourcecode_path = '%(code_dir)s'
 
-
 '''
 
 
+def minify(path):
+  print 'Minifying ' + os.path.basename(path)
+  
+  min_command = 'java -jar "' + odsa_dir + 'lib/yuicompressor-2.4.7.jar" --preserve-semi -o "' + path + '" "' + path + '"'
+
+  with open(os.devnull, "w") as fnull:
+    status = subprocess.check_call(min_command, shell=True, stdout=fnull)
+  fnull.close()
 
 def process_path(path, abs_prefix):
   # If the path is relative, make it absolute
@@ -500,7 +543,8 @@ conf_data['name'] = os.path.basename(config_file).replace('.json', '')
 # Auto-detect ODSA directory
 (odsa_dir, script) = os.path.split( os.path.abspath(__file__))
 odsa_dir = odsa_dir.replace("\\", "/")
-odsa_dir = odsa_dir.replace("lib", "") + '/'
+odsa_dir = odsa_dir.replace("/lib", "") + '/'
+
 
 # Process the code and output directory paths
 code_dir = process_path(conf_data['code_dir'], odsa_dir)
@@ -537,7 +581,7 @@ if conf_data['build_JSAV']:
 options = {}
 options['title'] = conf_data['title']
 options['odsa_dir'] = odsa_dir
-options['ebook_dir'] = output_dir + "build/html/"
+options['ebook_dir'] = output_dir + ebook_suffix
 options['code_dir'] = code_dir
 
 print "Copying files to output directory\n"
@@ -545,20 +589,16 @@ print "Copying files to output directory\n"
 # Initialize output directory
 distutils.dir_util.mkpath(src_dir)
 distutils.dir_util.copy_tree(odsa_dir + 'RST/ODSAextensions/', output_dir + 'ODSAextensions/', update=1)
-distutils.file_util.copy_file(odsa_dir + 'RST/preprocessor.py', output_dir, update=1)
 distutils.file_util.copy_file(odsa_dir + 'RST/config.py', output_dir, update=1)
 
-with open(odsa_dir + 'RST/Makefile','r') as makefile:
-  make_data = makefile.readlines()
-makefile.close()
 
-# Rewrite Makefile to correctly point to .htaccess file 
+# Create a Makefile in the output directory 
 with open(output_dir + 'Makefile','w') as makefile:
-  for i in range(len(make_data)):
-    if '.htaccess $(BUILDDIR)/html' in make_data[i]:
-      make_data[i] = re.sub(r'(cp )../(lib/.htaccess)(.*)', r'\1' + '"' + odsa_dir + r'\2"\3', make_data[i])
-      break
-  makefile.writelines(make_data)
+  make_options = {}
+  make_options['ebook_suffix'] = ebook_suffix
+  make_options['odsa_dir'] = odsa_dir
+
+  makefile.writelines(makefile_data % make_options)
 makefile.close()
 
 
@@ -584,7 +624,11 @@ if conf_data['copy_static_files']:
   # Copy static files to output directory, creating directories as necessary
   distutils.dir_util.copy_tree(odsa_dir + 'AV/', output_dir + 'AV/', update=1)
   distutils.dir_util.copy_tree(odsa_dir + 'Exercises/', output_dir + 'Exercises/', update=1)
-  distutils.dir_util.copy_tree(odsa_dir + 'lib/', output_dir + 'lib/', update=1)
+  distutils.dir_util.copy_tree(odsa_dir + 'lib/Images/', output_dir + 'lib/Images/', update=1)
+  distutils.file_util.copy_file(odsa_dir + 'lib/jquery.min.js', output_dir + 'lib/')
+  distutils.file_util.copy_file(odsa_dir + 'lib/jquery-ui.min.js', output_dir + 'lib/')
+  # lib/ODSA.js will be written later, so it does not need to be copied
+  # lib/.htaccess will be copied from its original location by the Makefile
   distutils.dir_util.copy_tree(odsa_dir + 'ODSAkhan-exercises/', output_dir + 'ODSAkhan-exercises/', update=1)
   distutils.dir_util.copy_tree(code_dir, options['code_dir'], update=1)
   distutils.dir_util.copy_tree(odsa_dir + 'JSAV/lib/', output_dir + 'JSAV/lib/', update=1)
@@ -667,8 +711,6 @@ with open(options['odsa_dir'] + 'lib/ODSA.js','w') as odsa:
   odsa.writelines(odsa_data)
 odsa.close()
 
-# TODO: If static files are copied, run minifier on ODSA.JS
-
 
 # Replace 'exerciseOrigin' and 'allowAnonCredit' in opendsaMOD.js
 with open(odsa_dir + 'RST/source/_static/opendsaMOD.js','r') as odsaMOD:
@@ -694,7 +736,6 @@ with open(src_dir + '_static/opendsaMOD.js','w') as odsaMOD:
         break
   odsaMOD.writelines(odsaMOD_data)
 odsaMOD.close()
-
 
 # Replace the backend server address and 'moduleOrigin' in khan-exercise.js
 with open(odsa_dir + 'ODSAkhan-exercises/khan-exercise.js','r') as khan_exer:
@@ -729,29 +770,44 @@ indexHTML = '''\
 <html>
 <head>
   <script>
-    window.location.replace(window.location.href.replace(/\/(index.html)?$/, '/build/html/'));
+    window.location.replace(window.location.href.replace(/\/(index.html)?$/, '/%s'));
   </script>
 </head>
 </html>
 '''
 
 with open(output_dir + 'index.html','w') as indexFile:
-  indexFile.writelines(indexHTML)
+  #options = {}
+  #options['ebook_suffix'] = ebook_suffix
+  indexFile.writelines(indexHTML % ebook_suffix)
 indexFile.close()
 
+# Default to minifying JS files, but allow the configuration file to override it
+if 'minify' not in conf_data or conf_data['minify']:
+  print '\n'
+  
+  # Run a minifier on JS and CSS files in _static because they are always copied
+  minify(src_dir + '_static/opendsaMOD.js')
+  minify(src_dir + '_static/opendsaMOD.css')
+  minify(src_dir + '_static/gradebook.js')
+  minify(src_dir + '_static/gradebook.css')
+
+  # If static files are copied, minify them too
+  if conf_data['copy_static_files']:
+    minify(output_dir + 'AV/opendsaAV.js')
+    minify(output_dir + 'AV/opendsaAV.css')
+    minify(output_dir + 'lib/ODSA.js')
+    minify(output_dir + 'ODSAkhan-exercises/khan-exercise.js')
 
 
-if conf_data['build_ODSA']:
+# Optionally run make on the output directory
+if 'build_ODSA' not in conf_data or conf_data['build_ODSA']:
   print '\nBuilding textbook...'
 
-  # Run make on the output directory
   try:
     os.chdir(output_dir)
     proc = subprocess.Popen('make', stdout=subprocess.PIPE)
     for line in iter(proc.stdout.readline,''):
-       print line.rstrip()
+      print line.rstrip()
   finally:
     os.chdir(cwd)
-
-  # TODO: Run a minifier on opendsaMOD.js
-

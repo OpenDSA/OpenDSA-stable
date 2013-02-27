@@ -117,7 +117,7 @@ div.header {
     padding: 0 40px;
 }
 div.header h1 {
-    font-size: 1.6em;
+    font-size: 25px;  /* 1.6em;*/
     font-weight: normal;
     letter-spacing: 1px;
     color: {{ theme_headingcolor }};
@@ -130,7 +130,7 @@ div.header h1 a {
     color: {{ theme_headingcolor }};
 }
 div.header h2 {
-    font-size: 1.3em;
+    font-size: 20px;   /* 1.3em; */
     font-weight: normal;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -146,10 +146,12 @@ div.header img.rightlogo {
 
 div.header img.leftlogo {
     float: left;
+    height: 64px;
+    margin-top: 8px;
 }  
 
 div.title {
-    font-size: 1.3em;
+    font-size: 20px;  /* 1.3em; */
     font-weight: bold;
     color: {{ theme_headingcolor }};
     border-bottom: dotted thin #e0e0e0;
@@ -164,7 +166,7 @@ div.topnav p {
     margin-right: 40px;
     margin-bottom: 0px;
     text-align: right;
-    font-size: 0.8em;
+    font-size: 12px;  /* 0.8em; */
 }
 div.bottomnav {
     background: #eeeeee;
@@ -385,11 +387,11 @@ div.viewcode-block:target {
         position: fixed; left: 0; top: 0;
         z-index: 10;
         width: 100%; height: 100%;
-        opacity: 0.8;
+        opacity: 0.5;
         z-index: 999;
 }
 /* You can customize to your needs  */
-.login-popup{
+.login-popup {
         display:none;
         background: #333;
         padding: 10px;
@@ -426,7 +428,7 @@ div.viewcode-block:target {
 }
 
 
-img.btn_close { Position the close button
+img.btn_close { /* Position the close button */
         float: right;
         margin: -28px -28px 0 0;
 }
@@ -466,6 +468,7 @@ form.signin .textbox input {
 
 form.signin input:-moz-placeholder { color:#bbb; text-shadow:0 0 2px #000; }
 form.signin input::-webkit-input-placeholder { color:#bbb; text-shadow:0 0 2px #000;  }
+
 
 /* student page rules */  
 #pointsBox {

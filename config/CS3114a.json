@@ -1,7 +1,7 @@
 {
   "config_version": 0.1,
-  "title": "Sorting and Hashing: CS3114",
-  "output_dir": "Books/CS3114",
+  "title": "CS3114 Spring 2013 (Cao)",
+  "output_dir": "Books/CS3114a",
   "code_dir": "SourceCode/Processing",
   "module_origin": "http://algoviz.org",
   "exercise_origin": "http://algoviz.org",
@@ -24,7 +24,7 @@
           "SortIntroSumm": {
             "long_name": "Sorting Intro Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -35,22 +35,22 @@
         "exercises" : {
           "InssortCON1": {
             "long_name": "Insertion Sort Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "InssortCON2": {
             "long_name": "Insertion Sort Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "InssortCON3": {
             "long_name": "Insertion Sort Slideshow 3",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
@@ -64,14 +64,14 @@
           "InssortPRO": {
             "long_name": "Insertion Sort Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "InssortSumm": {
             "long_name": "Insertion Sort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -87,15 +87,15 @@
         "exercises": {
           "BubsortCON1": {
             "long_name": "Bubble Sort Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "BubsortCON2": {
             "long_name": "Bubble Sort Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
@@ -109,14 +109,14 @@
           "BubsortPRO": {
             "long_name": "Bubble Sort Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "BubsortSumm": {
             "long_name": "Bubble Sort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -127,15 +127,15 @@
         "exercises": {
           "SelsortCON1": {
             "long_name": "Selection Sort Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "SelsortCON2": {
             "long_name": "Selection Sort Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
@@ -149,14 +149,14 @@
           "SelsortPRO": {
             "long_name": "Selection Sort Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "SelsortSumm": {
             "long_name": "Selection Sort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -168,7 +168,7 @@
           "SortCompareSumm": {
             "long_name": "Record Comparison Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -180,14 +180,14 @@
           "FindInversionsPRO": {
             "long_name": "Inversions Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "ExchangeSumm": {
             "long_name": "Exchange Sorting Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -198,53 +198,53 @@
         "exercises": {
           "shellsortCON1": {
             "long_name": "Shellsort Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "shellsortCON2": {
             "long_name": "Shellsort Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "shellsortCON3": {},
           "shellsortCON4": {
             "long_name": "Shellsort Slideshow 3",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "shellsortCON5": {
             "long_name": "Shellsort Slideshow 4",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "shellsortCON6": {},
           "shellsortCON7": {
             "long_name": "Shellsort Slideshow 5",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "shellsortCON8": {},
           "shellsortCON9": {
             "long_name": "Shellsort Slideshow 6",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "ShellsortSublist": {
             "long_name": "Shellsort Sublist",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
@@ -258,28 +258,28 @@
           "ShellsortSeries": {
             "long_name": "Shellsort Series",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "ShellsortProficiency": {
             "long_name": "Shellsort Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 0.90,
             "type": "pe"
           },
           "ShellsortPerformance": {
             "long_name": "Shellsort Performance",
             "required": true,
-            "points": 1,
+            "points": 1.25,
             "threshold": 1.0,
             "type": "pe"
           },
           "ShellsortSumm": {
             "long_name": "Shellsort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -297,29 +297,29 @@
           },
           "mergesortCON1": {
             "long_name": "Mergesort Concepts Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "MergesortPRO": {
             "long_name": "Mergesort Merging Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "mergesortProficiency": {
             "long_name": "Mergesort Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 0.90,
             "type": "pe"
           },
           "MergesortSumm": {
             "long_name": "Mergesort Concepts Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -330,22 +330,22 @@
         "exercises": {
           "mergeImplCON1": {
             "long_name": "Mergesort Implementation Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "mergeImplCON2": {
             "long_name": "Mergesort Implementation Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "MergeImplSumm": {
             "long_name": "Mergesort Implementation Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -357,7 +357,7 @@
           "QuicksortPivotPRO": {
             "long_name": "Quicksort Pivot Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
@@ -370,29 +370,29 @@
           },
           "QuicksortCON1": {
             "long_name": "Quicksort Slideshow",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "QuicksortPartitPRO": {
             "long_name": "Quicksort Partition Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "quicksortProficiency": {
             "long_name": "Quicksort Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 0.90,
             "type": "pe"
           },
           "QuicksortSumm": {
             "long_name": "Quicksort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -403,29 +403,29 @@
         "exercises": {
           "heapsortCON": {
             "long_name": "Heapsort Slideshow",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HeapsortPRO": {
             "long_name": "Heapsort Proficiency 1",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "heapsortProficiency": {
             "long_name": "Heapsort Proficiency 2",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 0.9,
             "type": "pe"
           },
           "HeapsortSumm": {
             "long_name": "Heapsort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -436,22 +436,22 @@
         "exercises": {
           "BinsortCON1": {
             "long_name": "Binsort Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "BinsortCON2": {
             "long_name": "Binsort Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "BinsortSumm": {
             "long_name": "Binsort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -470,7 +470,7 @@
           "RadixsortPRO": {
             "long_name": "Radixsort Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
@@ -484,7 +484,7 @@
           "RadixSortSumm": {
             "long_name": "Radixsort Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -496,7 +496,7 @@
           "SortAlgCompSumm": {
             "long_name": "Sorting Algorithms Comparison Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -508,7 +508,7 @@
           "SortBoundSumm": {
             "long_name": "Lower Bounds Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -533,8 +533,8 @@
         "exercises": {
           "hashIntroCON1": {
             "long_name": "Hashing Intro Slideshow",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           }
@@ -553,7 +553,7 @@
           "HashPrinciplesSumm": {
             "long_name": "Hashing Principles Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -564,15 +564,15 @@
         "exercises": {
           "hashFuncExCON1": {
             "long_name": "Hash Function Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "hashFuncExCON2": {
             "long_name": "Hash Function Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
@@ -600,14 +600,14 @@
           "HashFuncPROSumm": {
             "long_name": "Hash Function Proficiency Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "HashFuncSumm": {
             "long_name": "Hash Function Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -616,17 +616,11 @@
       "OpenHash": {
         "long_name": "Open Hashing",
         "exercises": {
-          "openhashCON1": {
-            "long_name": "Open Hashing Slideshow 1",
-            "required": true,
-            "points": 0.1,
-            "threshold": 1.0,
-            "type": "ss"
-          },
+          "openhashCON1": {},
           "OpenHashPRO": {
             "long_name": "Open Hashing Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -637,29 +631,29 @@
         "exercises": {
           "buckethashCON1": {
             "long_name": "Bucket Hashing Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "buckethashCON2": {
             "long_name": "Bucket Hashing Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HashingBucketPRO": {
             "long_name": "Bucket Hashing Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "HashingBucket2PRO": {
             "long_name": "Alternate Bucket Hashing Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -670,22 +664,22 @@
         "exercises": {
           "linProbeCON1": {
             "long_name": "Linear Probing Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "linProbeCON2": {
             "long_name": "Linear Probing Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HashingLinearProbePRO": {
             "long_name": "Linear Probing Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -696,90 +690,90 @@
         "exercises": {
           "collisionCON1": {
             "long_name": "Linear Probing By Steps Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "collisionCON2": {
             "long_name": "Linear Probing By Steps Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HashingLinearStepProbePRO": {
             "long_name": "Linear Probing By Steps Proficiency",
             "required": true,
-            "points": 1.0,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "collisionCON3": {
             "long_name": "Pseudo-Random Probing Slideshow",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HashingPseudoRandomProbePRO": {
             "long_name": "Pseudo-Random Probing Proficiency",
             "required": true,
-            "points": 1.0,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "collisionCON4": {
             "long_name": "Quadratic Probing Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "collisionCON5": {
             "long_name": "Quadratic Probing Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HashingQuadraticProbePRO": {
             "long_name": "Quadratic Probing Proficiency",
             "required": true,
-            "points": 1.0,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "collisionCON6": {
             "long_name": "Double Hashing Slideshow 1",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "collisionCON7": {
             "long_name": "Double Hashing Slideshow 2",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "collisionCON8": {
             "long_name": "Double Hashing Slideshow 3",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HashingDoubleProbePRO": {
             "long_name": "Double Hashing Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           },
           "hashAV": {
-            "long_name": "Hashing Exercise",
+            "long_name": "Hashing Visualization",
             "required": false,
             "points": 0,
             "threshold": 1.0,
@@ -788,7 +782,7 @@
           "HashCollisionSumm": {
             "long_name": "Improved Collision Resolution Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -800,7 +794,7 @@
           "HashAnalSumm": {
             "long_name": "Analysis of Closed Hashing Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }
@@ -811,22 +805,22 @@
         "exercises": {
           "hashdelCON1": {
             "long_name": "Hash Deletion Slideshow",
-            "required": true,
-            "points": 0.1,
+            "required": false,
+            "points": 0.0,
             "threshold": 1.0,
             "type": "ss"
           },
           "HashingDeleteProficiency": {
             "long_name": "Hash Deletion Proficiency",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 0.90,
             "type": "pe"
           },
           "HashDelSumm": {
             "long_name": "Hash Deletion Summary",
             "required": true,
-            "points": 1,
+            "points": 1.1,
             "threshold": 5,
             "type": "ka"
           }

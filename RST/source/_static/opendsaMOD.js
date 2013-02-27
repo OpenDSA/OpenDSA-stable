@@ -51,7 +51,7 @@ function info() { // This is what we pop up
     success: function (data) {
       $.each(data, function (key, val) {
         if (val.fields.short_display_name.toLowerCase() === moduleName.toLowerCase()) {
-          alert(moduleName + "\nWritten by " + val.fields.author + " \nCreated as part of the OpenDSA hypertextbook project.\nFor more information, see http://algoviz.org/OpenDSA\nFile created: " + val.fields.last_modified + "\nJSAV library version " + JSAV.version());
+          alert(moduleName + "\nModule Written by " + val.fields.author + " \nCreated as part of the OpenDSA hypertextbook project.\nFor more information, see http://algoviz.org/OpenDSA\nFile created: " + val.fields.last_modified + "\nJSAV library version " + JSAV.version() + "\nDistributed under the MIT open-source license,\nsee http://algoviz.org/OpenDSA/MIT-license.txt");
           outcome = 1;
         }
       });
@@ -1241,7 +1241,7 @@ function showRegistrationBox() {
   if (serverEnabled()) {
     logUserAction('registration-box-open', 'registration box was opened');
 
-    var server_regist_url = serverURL + "/accounts/register/",
+    var server_regist_url = "_static/registration.html", //serverURL + "/accounts/register/",
         registrationBox = '#registration-box',
         regBoxWidth = $(registrationBox).width(),
         left = ($(window).width() / 2) - (regBoxWidth / 2),
@@ -1468,7 +1468,7 @@ $(document).ready(function () {
   
   // Set dispModComp to true if the module contains any required exercises
   for (var exer in exercises) {
-    if (exercises.hasOwnProperty(exer) && exer.required) {
+    if (exercises.hasOwnProperty(exer) && exercises[exer].required) {
       dispModComp = true;
       break;
     }
