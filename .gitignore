@@ -3,6 +3,9 @@
 modules.json
 modules.csv
 
+# Documentation build directory
+Doc/manual
+
 #Books directory (these are build targets)
 Books
 
