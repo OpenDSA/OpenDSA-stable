@@ -3,9 +3,6 @@
 modules.json
 modules.csv
 
-#build HTML directory
-build
-
 #Books directory (these are build targets)
 Books
 
@@ -19,6 +16,9 @@ lib/khan-exercises/exercises/khan-site.html
 
 #ignore compiled Python files
 *pyc
+
+# Minified JS and CSS files
+lib/*-min.*
 
 #Ignore live site directories and files that shouldn't be in the repository
 dev

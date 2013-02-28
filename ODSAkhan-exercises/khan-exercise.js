@@ -34,8 +34,23 @@
 
 */
 
+/**
+ * Extracts, decodes and returns the given parameter from the URL
+ *   - Based on http://stackoverflow.com/questions/1403888/get-url-parameter-with-jquery
+ */
+function getURLParam(name) {
+  var param = new RegExp('[?|&]' + name + '=' + '(.+?)(&|$)').exec(location.href)
+  return (param) ? decodeURIComponent(param[1]) : "";
+}
+
+// The address of the server where the data is sent
+var serverURL = getURLParam('serverURL');
+
 // The domain where the OpenDSA modules are hosted, used by postMessage to send data to the parent module page
-var moduleOrigin = "http://algoviz-beta7.cc.vt.edu";
+var moduleOrigin = getURLParam('moduleOrigin');
+
+// The name of the module in which the KA exercises is embedded
+var moduleName = getURLParam('module');
 
 var Khan = (function() {
   function warn( message, showClose ) {
@@ -132,7 +147,7 @@ var Khan = (function() {
 
   // The main server we're connecting to for saving data
   server = typeof apiServer !== "undefined" ? apiServer :
-    testMode ? "https://opendsa.cc.vt.edu" : "",
+    testMode ? serverURL : "",
 
   // The name of the exercise
   exerciseName = typeof userExercise !== "undefined" ? userExercise.exercise : ((/([^\/.]+)(?:\.html)?$/.exec( window.location.pathname ) || [])[1]),
@@ -1832,41 +1847,6 @@ var Khan = (function() {
     jQuery("#check-answer-button").click( handleSubmit );
     jQuery("#answerform").submit( handleSubmit );
 
-    function isModulePage(context) {
-      // Context will default to document if not provided
-      context = (context) ? context : document;
-
-      // TODO: Is this really a good way to do this?
-      if ($('a#logon', context).length === 1 && $('a#logon', context)[0].parentElement.tagName === "DIV" && $('a#logon', context)[0].parentElement.className.match(/[.*\s]?header[.*\s]?/)) {
-        return true;
-      }
-      return false;
-    }
-
-    /**
-     * Parses the name of the page from the URL
-     */
-    function getNameFromURL(url)
-    {
-      // If no URL is specified, uses the pathname of the current page
-      url = (url) ? url : location.pathname;
-      var start = url.lastIndexOf("/") + 1;
-      var end = url.lastIndexOf(".htm");
-      return url.slice(start, end);
-    }
-
-    /**
-     * If called from a module page, returns the name parsed from the URL.
-     * If called from an AV loaded on a module page, returns the name parsed from the title of the parent page.
-     */
-    function getModuleName() {
-      if (isModulePage(window.parent.document)) {
-        return getNameFromURL(window.parent.document.location.pathname);
-      }
-
-      return "";
-    }
-
     // Build the data to pass to the server
     function buildAttemptData(pass, attemptNum, attemptContent, curTime) {
       var timeTaken = Math.round((curTime - lastAction) / 1000);
@@ -1922,7 +1902,7 @@ var Khan = (function() {
         review_mode: reviewMode ? 1 : 0,
 
         // The module name. If the exercise is embedded in one
-        module_name: getModuleName()
+        module_name: moduleName
       };
     }
 
@@ -2845,7 +2825,7 @@ var Khan = (function() {
     }
     $('li.streak-icon').text(total +  "%");
     if (total >= 100) {
-        parent.postMessage('{"exercise":"' + exerciseName + '", "proficient":' + true + '}',moduleOrigin);
+        parent.postMessage('{"exercise":"' + exerciseName + '", "proficient":' + true + '}', moduleOrigin);
         console.log ('{"exercise":"' + exerciseName + '", "proficient":' + true + '}');
     }
 

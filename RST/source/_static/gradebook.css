@@ -4,6 +4,12 @@
   cursor: pointer;
 }
 
+/* Style for the "Error loading data" message */
+.error {
+  font-size: 20px;
+  text-align: center;
+}
+
 /* Style for the container which is expanded when the associated chapter, section or module row is clicked */
 .gb-section-container {
   border-bottom: solid 1px;
@@ -40,6 +46,10 @@ table.data tr td.proficient, table.data tr:hover td.proficient {
   margin: 50px auto;
   text-align: center;
   width: 250px;
+}
+
+#gradeHeader {
+  display: none;
 }
 
 /* Moves the checkbox away from the Expand / Collapse links so the interface doesn't look cluttered */

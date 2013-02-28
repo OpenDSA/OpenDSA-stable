@@ -1,0 +1,97 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module Structure &mdash; OpenDSA Module Authoring Documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="OpenDSA Module Authoring Documentation" href="index.html" />
+    <link rel="next" title="OpenDSA Project House Style Rules" href="Style.html" />
+    <link rel="prev" title="Authoring OpenDSA Modules" href="ModAuthor.html" /> 
+  </head>
+  <body>
+      <div class="header"><img class="rightlogo" src="_static/AlgoVizLogo.gif" alt="Logo"/><h1 class="heading"><a href="index.html">
+          <span>OpenDSA Module Authoring Documentation</span></a></h1>
+        <h2 class="heading"><span>Module Structure</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="ModAuthor.html">Authoring OpenDSA Modules</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="Style.html">OpenDSA Project House Style Rules</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="module-structure">
+<span id="structure"></span><h1>Module Structure<a class="headerlink" href="#module-structure" title="Permalink to this headline">¶</a></h1>
+<p>Each module is basically a single ReST file.
+However, the first thing that you should always include is an
+<cite>avmetadata</cite> directive block.
+Among other things, this will define the module within the
+prerequisite structure, which is important when generating a full
+textbook.
+It is also important to add the line:</p>
+<div class="highlight-python"><pre>.. include:: JSAVheader.rinc</pre>
+</div>
+<p>This allows the &#8220;About&#8221; link used on every page to get access to the
+JSAV library (which it uses to post the version number).
+This also provides access to JSAV, jQuery, etc. to any JavaScript
+files that you want to include to control dynamic components on the
+page.</p>
+<p>Generally, exercises and visualizations are embedded from elsewhere.
+The major exception is small slideshows, which are included directly
+via an <tt class="docutils literal"><span class="pre">inlineav</span></tt> directive.
+The actual CSS code and JS code will be maintained in separate files
+and included using <tt class="docutils literal"><span class="pre">odsalink</span></tt> and <tt class="docutils literal"><span class="pre">odsascript</span></tt> directives,
+respectively.</p>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="ModAuthor.html">Authoring OpenDSA Modules</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="Style.html">OpenDSA Project House Style Rules</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012 by OpenDSA Project Contributors.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,145 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OpenDSA Project House Style Rules &mdash; OpenDSA Module Authoring Documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="OpenDSA Module Authoring Documentation" href="index.html" />
+    <link rel="next" title="OpenDSA ReST Extensions" href="Extensions.html" />
+    <link rel="prev" title="Module Structure" href="Structure.html" /> 
+  </head>
+  <body>
+      <div class="header"><img class="rightlogo" src="_static/AlgoVizLogo.gif" alt="Logo"/><h1 class="heading"><a href="index.html">
+          <span>OpenDSA Module Authoring Documentation</span></a></h1>
+        <h2 class="heading"><span>OpenDSA Project House Style Rules</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="Structure.html">Module Structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="Extensions.html">OpenDSA ReST Extensions</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="opendsa-project-house-style-rules">
+<span id="style"></span><h1>OpenDSA Project House Style Rules<a class="headerlink" href="#opendsa-project-house-style-rules" title="Permalink to this headline">¶</a></h1>
+<p>The following guidelines should be observed with writing content for
+the OpenDSA project.</p>
+<div class="section" id="content-types">
+<h2>Content Types<a class="headerlink" href="#content-types" title="Permalink to this headline">¶</a></h2>
+<p>OpenDSA content can generally be divided into the following types:</p>
+<ul class="simple">
+<li>modules: written in ReST and whose source resides in the
+OpenDSA/RST/source directory,</li>
+<li>exercises: implemented using the Khan Academy Infrastructure and
+residing in the OpenDSA/Exercises directory,</li>
+<li>slideshows and diagrams: directly embedded into modules using the
+<tt class="docutils literal"><span class="pre">inlineav</span></tt> directive and whose source resides in the OpenDSA/AV
+directory, and</li>
+<li>visualizations and activities: embedded as iframes using the
+<tt class="docutils literal"><span class="pre">avembed</span></tt> directive, and residing in the OpenDSA/AV directory.</li>
+</ul>
+</div>
+<div class="section" id="algorithm-visualizations-and-slideshows">
+<h2>Algorithm Visualizations and slideshows<a class="headerlink" href="#algorithm-visualizations-and-slideshows" title="Permalink to this headline">¶</a></h2>
+<p>New content always should begin development within the
+OpenDSA/AV/Development directory. Once the implementation is completed
+and validated, then it will be moved by the project managers to a
+topic sub-directory.</p>
+<p>Directly embedded content (slideshows and diagrams) should have no
+width set so that it will naturally expand to the page width as
+appropriate.</p>
+<p>Nothing should require a width greater than 850px.
+This keeps all visual elements within the minimum page size enforced
+by the Haiku template.</p>
+<p>HTML, CSS, and JavaScript should all be kept in separatea files. Each
+should pass its respective validation tools without complaint. See the
+developer&#8217;s &#8220;Getting Started&#8221; guide for details on using the
+validation tools.</p>
+</div>
+<div class="section" id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<p>A big reason why we chose to use ReStructuredText for authoring is its
+ability to pass raw HTML through, allowing us to embed dynamic content
+(i.e., JavaScript) into our HTML pages while still having the
+advantage of a markup language for authoring.
+However, we don&#8217;t ever want to actually use the <tt class="docutils literal"><span class="pre">raw</span></tt> directive in
+our modules if we can avoid it.
+At this point use of <tt class="docutils literal"><span class="pre">raw</span></tt> should never be needed, as we have a
+number of directives to use instead:
+<tt class="docutils literal"><span class="pre">avembed</span></tt>, <tt class="docutils literal"><span class="pre">inlineav</span></tt>, <tt class="docutils literal"><span class="pre">odsalink</span></tt>, and <tt class="docutils literal"><span class="pre">odsascript</span></tt>.</p>
+<p>One of the hardest things I find when writing modules is making sure
+that all of the variables and expressions are marked up correctly.
+In nearly all cases, any variable is either &#8220;mathy&#8221; or &#8220;codey&#8221;. Mathy
+variables and expressions should use LaTeX markup embedded in a <tt class="docutils literal"><span class="pre">:math:</span></tt>
+directive. &#8220;Codey&#8221; variables and expressions should be marked up as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="sb">``</span><span class="n">code</span><span class="sb">``</span>
+</pre></div>
+</div>
+<p>All variables (and expressions) should always get their appropriate
+typeface.
+Avoid using physical markup such as italics or bold for such things,
+we prefer to use logical markup (that is, math markup or code markup).
+Sometimes it can be difficult to decide which is appropriate.
+For example, you might have a function with a variable <tt class="docutils literal"><span class="pre">n</span></tt> for the
+array size.
+When it comes time to discuss the analysis of the function, it is
+probably going to be done in terms of <span class="math">\(n\)</span>, a quantity that
+expresses the array size (as opposed to the function variable <tt class="docutils literal"><span class="pre">n</span></tt>).
+It can be a subtle point whether the variable or the quantity is
+intended.
+Having to typeset it helps you to think through what you are trying to
+convey.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="Structure.html">Module Structure</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="Extensions.html">OpenDSA ReST Extensions</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012 by OpenDSA Project Contributors.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

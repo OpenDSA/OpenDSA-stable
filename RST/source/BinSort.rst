@@ -13,7 +13,6 @@
 .. include:: JSAVheader.rinc
 
 .. odsalink:: AV/slideCON.css
-.. odsalink:: AV/Sorting/binsortCON.css
 
 .. index:: ! Binsort
 
@@ -130,6 +129,5 @@ only a small number of records in each bucket, and that a
 "cleanup sort" to each bucket will then be relatively cheap.
 
 .. avembed:: Exercises/Sorting/BinsortSumm.html ka
-   :showbutton: hide
 
 .. odsascript:: AV/Sorting/binsortCON.js

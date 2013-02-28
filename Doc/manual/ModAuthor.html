@@ -1,0 +1,98 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Authoring OpenDSA Modules &mdash; OpenDSA Module Authoring Documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="OpenDSA Module Authoring Documentation" href="index.html" />
+    <link rel="next" title="Module Structure" href="Structure.html" />
+    <link rel="prev" title="Table of Contents" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><img class="rightlogo" src="_static/AlgoVizLogo.gif" alt="Logo"/><h1 class="heading"><a href="index.html">
+          <span>OpenDSA Module Authoring Documentation</span></a></h1>
+        <h2 class="heading"><span>Authoring OpenDSA Modules</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Table of Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="Structure.html">Module Structure</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="authoring-opendsa-modules">
+<span id="odsamodauthor"></span><h1>Authoring OpenDSA Modules<a class="headerlink" href="#authoring-opendsa-modules" title="Permalink to this headline">¶</a></h1>
+<p>This documentation describes the support infrastructure for authoring
+OpenDSA modules.
+We author using
+<a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> (also
+known as ReST).
+ReST files are converted to HTML (or other formats) by the
+<a class="reference external" href="http://sphinx.pocoo.org/contents.html">sphinx compiler</a>.
+Module source files are currently at <tt class="docutils literal"><span class="pre">OpenDSA/RST/source</span></tt>.
+A &#8220;book&#8221; is created by running some configuration file against the
+script <tt class="docutils literal"><span class="pre">OpenDSA/lib/configure.py</span></tt>.
+We normally store sample configuration files in <tt class="docutils literal"><span class="pre">OpenDSA/config</span></tt>.
+Sample books can be compiled using <tt class="docutils literal"><span class="pre">OpenDSA/Makefile</span></tt>.
+A sample command (run from the OpenDSA toplevel directory)
+looks like: <tt class="docutils literal"><span class="pre">python</span> <span class="pre">lib/configure.py</span> <span class="pre">config/OpenDSA.json</span></tt>.</p>
+<p>A number of special directives have been created, which are documented
+in <a class="reference internal" href="Extensions.html#odsaextensions"><em>OpenDSA ReST Extensions</em></a>.</p>
+<p>Documentation for writing OpenDSA exercises using the Khan Academy
+infrastructure is in
+<a class="reference internal" href="Exercise.html#exercise"><em>Using OpenDSA with Khan Academy infrastructure</em></a>.</p>
+<p>The best way to get a sense for how things work is to look at some
+existing modules.</p>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Table of Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="Structure.html">Module Structure</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012 by OpenDSA Project Contributors.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

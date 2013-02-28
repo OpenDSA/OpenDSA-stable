@@ -1,5 +1,5 @@
 RM = rm -rf
-CONFIG_SCRIPT = lib/configure.py
+CONFIG_SCRIPT = tools/configure.py
 TARGET = build
 CSSLINTFLAGS = --quiet --errors=empty-rules,import,errors --warnings=duplicate-background-images,compatible-vendor-prefixes,display-property-grouping,fallback-colors,duplicate-properties,shorthand,gradients,font-sizes,floats,overqualified-elements,import,regex-selectors,rules-count,unqualified-attributes,vendor-prefix,zero-units
 
@@ -53,6 +53,8 @@ update:
 	cp -r dev/OpenDSA/JSAV/examples JSAV/examples
 	$(RM) lib
 	cp -r dev/OpenDSA/lib lib
+	$(RM) tools
+	cp -r dev/OpenDSA/tools tools
 	$(RM) RST
 	cp -r dev/OpenDSA/RST RST
 	$(RM) ODSAkhan-exercises
