@@ -63,7 +63,7 @@ update:
 	cp -r dev/OpenDSA/JSAV/examples JSAV/examples
 	$(RM) lib
 	cp -r dev/OpenDSA/lib lib
-	$(RM) lib/*min.js *min.css
+	$(RM) lib/*-min.*
 	$(RM) tools
 	cp -r dev/OpenDSA/tools tools
 	$(RM) RST
