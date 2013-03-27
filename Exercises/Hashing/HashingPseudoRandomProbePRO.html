@@ -140,6 +140,15 @@ var checkAnswer = function() {
           else return checkAnswer();
         </div>
       </div>
+      <div class="hints">
+        <p>First use the hash function to computer the home slot.</p>
+	<p>If there is a collision, use the random permutation table
+	  to tell you how far to step from the home slot.</p>
+	<p>Offsets are always from the home slot, not from the last
+	slot probed to.</p>
+	<p>If we reach the end of the array while stepping, then cycle
+	  around to the beginning.</p>
+      </div>
     </div>
   </div>
 </div>

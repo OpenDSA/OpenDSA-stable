@@ -1,14 +1,13 @@
 {
-  "config_version": 0.1,
   "title": "CS3114 Spring 2013 (Barnette)",
-  "output_dir": "Books/CS3114b",
+  "book_dir": "Books",
   "code_dir": "SourceCode/Processing",
   "module_origin": "http://algoviz.org",
-  "exercise_origin": "http://algoviz.org",
   "backend_address": "https://opendsa.cc.vt.edu/",
   "build_JSAV": false,
   "build_ODSA": true,
   "allow_anonymous_credit": true,
+  "suppress_todo": true,
   "chapters": {
     "Preface": {
       "Intro": {
@@ -767,10 +766,6 @@
       },
       "Bibliography": {
         "long_name": "Bibliography",
-        "exercises": {}
-      },
-      "Gradebook": {
-        "long_name": "Gradebook",
         "exercises": {}
       }
     }

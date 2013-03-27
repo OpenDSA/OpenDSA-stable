@@ -183,6 +183,12 @@ var getH2 = function(K) {
           else return checkAnswer();
         </div>
       </div>
+      <div class="hints">
+        <p>First, we hash to the home slot with the first hash function.</p>
+        <p>If there is a collistion, then we use the second hash
+          function to compute a stepsize.</p>
+	<p>We then use linear probing by the computed step size.</p>
+      </div>
     </div>
   </div>
 </div>

@@ -1,14 +1,13 @@
 {
-  "config_version": 0.1,
   "title": "OpenDSA (Beta)",
-  "output_dir": "Books/OpenDSA",
+  "book_dir": "Books",
   "code_dir": "SourceCode/Processing",
   "module_origin": "http://algoviz.org",
-  "exercise_origin": "http://algoviz.org",
   "backend_address": "https://opendsa.cc.vt.edu/",
   "build_JSAV": false,
   "build_ODSA": true,
   "allow_anonymous_credit": true,
+  "suppress_todo": false,
   "chapters": {
     "Preface": {
       "Intro": {
@@ -700,7 +699,7 @@
         }
       },
       "Hashing/HashDel": {
-        "long_name": "Deletion",
+        "long_name": "Hash Deletion",
         "exercises": {
           "hashdelCON1": {
             "long_name": "Hash Deletion Slideshow",
@@ -732,6 +731,71 @@
             "threshold": 10
           }
         }
+      },
+      "Development/PerfectHash": {
+        "long_name": "Perfect Hashing",
+        "exercises": {
+          "perfectHashAV": {
+            "long_name": "Perfect Hashing Visualization",
+            "required": false,
+            "showhide": "none",
+            "points": 0,
+            "threshold": 1.0
+          }
+	}
+      }
+    },
+    "Graphs": {
+      "Development/GraphIntro": {
+        "long_name": "Introduction and Terminology",
+        "exercises": {}
+      },
+      "Development/GraphImpl": {
+        "long_name": "Graph Implementation",
+        "exercises": {}
+      },
+      "Development/GraphTraversal": {
+        "long_name": "Graph Traversal",
+        "exercises": {
+          "graphDFS": {
+            "long_name": "Depth First Search Visualization",
+            "required": false,
+            "points": 0,
+            "showhide": "show",
+            "threshold": 1.0
+          },
+          "graphBFS": {
+            "long_name": "Breadth First Search Visualization",
+            "required": false,
+            "points": 0,
+            "showhide": "show",
+            "threshold": 1.0
+          }
+        }
+      },
+      "Development/GraphTopsort": {
+        "long_name": "Topological Sort",
+        "exercises": {
+          "topsortCON1": {}
+	}
+      },
+      "Development/GraphShortest": {
+        "long_name": "Shortest Paths Problems",
+        "exercises": {
+          "dijkstraCON1": {}
+	}
+      },
+      "Development/MCSTfull": {
+        "long_name": "Minimal Cost Spanning Trees",
+        "exercises": {
+          "PrimAV": {
+            "long_name": "Prim's Algorithm Visualization",
+            "required": false,
+            "points": 0,
+            "showhide": "show",
+            "threshold": 1.0
+          }
+	}
       }
     },
     "Under Development": {
@@ -742,6 +806,20 @@
         },
         "Development/Recurrence": {
           "long_name": "Recurrence",
+          "exercises": {}
+        },
+        "Development/AmortAnal": {
+          "long_name": "Amortized Analysis",
+          "exercises": {}
+        },
+        "Development/VisitorPatt": {
+          "long_name": "Visitor Design Pattern",
+          "exercises": {}
+        }
+      },
+      "General Trees": {
+        "Development/UnionFind": {
+          "long_name": "Union/Find",
           "exercises": {}
         }
       },
@@ -791,13 +869,11 @@
           "exercises": {}
         }
       },
-      "Graphs": {
-        "Development/MCST": {
-          "long_name": "Minimal Cost Spanning Trees",
-          "exercises": {}
-        }
-      },
       "Algorithms": {
+        "Development/MCST": {
+          "long_name": "Minimal Cost Spanning Trees STUB",
+          "exercises": {}
+        },
         "Development/Knapsack": {
           "exercises": {
             "sackCallTree": {
@@ -890,10 +966,6 @@
       },
       "Bibliography": {
         "long_name": "Bibliography",
-        "exercises": {}
-      },
-      "Gradebook": {
-        "long_name": "Gradebook",
         "exercises": {}
       }
     }

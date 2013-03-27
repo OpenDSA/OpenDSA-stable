@@ -1,5 +1,5 @@
 #container {
-  width: 860px;
+  width: 850px;
   height: 750px;
 }
 
@@ -7,9 +7,10 @@
   height: 620px;
 }
 
-.jsavlistnode {
-  width: 53px;
-  height: 40px;
+.jsavlist .jsavlistnode {
+  min-height: 30px !important;
+  max-height: 30px !important;
+  line-height: 30px;
 }
 
 .jsavlist .jsavedge {
@@ -22,6 +23,5 @@
 
 .jsavcanvas > svg {
   height: 550px;
-  width: 845px;
-  z-index: 100;
+  width: 835px;
 }

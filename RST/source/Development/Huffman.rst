@@ -87,7 +87,7 @@ Here is a visualization of building a random huffman tree.
 
 Here is the implementation for Huffman tree nodes.
 
-.. codeinclude:: Trees/Huffman/Huffman.pde
+.. codeinclude:: Trees/Huffman.pde
    :tag: HuffmanNode 
 
 <ODSAfig "HuffNode" /> Implementation for Huffman tree nodes. Internal nodes and leaf nodes are represented by separate classes, each derived from an abstract base class.
@@ -96,12 +96,12 @@ Figure <ODSAref "HuffNode" /> shows an implementation for Huffman tree nodes. Th
 
 Figure <ODSAref "HuffClass" /> shows the Huffman tree class. Figure <ODSAref "HuffBuild" /> shows the Java code for the tree-building process.
 
-.. codeinclude:: Trees/Huffman/Huffman.pde
+.. codeinclude:: Trees/Huffman.pde
    :tag: HuffmanTree
 
 <ODSAfig "HuffClass" /> Class declarations for the Huffman tree.
 
-.. codeinclude:: Trees/Huffman/Huffman.pde
+.. codeinclude:: Trees/Huffman.pde
    :tag: HuffmanTreeBuild
 
 <ODSAfig "HuffBuild" />

@@ -284,8 +284,13 @@ p.last {
     margin-bottom: 0;
 }
 
+p.caption {
+    text-align: inherit;
+}
+
 ol {
     padding-left: 20px;
+    counter-reset: item;
 }
 
 ul {
@@ -293,7 +298,33 @@ ul {
     margin-top: 3px;
 }
 
-li {
+ol.arabic {
+    display: block;
+    padding: 0 0 0 1.666em;
+    margin-bottom: 3px;
+    list-style: none;
+    overflow: hidden;
+    counter-reset: item;
+}
+
+ol.arabic li:before {
+    counter-increment: item;
+    content: counter(item);
+    float: left;
+    position: absolute;
+    left: -26px;
+    text-align: center;
+    line-height: 1.3;
+    width: 18px; height: 1.3;
+}
+
+ol.arabic li {
+    margin-right: 44px;
+    position: relative;
+    text-align: justify;
+}
+
+ul li {
     line-height: 1.3;
     -moz-background-clip:border;
     -moz-background-inline-policy:continuous;
@@ -399,7 +430,7 @@ div.viewcode-block:target {
         float: left;
         font-size: 1.2em;
         position: fixed;
-        top: 50%; left: 50%;
+        top: 25%; left: 50%;
         z-index: 99999;
         box-shadow: 0px 0px 20px #999; /* CSS3 */
         -moz-box-shadow: 0px 0px 20px #999; /* Firefox */

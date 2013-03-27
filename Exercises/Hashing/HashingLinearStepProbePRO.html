@@ -122,6 +122,14 @@ var checkAnswer = function() {
           else return checkAnswer();
         </div>
       </div>
+      <div class="hints">
+        <p>First use the hash function to computer the home slot.</p>
+	<p>If there is a collsion, then just step to the right like
+	  normal linear probing, but step by the step size. For
+	  example, if the step size is 4, go 4 slots to the right.
+	<p>If we reach the end of the array while stepping, then cycle
+	  around to the beginning.</p>
+      </div>
     </div>
   </div>
 </div>
