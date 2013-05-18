@@ -8,6 +8,8 @@
    :prerequisites: GraphTraversal
    :topic: Graphs
 
+.. odsalink:: AV/slideCON.css
+
 Topological Sort [Storyboard]
 =============================
 
@@ -25,11 +27,12 @@ one prerequisite.
 The process of laying out the vertices of a DAG in a linear order to
 meet the prerequisite rules is called a :dfn:`topological sort`.
 
-.. _TopSort:
-
 .. inlineav:: topsortCON1 dgm
-   :caption: An example graph for topological sort. Seven tasks have dependencies as shown by the directed graph.
+   :target: TopSort
    :align: center
+
+   An example graph for topological sort. Seven tasks have
+   dependencies as shown by the directed graph.
 
 .. TODO::
    :type: Slideshow
@@ -67,10 +70,7 @@ Here is implementation for the DFS-based algorithm.
    Reversing this yields the topological sort
    J1, J3, J2, J6, J4, J5, J7.
 
-.. TODO::
-   :type: AV
-
-   Add an AV for DFS-based Topological Sort.
+.. avembed:: AV/Development/topSort.html ss
 
 We can implement topological sort using a queue
 instead of recursion, as follows.

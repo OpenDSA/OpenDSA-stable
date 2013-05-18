@@ -1,5 +1,5 @@
 body, input, select {
-  font-size: 16px;
+  font-size: 15px;
   font-family: "DejaVu Sans", Arial, Helvetica, sans-serif;
 }
 
@@ -134,4 +134,9 @@ form {
 
 #increments, #arrayValues {
   padding-left: 5px;
+}
+
+
+.jsavvalue.processing {
+  background-color: #ddf;
 }

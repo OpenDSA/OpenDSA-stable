@@ -8,6 +8,8 @@
    :prerequisites: GraphTrav
    :topic: Graphs
 
+.. odsalink:: AV/slideCON.css
+
 Shortest-Paths Problems [Storyboard]
 ====================================
 
@@ -51,11 +53,11 @@ along a path involving one or more intermediate vertices.
    Figure :num:`Figure #DistExamp` is directed.
    We assume that all weights are positive.
 
-.. _DistExamp:
-
 .. inlineav:: dijkstraCON1 dgm
-   :caption: Example graph for shortest-path definitions.
+   :target: DistExamp
    :align: center
+
+   Example graph for shortest-path definitions.
 
 Single-Source Shortest Paths
 ----------------------------
@@ -91,7 +93,7 @@ search.
 When weights are added, BFS will not give the correct answer.
 
 .. TODO::
-   type: Slideshow
+   :type: Slideshow
 
    Provide a slideshow to demonstrate the following.
 
@@ -163,7 +165,7 @@ follows:
    :tag: MinVertex
 
 .. TODO::
-   :type: CODE
+   :type: Code
 
    Why does the code look for an unvisited value first?
    Is there an easier way?

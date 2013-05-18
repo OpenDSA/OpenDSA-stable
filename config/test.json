@@ -7,6 +7,7 @@
   "build_JSAV": false,
   "build_ODSA": true,
   "allow_anonymous_credit": true,
+  "suppress_todo": false,
   "chapters": {
     "Preface": {
       "Intro": {
@@ -14,10 +15,17 @@
         "exercises": {}
       }
     },
-    "Hashing": {
-      "Development/PerfectHash": {
-        "long_name": "Perfect Hashing",
-        "exercises": {}
+    "Test Stuff": {
+      "Development/ListArray": {
+        "long_name": "Array-based Lists",
+        "exercises": {
+          "AlistCON1": {
+            "long_name": "Alist Slideshow 1",
+            "required": true,
+            "points": 0.1,
+            "threshold": 1.0
+          }
+        }
       }
     }
   }

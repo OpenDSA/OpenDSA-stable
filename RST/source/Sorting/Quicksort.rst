@@ -10,10 +10,9 @@
 
 .. odsascript:: AV/Sorting/quicksortCODE.js
 
-.. index:: ! Quicksort
-
-.. odsalink:: AV/slideCON.css
 .. odsalink:: AV/Sorting/quicksortCON.css
+
+.. index:: ! Quicksort
 
 Quicksort
 =========
@@ -376,6 +375,19 @@ less as suggested above, about three quarters of the function calls
 will already have been eliminated.
 Thus, eliminating the remaining function calls will yield only a
 modest speedup.
+
+.. TODO::
+   :type: Exercise
+
+   Consider the Quicksort implementation for this module, where the
+   pivot is selected as the middle value of the partition.
+   Give a permutation for the values 0 through 7 that will cause
+   Quicksort to have its worst-case behavior.
+
+   There are a number of possible correct answers. To assess the
+   answer, will need to run Quicksort over student's 
+   partition, and verify that at each step it will generate new
+   partitions of size 6, 5, 4, 3, 2, then 1.
 
 Now for review questions.
 

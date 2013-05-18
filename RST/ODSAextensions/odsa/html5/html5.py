@@ -8,7 +8,21 @@
     CONTRIBUTORS file)
     :license: FreeBSD, see LICENSE file.
 """
+
+
+
 from sphinx.writers.html import HTMLTranslator as SphinxHTMLTranslator
+from docutils.nodes import Text
+import json 
+
+def loadTable():
+   try:
+      table=open('table.json')
+      data = json.load(table)
+      table.close()
+      return data
+   except IOError:
+      print 'ERROR: No table.json file.'
 
 
 class HTMLTranslator(SphinxHTMLTranslator):
@@ -62,6 +76,14 @@ class HTMLTranslator(SphinxHTMLTranslator):
         self.body.append('</code>')
 
 
+    def visit_caption(self, node):
+        atts = {'class': 'caption'}
+        if node.get('align'):
+            atts['style'] = 'text-align: %s' % node['align']
+        self.body.append(self.starttag(node, 'p', '', **atts))
+
+    def depart_caption(self, node):
+        self.body.append('</p>\n')
 
     def patch_translator():
         '''
@@ -73,7 +95,10 @@ class HTMLTranslator(SphinxHTMLTranslator):
         HTMLTranslator.depart_desc_name = depart_desc_name
         HTMLTranslator.visit_literal = visit_literal
         HTMLTranslator.depart_literal = depart_literal
+        HTMLTranslator.visit_caption = visit_caption
+        HTMLTranslator.depart_caption = depart_caption
     
+
     def visit_citation(self, node):
         self.body.append(self.starttag(node, 'table',
                                        CLASS='docutils citation'))
@@ -81,6 +106,8 @@ class HTMLTranslator(SphinxHTMLTranslator):
                          '<tbody style="vertical-align: top">\n'
                          '<tr>')
         self.footnote_backrefs(node)
+
+
 
 def setup(sphinx):
     sphinx.config.html_translator_class = 'html5.HTMLTranslator'    

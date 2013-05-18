@@ -5,6 +5,8 @@
 }
 .jsavcontrols {
   margin-top: -35px;
+  margin-left: 35px; /* Center on screen, despite setting button */
+
 }
 .jsavoutput.jsavline{
   margin-top: -5px;
@@ -12,6 +14,13 @@
 }
 
 .ssAV {
-  font-size: 16px;
-  font-family: "DejaVu Sans", Arial, Helvetica, sans-serif;
+  font-size: 15px;
+}
+
+/* CSS class to mark that a JSAV item is currently processed by the algorithm */
+.processing {
+  background-color: #ddf;
+}
+.jsavhighlight {
+  color: black;
 }

@@ -231,7 +231,7 @@ for example, the <code>step</code> method.
 
 <p>
 JSAV will ultimately provide layout support for a number of standard
-data structures. Presently, arrays, trees, and lists are supported.
+data structures. Presently, arrays, trees, lists, and graphs are supported.
 </p>
 
 <h3 class="apimethod">.ds.array(element[, options]) and
@@ -259,7 +259,7 @@ JSAV rather than by the developer.
 <ul>
 <li>layout: Defines choices of layout (<code>bar</code> for bars, <code>vertical</code> to show the array vertically, the
     default is to show a horizontal array).</li>
-<li>indexed: Boolean to determine if array indices are shown or not.</li>
+<li>indexed: Boolean to determine if array indices are shown or not. Defaults to false.</li>
 <li>visible: Boolean to determine if initially the array is shown or
       not. Default true.</li>
 <li>center: Boolean to determine if array should be automatically centered
@@ -276,6 +276,10 @@ JSAV rather than by the developer.
   <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative
       to an index in that array. Only has an effect if relativeTo is specified.</li>
 </ul>
+
+<h3 class="apimethod">.clear()</h3>
+<p>Removes the DOM element of this structure from the document. This is useful, for example, in 
+  re-initializing exercises when the existing structure needs to be removed.</p> 
 
 <h3 class="apimethod">.clone()</h3>
 <p>
@@ -530,6 +534,10 @@ Currently, JSAV supports two types of trees: common tree and binary tree. The st
       to an index in that array. Only has an effect if relativeTo is specified.</li>
 </ul>
 
+<h3 class="apimethod">.clear()</h3>
+<p>Removes the DOM element of this structure from the document. This is useful, for example, in 
+  re-initializing exercises when the existing structure needs to be removed.</p> 
+
 <h3 class="apimethod">.css(propertyName)</h3>
 <p>Returns the value for the given CSS property. This function exists for all trees, nodes, and edges.</p>
 
@@ -666,6 +674,16 @@ The additional <code>options</code> parameter works like for <code>.child(...)</
 <p>Returns the label attached to this edge.</p>
 <h3 class="apimethod">.label(newLabel)</h3>
 <p>Sets the value of the label attached to this edge.</p>
+<h3 class="apimethod">.weight()</h3>
+<p>Returns the weight of this edge.</p>
+<h3 class="apimethod">.weight(newWeight)</h3>
+<p>Sets the weight of this edge.</p>
+<h3 class="apimethod">.show()</h3>
+<p>Shows this edge if it isn't visible already.</p>
+<h3 class="apimethod">.hide()</h3>
+<p>Hides this edge if it isn't hidden already.</p>
+<h3 class="apimethod">.isVisible()</h3>
+<p>Returns true if this edge is visible, false if hidden.</p>
 
 
 <h2>Linked List API</h2>
@@ -707,9 +725,23 @@ The additional <code>options</code> parameter works like for <code>.child(...)</
 <h3 class="apimethod">.size()</h3>
 <p>Returns the size of the list.</p>
 <h3 class="apimethod">.layout([options])</h3>
-<p>Positions the nodes and edges is the list.</p>
+<p>This function (re)calculates the layout for the list. Note, that the library does not do this automatically. That means that after changing the list, you should call this manually at the end of each animation step.</p>
+<p>Options supported by the layout function:</p>
+<ul>
+  <li><code>updateLeft</code> If true, the horizontal position (that is, left) of the nodes are calculated.
+    Defaults to true.</li>
+  <li><code>updateTop</code> If true, the vertical position (that is, top) of the nodes are calculated.
+    Defaults to true.</li>
+</ul>
+<p>If the call to layout is, for example, <code>list.layout({updateLeft: false, updateTop: false}), only the edges
+  in the list are redrawn.</code>
+
 <h3 class="apimethod">.newNode(value [, options])</h3>
 <p>Returns a new node that can be added to the list.</p>
+
+<h3 class="apimethod">.clear()</h3>
+<p>Removes the DOM element of this structure from the document. This is useful, for example, in 
+  re-initializing exercises when the existing structure needs to be removed.</p> 
 
 <h3 class="apimethod">.addClass(className, [options])</h3>
 <p>Adds the CSS class <code>className</code> to the list and animates the changes.</p>
@@ -784,18 +816,35 @@ The additional <code>options</code> parameter works like for <code>.child(...)</
 <h3 class="apimethod">.removeNode(node, [options])</h3>
 <p>Removes the given <code>node</code>.</p>
 <h3 class="apimethod">.addEdge(fromNode, toNode, [options])</h3>
-<p>Adds edge from <code>fromNode</code> to <code>toNode</code>. Returns the new edge.</p>
+<p>Adds edge from <code>fromNode</code> to <code>toNode</code>. Returns the new edge.
+  Supported options:</p>
+<ul>
+  <li>weight: the weight of the new edge</li>
+</ul>
 <h3 class="apimethod">.removeEdge(fromNode, toNode, [options])</h3>
 <p>Removes edge from <code>fromNode</code> to <code>toNode</code>.</p>
+<h3 class="apimethod">.removeEdge(edge, [options])</h3>
+<p>Removes the given <code>edge</code>.</p>
 <h3 class="apimethod">.hasEdge(fromNode, toNode)</h3>
 <p>Returns true if the graph has an edge from <code>fromNode</code> to <code>toNode</code>.</p>
 <h3 class="apimethod">.getEdge(fromNode, toNode)</h3>
 <p>Returns the Edge object connecting <code>fromNode</code> and <code>toNode</code>, or <code>undefined</code> if no such edge exists.</p>
 <h3 class="apimethod">.nodes()</h3>
 <p>Returns an iterable array of nodes in the graph. The returned structure can be used as a normal JavaScript array. In addition, 
-  it has methods <code>.next()</code> and <code>.hasNext()</code> for iterating over the values.</p>
+  it has methods <code>.next()</code>, <code>.hasNext()</code>, and <code>.reset()</code> for iterating over the values.</p>
+<h3 class="apimethod">.nodeCount()</h3>
+<p>Returns the number of nodes in the graph.</p>
 <h3 class="apimethod">.edges()</h3>
 <p>Returns an iterable array of edges in the graph. The returned structure is similar to the one returned by <code>.nodes()</code>.</p>
+<h3 class="apimethod">.edgeCount()</h3>
+<p>Returns the number of edges in the graph.</p>
+<h3 class="apimethod">.clear()</h3>
+<p>Removes the DOM element of this structure from the document. This is useful, for example, in 
+  re-initializing exercises when the existing structure needs to be removed.</p> 
+<h3 class="apimethod">.layout()</h3>
+<p>This function (re)calculates the layout for the graph. Note, that the library does not do this automatically. That means that after changing the graph, you should call this manually at the end of each animation step.
+</p>
+
 <h3 class="apitopic">Events</h3>
 <p>There are functions to attach event handlers for the nodes and edges in the graph. The events 
   that can be listened for are: click, dblclick, mousedown, mousemove, mouseup, mouseenter, and mouseleave.
@@ -849,6 +898,10 @@ Make the label visible.
 Set the text for the label. If the <code>msg</code> parameter is left
 out, this method will return the current text of the label.
 </p>
+
+<h3 class="apimethod">.clear()</h3>
+<p>Removes the DOM element of this label from the document. This is useful, for example, in 
+  re-initializing exercises when the existing label needs to be removed.</p> 
 
 <h3 class="apimethod">.addClass(className, [options])</h3>
 <p>Adds the CSS class <code>className</code> to the label and animates the changes.</p>
@@ -919,6 +972,10 @@ out, this method will return the current text of the label.
     converted to the type specified when initializing the variable.
     </p>
 
+  <h3 class="apimethod">.clear()</h3>
+  <p>Removes the DOM element of this variable from the document. This is useful, for example, in 
+  re-initializing exercises when the existing variable needs to be removed.</p> 
+
     <h3 class="apimethod">.addClass(className, [options])</h3>
     <p>Adds the CSS class <code>className</code> to the variable and animates the changes.</p>
 
@@ -930,6 +987,37 @@ out, this method will return the current text of the label.
 
     <h3 class="apimethod">.hasClass(className, [options])</h3>
     <p>Return true/false based on if the variable has the CSS class <code>className</code>.</p>
+
+
+    <h2>Pointer API</h2>
+
+    <p>Pointers can be used to represent pointers of a programming language. The pointer is
+      visualized as a label with an arrow to the target of the pointer.</p>
+
+    <h3 class="apimethod">.pointer(name, target, [options])</h3>
+    <p>
+    This is a method of the AV object.
+    It creates a pointer that points to some JSAV element element.
+    Parameter <code>name</code> is the
+    (initial) name for the variable.
+    Parameter <code>options</code> include the following:
+    </p>
+    <ul>
+    <li> <code>{visible: &lt;boolean>}</code> Determine whether the pointer
+    is visible on creation. Defaults to true.</li>
+    <li><code>{left/top/right/bottom: &lt;lengthUnit>}</code> Values to determine the absolute position of the label relative to the pointer's target.</li>
+    <li>anchor: Defines which position on the element being positioned to align with the target element. Should be in 
+      format <code>horizontal vertical</code>. Possible horizontal values are "left", "center", "right" and vertical values "top", "center", "bottom". Defaults to <code>center center</code>.</li>
+    <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>.</li>
+    <li>targetIndex: If target is a JSAV array, this option can be used to target
+      an index in that array.</li>
+    </ul>
+    <p>A pointer instance has the functions of the Label object as well as the following functions.</p>
+    <h3 class="apimethod">.target([newTarget], [options])</h3>
+    <p>If <code>newTarget</code> is not specified, returns the JSAV object this pointer points to. If
+      <code>newTarget</code> is a JSAV object, the pointer will be updated to point to that structure.
+      Valid <code>options</code> are the same as for the pointer constructor. If setting a new target,
+      the change is recorded in the animationo and the function returns the pointer object.</p>
 
     <h2>Pseudocode API</h2>
     <p>The pseudocode API in JSAV is intended for showing a static set of codelines that can be show/hidden and
@@ -984,6 +1072,9 @@ out, this method will return the current text of the label.
     <p>Sets the line at given <var>index</var> as the current line. Also, if another line was previously set as current, it will be
       marked as previous. If a line was also earlier marked as previous, that mark will be removed. This will help in creating a 
       visual debugger-like code stepping functionality in visualizations.</p>
+    <h3 class="apimethod">.clear()</h3>
+    <p>Removes the DOM element of this object from the document. This is useful, for example, in 
+    re-initializing exercises when the existing object needs to be removed.</p> 
     <h3 class="apimethod">.addClass(indices, className, [options])</h3>
     <p>Adds the CSS class <code>className</code> to lines at given indices and animates the changes. Like for
       the rest of pseudocode methods, <code>indices</code> can be a number, array of numbers, or a function.</p>
@@ -1010,6 +1101,8 @@ out, this method will return the current text of the label.
     <p>Make the shape visible. Essentially the same as calling <code>.css({opacity: 1})</code>.</p>
     <h3 class="apimethod">.hide()</h3>
     <p>Make the shape invisible. Essentially the same as calling <code>.css({opacity: 0})</code>.</p>
+    <h3 class="apimethod">.isVisible()</h3>
+    <p>Return true if the shape is visible, false if hidden.</p>
     <h3 class="apimethod">.rotate(deg)</h3>
     <p>Rotates the object by the given amount of degrees around the center of the shape.</p>
     <h3 class="apimethod">.scale(sx, sy), .scaleX(sx), .scaleY(sy)</h3>
@@ -1324,6 +1417,35 @@ q.show();</pre>
 <p>Method that animates <em>swapping</em> a value from one structure with another. The same
   parameter combinations are valid as for the <code>.moveValue</code> method.</p>
 
+<h2>Event Logging API</h2>
+<p>JSAV supports AVs to log student actions into an event log. It also provides mechanisms for
+  sites using the AVs to access a log of those events.</p>
+<h3 class="apimethod">Logging events with .logEvent(eventData)</h3>
+<p>AVs can log events on student actions using this function. The <code>eventData</code> can
+  be any data describing the event. If it is an object, properties <code>tstamp</code> and
+  <code>av</code> will be automatically added to it to mark the current time and the ID of
+  the AV.</p>
+<p>For example:</p>
+  <pre>jsav.logEvent({type: "jsav-heap-decrement", newSize: bh.heapsize()});</pre>
+<h3 class="apimethod">Listening to events</h3>
+<p>JSAV will trigger all events logged with the <code>.logEvent()</code> function as
+  <code>jsav-log-event</code> on the <code>body</code> element of the current document. To
+  attach a listener for those events, one can use the following code.</p>
+  <pre>$("body").on("jsav-log-event", function(event, eventData) {
+  console.log(eventData); // here you would do something sensible with the eventData
+});</pre>
+<p>JSAV will automatically trigger many events for actions such as student moving forward,
+  backward, etc in the animation.</p>
+<h3 class="apimethod">Custom event handler</h3>
+<p>Sometimes listening to the events on the <code>body</code> element might not be preferred.
+  To customize the way the events are handler, a function to handle all JSAV events can be
+  passed as an option to JSAv when initializing it. Name of the option is <code>logEvent</code>.
+  The event handler function will be passed the <code>eventData</code> as the first argument.
+  For example:</p>
+<pre>var jsav = new JSAV("avcontainerid", { logEvent: function(eventData) {
+  console.log(eventData); // here you would do something sensible with the eventData
+}});</pre>
+
 <h2>Best Practice for Modularity</h2>
 
 <p>
@@ -1355,7 +1477,7 @@ A visualization can then be embedded with a call such as:
   </script>
   <script>
   $(function() {
-    // dynamically 
+    // dynamically create a table of contents
     var toc = $("#toc");
     $("h2").each(function(index, item) {
       $(item).html("<a name='sect" + index + "'>" + $(item).text() + "</a>");

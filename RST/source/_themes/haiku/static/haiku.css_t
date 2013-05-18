@@ -284,10 +284,6 @@ p.last {
     margin-bottom: 0;
 }
 
-p.caption {
-    text-align: inherit;
-}
-
 ol {
     padding-left: 20px;
     counter-reset: item;
@@ -298,6 +294,7 @@ ul {
     margin-top: 3px;
 }
 
+/*
 ol.arabic {
     display: block;
     padding: 0 0 0 1.666em;
@@ -323,6 +320,7 @@ ol.arabic li {
     position: relative;
     text-align: justify;
 }
+*/
 
 ul li {
     line-height: 1.3;
@@ -353,6 +351,7 @@ pre {
     margin: 0 0 12px 0;
     padding: 0.8em;
     background-color: #f0f0f0;
+    font-size: 1.3em;
 }
 
 hr {
@@ -535,3 +534,11 @@ table.data tr:hover td {
  background: mintcream !important;
 }   
 
+code {
+  font-size: 1.4em;
+}
+div.divdgm {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}

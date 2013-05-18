@@ -1,18 +1,59 @@
 # Run the commandline compiler and runtime for all Processing code.
 # This isn't quite running unit tests, but the effect should be similar.
 PROCESS = ~/processing-2.0b8/processing-java
-SRC = c:\Cliff\OpenDSA\SourceCode\Processing
-BUILD = c:\Cliff\OpenDSA\SourceCode\Processing\build
+BUILD = c:/Cliff/OpenDSA/Sourcecode/Processing/build
+#BUILD = /home/shaffer/OpenDSA/SourceCode/Processing/build
 
-all: Trees Sorting Graphs
+all: Demo Trees Sorting Graphs
 
 clean:
 	-rm -rf build
 	mkdir build
 
+Demo: UpDown
+
+Misc: Fact TOH Fibonnaci Largest
+
+UpDown: 
+	@echo "UpDown Test"
+	-@rm -rf build/UpDown
+	@mkdir build/UpDown
+	@cp Demo/UpDown.pde build/UpDown
+	@$(PROCESS) --run --sketch="build/UpDown" --output="build/build" --force
+
+Fact: 
+	@echo "Factorial Test"
+	-@rm -rf build/Fact
+	@mkdir build/Fact
+	@cp Misc/Fact.pde build/Fact
+	@$(PROCESS) --run --sketch="build/Fact" --output="build/build" --force
+
+TOH: 
+	@echo "TOH Test"
+	-@rm -rf build/TOH
+	@mkdir build/TOH
+	@cp Misc/TOH.pde build/TOH
+	@$(PROCESS) --run --sketch="build/TOH" --output="build/build" --force
+
+Fibonnaci: 
+	@echo "Fibonnaci Test"
+	-@rm -rf build/Fibonnaci
+	@mkdir build/Fibonnaci
+	@cp Misc/Fibonnaci.pde build/Fibonnaci
+	@$(PROCESS) --run --sketch="build/Fibonnaci" --output="build/build" --force
+
+Largest: 
+	@echo "Analysis Chapter Test"
+	-@rm -rf build/Anal
+	@mkdir build/Anal
+	@cp Misc/Anal.pde build/Anal
+	@$(PROCESS) --run --sketch="build/Anal" --output="build/build" --force
+
 Trees: GenTree UFTest
 
-Sorting: Inssort InssortKV Bubblesort Selsort Shellsort Mergesort MergesortOpt Quicksort Heapsort Binsort
+Sorting: Inssort InssortKV Bubblesort Selsort Shellsort Mergesort MergesortOpt Quicksort Heapsort Binsort Radixsort
+
+Sorttime: InssortTime BubblesortTime SelsortTime
 
 Graphs: GraphDummy GraphTrav GraphTop GraphDijk GraphMCST
 
@@ -24,6 +65,7 @@ build/GenTree/success: Trees/GenTree.pde
 	-@rm -rf build/GenTree
 	@mkdir build/GenTree
 	@cp Trees/GenTree.pde build/GenTree
+	@$(PROCESS) --run --sketch="build/GenTree" --output="build/build" --force
 
 UFTest: build/UFTest/success
 
@@ -33,7 +75,7 @@ build/UFTest/success: Trees/ParPtrTree.pde Trees/UFTest.pde
 	@mkdir build/UFTest
 	@cp Trees/ParPtrTree.pde build/UFTest
 	@cp Trees/UFTest.pde build/UFTest
-	@$(PROCESS) --run --sketch="$(BUILD)/UFTest" --output="$(BUILD)/build" --force
+	@$(PROCESS) --run --sketch="build/UFTest" --output="build/build" --force
 
 Inssort: build/InssortTest/success
 
@@ -146,6 +188,43 @@ build/Binsort/success: Sorting/Binsort.pde Utils/Swap.pde Utils/Permute.pde
 	@cp Utils/Permute.pde build/Binsort
 	@$(PROCESS) --run --sketch="$(BUILD)/Binsort" --output="$(BUILD)/build" --force
 
+Radixsort: build/RadixsortTest/success
+
+build/RadixsortTest/success: Sorting/Radixsort.pde Sorting/SortTest.pde
+	@echo "Radixsort Test"
+	-@rm -rf build/RadixsortTest
+	@mkdir build/RadixsortTest
+	@cp Sorting/Radixsort.pde build/RadixsortTest
+	@cp Sorting/SortTest.pde build/RadixsortTest/RadixsortTest.pde
+	@$(PROCESS) --run --sketch="$(BUILD)/RadixsortTest" --output="$(BUILD)/build" --force
+
+
+InssortTime:
+	@echo "Insertion Sort Timer"
+	-@rm -rf build/InssortTime
+	@mkdir build/InssortTime
+	@cp Sorting/SortTime.pde build/InssortTime/InssortTime.pde
+	@cp Sorting/Insertionsort.pde build/InssortTime
+	@cp Utils/Swap.pde build/InssortTime
+	@$(PROCESS) --run --sketch="$(BUILD)/InssortTime" --output="$(BUILD)/build" --force
+
+SelsortTime:
+	@echo "Selection Sort Timer"
+	-@rm -rf build/SelsortTime
+	@mkdir build/SelsortTime
+	@cp Sorting/SortTime.pde build/SelsortTime/SelsortTime.pde
+	@cp Sorting/Selectionsort.pde build/SelsortTime
+	@cp Utils/Swap.pde build/SelsortTime
+	@$(PROCESS) --run --sketch="$(BUILD)/SelsortTime" --output="build/build" --force
+
+BubblesortTime:
+	@echo "Bubble Sort Timer"
+	-@rm -rf build/BubblesortTime
+	@mkdir build/BubblesortTime
+	@cp Sorting/SortTime.pde build/BubblesortTime/BubblesortTime.pde
+	@cp Sorting/Bubblesort.pde build/BubblesortTime
+	@cp Utils/Swap.pde build/BubblesortTime
+	@$(PROCESS) --run --sketch="$(BUILD)/BubblesortTime" --output="build/build" --force
 
 GraphDummy: build/GraphDummy/success
 
@@ -156,7 +235,7 @@ build/GraphDummy/success: Graphs/GraphDummy.pde Graphs/Graph.pde Graphs/GraphM.p
 	@cp Graphs/GraphDummy.pde build/GraphDummy
 	@cp Graphs/Graph.pde build/GraphDummy
 	@cp Graphs/GraphM.pde build/GraphDummy
-	@$(PROCESS) --run --sketch="$(BUILD)/GraphDummy" --output="$(BUILD)/build" --force
+	@$(PROCESS) --run --sketch="build/GraphDummy" --output="build/build" --force
 
 GraphTrav: build/GraphTrav/success
 
@@ -175,7 +254,7 @@ build/GraphTrav/success: Graphs/BFS.pde Graphs/DFS.pde Graphs/Graph.pde Graphs/G
 	@cp Lists/Queue.pde build/GraphTrav
 	@cp Lists/LQueue.pde build/GraphTrav
 	@cp Lists/Link.pde build/GraphTrav
-	@$(PROCESS) --run --sketch="$(BUILD)/GraphTrav" --output="$(BUILD)/build" --force
+	@$(PROCESS) --run --sketch="build/GraphTrav" --output="build/build" --force
 
 GraphTop: build/GraphTop/success
 
@@ -194,7 +273,7 @@ build/GraphTop/success: Graphs/TopsortBFS.pde Graphs/TopsortDFS.pde Graphs/Graph
 	@cp Lists/Queue.pde build/GraphTop
 	@cp Lists/LQueue.pde build/GraphTop
 	@cp Lists/Link.pde build/GraphTop
-	@$(PROCESS) --run --sketch="$(BUILD)/GraphTop" --output="$(BUILD)/build" --force
+	@$(PROCESS) --run --sketch="build/GraphTop" --output="build/build" --force
 
 GraphDijk: build/GraphDijk/success
 
@@ -215,7 +294,7 @@ build/GraphDijk/success: Graphs/Graph.pde Graphs/GraphM.pde Graphs/GraphL.pde Gr
 	@cp Graphs/DijkstraPQ.pde build/GraphDijk
 	@cp Utils/KVPair.pde build/GraphDijk
 	@cp Trees/MinheapKV.pde build/GraphDijk
-	@$(PROCESS) --run --sketch="$(BUILD)/GraphDijk" --output="$(BUILD)/build" --force
+	@$(PROCESS) --run --sketch="build/GraphDijk" --output="build/build" --force
 
 GraphMCST: build/GraphMCST/success
 
@@ -238,4 +317,4 @@ build/GraphMCST/success: Graphs/Graph.pde Graphs/GraphM.pde Graphs/GraphL.pde Gr
 	@cp Utils/KVPair.pde build/GraphMCST
 	@cp Trees/MinheapKV.pde build/GraphMCST
 	@cp Trees/ParPtrTree.pde build/GraphMCST
-	@$(PROCESS) --run --sketch="$(BUILD)/GraphMCST" --output="$(BUILD)/build" --force
+	@$(PROCESS) --run --sketch="build/GraphMCST" --output="build/build" --force

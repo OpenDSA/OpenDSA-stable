@@ -19,17 +19,10 @@ function runit() {
   initGraph();
   g.layout();
   jsav.umsg("Let's see what a very long line will look like so that we can tell if this looks good. I guess that was not really good enough, this is a very big AV.");
-  jsav.displayInit();
-   
+  jsav.displayInit();   
   markIt(g.nodes()[0]);
   jsav.step();
   bfs(g.nodes()[0]);
-  bfs(g.nodes()[2]);
-  bfs(g.nodes()[4]);
-  bfs(g.nodes()[1]);
-  bfs(g.nodes()[3]);
-  bfs(g.nodes()[5]);
-  jsav.step();
   finalGraph();
   jsav.recorded();
 }
@@ -50,34 +43,39 @@ function dequeueIt(node) {
   jsav.umsg("Dequeue " + node.value());
   arr.value(firstElement, "");
   firstElement++;
-  jsav.step();
 }
 
 function bfs(start) {
-  var adjacent;
-  var next;
-  adjacent = start.neighbors();
-  dequeueIt(start);
+  console.log("start : " + start.value());
+  var node;
+  var adjNode = new Array();
+  var q = new Array();
+  q.push(start);
  
  
-  for (next = adjacent.next(); next; next = adjacent.next()) {
-    
-    if(next.hasClass("marked")) {
-      jsav.umsg("Process (" + start.value() + "," + next.value() + "). Ignore");
-      jsav.step();
+ 
+ while(q.length > 0) {
+    node = q.shift();
+      dequeueIt(node);
+    console.log("node " + node.value());
+    adjNode = node.neighbors();
+    console.log("adjNode " + adjNode.length);
+    jsav.step();
+    while(adjNode.length > 0) {
+  
+      if(!adjNode[0].hasClass("marked")) {
+        markIt(adjNode[0]);
+        jsav.step();
+        q.push(adjNode[0]);
+        adjNode.shift();
+        console.log("adjNode after pop " + adjNode[0]);
+      } else {
+          adjNode.shift();
+        }
     }
-     
-    if(!next.hasClass("marked")) {
-      jsav.umsg("Process (" + start.value() + "," + next.value() + ")");
-      jsav.step();
-      markIt(next);
-      jsav.step();
-      next.edgeFrom(start).css({"stroke-width":"4", "stroke":"red"}); // highlight
-      jsav.step();
-    }
-  }
-}
+ }
 
+}
 function about() {
   alert("Breadth first search visualization");
 }
@@ -95,16 +93,10 @@ function initGraph() {
   g.addEdge(a, c);
   g.addEdge(a, e);
   g.addEdge(c, b);
-  g.addEdge(b, c);
   g.addEdge(c, d);
   g.addEdge(c, f);
   g.addEdge(b, f);
-  g.addEdge(f, b);
-  g.addEdge(f, c);
-  g.addEdge(f, d);
-  g.addEdge(d, c);
   g.addEdge(d, f);
-  g.addEdge(e, a);
   g.addEdge(e, f);
   jsav.umsg("Initial call to BFS on A.");
 }

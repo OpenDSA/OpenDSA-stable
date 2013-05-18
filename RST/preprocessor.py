@@ -20,6 +20,27 @@ from xml.dom.minidom import parse, parseString
 from string import whitespace as ws
 
 
+#a method to detect if the topic element is an example
+def isExample(topic):
+    if 'example' in topic.lower() and topic.startswith('.. topic::'):
+        return True
+    else:
+        return False
+
+def isTable(topic):
+    if 'table' in topic.lower() and topic.startswith('.. topic::'):
+        return True
+    else:
+        return False
+
+
+def isTheorem(topic):
+    if 'theorem' in topic.lower() and topic.startswith('.. topic::'):
+        return True
+    else:
+        return False
+
+
 #defines the color of output text (warnings, errors, and info)
 class bcolors:
     HEADER = '\033[95m'
@@ -69,11 +90,9 @@ class modPreReq:
       desc=''
       fig = 1
       tab = 1
+      exp = 1
+      thr = 1 
       label = ''
-      file_modified = False
-      #label of jsav slide shows
-      ss_label=''
-      #config.mod_numb+=1
       fls = open(filename,'r')
       data = fls.readlines()
       new_data = []
@@ -99,26 +118,54 @@ class modPreReq:
          if ':topic:' in line:
             str =  re.split('topic:', line, re.IGNORECASE)[1]
             self.covers =  p.sub('',str).split(',')
+         #label = ''
          if line.startswith('.. _'):
             label =  re.split(':', re.split('.. _', line, re.IGNORECASE)[1], re.IGNORECASE)[0]
-            if data[cpt+1].startswith('.. figure::') or data[cpt+1].startswith('.. inlineav::'):
+            if data[cpt+1].startswith('.. figure::') or data[cpt+1].startswith('.. odsafig::') or data[cpt+1].startswith('.. inlineav::'): 
                if os.path.splitext(os.path.basename(filename))[0] in config.table:
                  tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
                  config.table[label] = tb + '.%s#' %fig
                  fig+=1
-                 if data[cpt+1].startswith('.. inlineav::'):
-                     ss_label = label
-            if data[cpt+1].startswith('.. table::'):
+            if data[cpt+1].startswith('.. table::') or data[cpt+1].startswith('.. odsatab') or isTable(data[cpt+1]):
                 if os.path.splitext(os.path.basename(filename))[0] in config.table:
                   tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
                   config.table[label] = tb + '.%s#' %tab
                   tab+=1
-         if ':caption:' in line and ss_label !='':
-             new_caption = ':caption: <' + ss_label + '>'
-             line = line.replace(':caption:',new_caption) 
-             file_modified = True
-             ss_label = ''
-  
+                label = '-1' 
+            if isExample(data[cpt+1]):
+                if os.path.splitext(os.path.basename(filename))[0] in config.table:
+                   tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
+                   config.table[label] = tb + '.%s#' %exp
+                exp+=1
+                label = '-2'
+            if isTheorem(data[cpt+1]):
+                if os.path.splitext(os.path.basename(filename))[0] in config.table:
+                   tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
+                   config.table[label] = tb + '.%s#' %thr
+                   thr+=1
+                label = '-3'
+ 
+         if isExample(line):
+             if label == '-2':
+                 label = ''
+             else:
+                 exp+=1
+                    
+         if isTheorem(line):
+             if label == '-3':
+                 label = ''
+             else:
+                 thr+=1
+   
+
+         if ':target:' in line:
+             trgt =  re.split('target:', line, re.IGNORECASE)[1]
+             trgt=p.sub('',trgt)
+             if os.path.splitext(os.path.basename(filename))[0] in config.table:
+                 tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
+                 config.table[trgt] = tb + '.%s#' %fig
+                 fig+=1 
+ 
          if ('.. TODO::' in line  or '.. todo::' in line) and len_wthsp==-1 and start==-1 and end==-1:
             start = cpt+1
          if start==cpt:
@@ -160,11 +207,6 @@ class modPreReq:
             start = cpt+1
             end = -1
          new_data.append(line)
-      #write the modified file if we encountered an slide show figure
-      if file_modified:
-          otfile = open(filename,'wb')
-          otfile.writelines(new_data)
-          otfile.close()
 
       self.prereqNum = len(self.prereq)
 
@@ -415,10 +457,10 @@ def updateTOC(args):
              if pagename in data:
                 chap = data[pagename]
                 header = '%s %s %s' %(prefix,chap[1],chap[0])
-             else: #special case ToDo.html, we put all the other files in the Appendix chapter
-                chap = data['Bibliography']
-                header = '%s %s %s' %(prefix,chap[1],chap[0])
-                td = 1
+             #else: #special case ToDo.html, we put all the other files in the Appendix chapter
+             #   chap = data['Bibliography']
+             #   header = '%s %s %s' %(prefix,chap[1],chap[0])
+             #   td = 1
              for idxLine in idxL:
                 if 'id="prevmod"' in idxLine or 'id="nextmod"' in idxLine or 'id="prevmod1"' in idxLine or 'id="nextmod1"' in idxLine:
                    prev = re.split('">',re.split('</a>', idxLine, re.IGNORECASE)[0],re.IGNORECASE)[1]
@@ -427,10 +469,10 @@ def updateTOC(args):
                       chap = data[href[:-5]]
                       str = '%s.' %chap[1] + prev
                       idxLine = idxLine.replace(prev,str)
-                   if  href[:-5]=='ToDO':   #special case ToDo.html
-                      chap = data['Bibliography']
-                      str = '%s.' %chap[1] + prev
-                      idxLine = idxLine.replace(prev,str)
+                   #if  href[:-5]=='ToDO':   #special case ToDo.html
+                   #   chap = data['Bibliography']
+                   #   str = '%s.' %chap[1] + prev
+                   #   idxLine = idxLine.replace(prev,str)
                 if '<h2 class="heading"><span>'  in idxLine and pagename != 'index' and pagename != 'Gradebook':
                    heading = re.split('<span>',re.split('</span>', idxLine, re.IGNORECASE)[0],re.IGNORECASE)[1]
                    idxLine = idxLine.replace(heading,header)

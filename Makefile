@@ -26,7 +26,6 @@ csslint:
 	@csslint $(CSSLINTFLAGS) AV/*.css
 	@csslint $(CSSLINTFLAGS) Doc/*.css
 	@csslint $(CSSLINTFLAGS) lib/*.css
-	@csslint $(CSSLINTFLAGS) QBank/*.css
 
 jshint:
 	@echo 'running jshint'
@@ -90,7 +89,19 @@ OpenDSA: min
 T1061220: min
 	python $(CONFIG_SCRIPT) config/T1061220.json
 
-allBooks: CS223 CS3114a CS3114b OpenDSA T1061220
+test: min
+	python $(CONFIG_SCRIPT) config/test.json
+
+Dev: min
+	python $(CONFIG_SCRIPT) config/Dev.json
+
+Everything: min
+	python $(CONFIG_SCRIPT) config/Everything.json
+
+invalid: min
+	python $(CONFIG_SCRIPT) config/invalid.json
+
+allBooks: CS223 CS3114a CS3114b OpenDSA T1061220 Dev Everything
 
 lib/odsaUtils-min.js: lib/odsaUtils.js
 	@echo 'Minimizing lib/odsaUtils.js'

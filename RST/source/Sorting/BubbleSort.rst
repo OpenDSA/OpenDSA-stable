@@ -10,8 +10,6 @@
 
 .. index:: ! Bubble Sort
 
-.. odsalink:: AV/slideCON.css
-
 Bubble Sort
 ===========
 
@@ -78,7 +76,7 @@ of comparisons made by the inner ``for`` loop on the :math:`i`'th
 iteration is always :math:`n-i`, leading to a total cost of
 
 .. math::
-   \sum_{i=1}^n i \approx n^2/2 = \Theta(n^2).
+   \sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} \approx n^2/2 = \Theta(n^2).
 
 Thus, Bubble Sort's running time is roughly the same
 in the best, average, and worst cases.

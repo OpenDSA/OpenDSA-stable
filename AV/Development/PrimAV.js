@@ -4,187 +4,165 @@
 (function ($) {
   var jsav;
   var graph;
+  var mst;   //A graph representing the resulted MST
+  var gnodes = [];
+  var mstnodes = [];
+  var distances;
+  var labels;
+  var arr;     //Used to initialize the distance and labels arrays.
 
   function runit() {
+    var i;
     ODSA.AV.reset(true);
     jsav = new JSAV($('.avcontainer'));
-
-    //-------------------ADD NEW GRAPH STUFF HERE----------------------------------------
-    graph = jsav.ds.graph({width: 600, height: 400, layout: "manual", directed: true});
+    graph = jsav.ds.graph({width: 600, height: 400, layout: "manual", directed: false});
+    mst = jsav.ds.graph({width: 600, height: 400, layout: "manual", directed: true});
     initGraph();
     graph.layout();
+    arr = new Array(graph.nodeCount());
+    for (i = 0; i < arr.length; i++) {
+      arr[i] = Infinity;
+    }
+    distances = jsav.ds.array(arr, {layout: "vertical", left: 600, top: 20});
+    for (i = 0; i < arr.length; i++) {
+      arr[i] = gnodes[i].value();
+    }
+    labels = jsav.ds.array(arr, {layout: "vertical", left: 555, top: 20});
     jsav.displayInit();
-    markIt(graph.nodes()[0]);    // Mark the first node in the graph
-    var startNode = [];  // Define an array to hold the value of the start node to be passed to prim function
-    startNode[0] = graph.nodes()[0];
-    var edges = prim(startNode);    // Call the function which describes Prim's algorithm and pass the first node.
-    removeEdges(edges);      // Remove extra edges that are not in the spanning tree.
+    prim(gnodes[0]);            // Run Prim's algorithm from start node.
+    displayMST();
     jsav.recorded();
   }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//This function is applied to get the edge in the opposite direction of the given edge
-	function getReverseEdge(edge){
-		for(var i=0;i<graph.edges().length;i++){
-			if(graph.edges()[i].start()==edge.end() && graph.edges()[i].end()==edge.start()){
-				return graph.edges()[i];
-			}
-		}
-	}
-  
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  //This function is for searching for a node in a specific set of nodes.
-  //We use this function to state whether a particular node is contained in the set of nodes added so far to the spanning tree.
-  function searchNodes(S, targetNode) {
-    for (var i = 0; i < S.length; i++) {
-      if (S[i].value() === targetNode.value()) {
-        return true;
-      }
-    }
-    return false;
+  function displayMST() {
+    var next;
+    var edges = mst.edges();
+    graph.hide();
+    mst.layout();
+    jsav.umsg("Complete minimum spanning tree");
   }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //This function is for finding cut(S) where S is the set of nodes added so far to the spanning tree.
-  //cut(S) are the set of edges that are connecting nodes in S to nodes outside S.
-  function findCut(S) {
-    var cutEdges = [];
-    for (var i = 0; i < graph.edges().length; i++) {
-      if ((searchNodes(S, graph.edges()[i].start()) && !searchNodes(S, graph.edges()[i].end()))){
-        cutEdges.push(graph.edges()[i]);
-      }
-    }
-    return cutEdges;
-  }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //This function is for finding the minimum cost edge in cut(S).
-  function findMinimumCostEdge(cut) {
-    var minCost = parseInt(cut[0].label(), 10);
-    var minCostIndex = 0;
-    for (var i = 1; i < cut.length; i++) {
-      if (parseInt(cut[i].label(), 10) < minCost) {
-        minCost = parseInt(cut[i].label(), 10);
-        minCostIndex = i;
-      }
-    }
-    return minCostIndex;
-  }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //This function is used to mark a node in the graph.
+  // Mark a node in the graph.
   function markIt(node) {
-    node.addClass("marked");
-    jsav.umsg("Add node " + node.value() + " to the minimum spanning tree");
+    node.addClass("visited");
+    jsav.umsg("Add node " + node.value() + " to the MST");
+    distances.highlight(gnodes.indexOf(node));
+    labels.highlight(gnodes.indexOf(node));
     node.highlight();
     jsav.step();
   }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //This function simply displays the set of nodes in S in a convenient manner to be used in messages in the slideshow.
-  function displayNodes(S) {
-    var str = " (";
-    for (var i = 0; i < S.length - 1; i++) {
-      str += S[i].value() + " , ";
+  // Find the unvisited vertex with the smalled distance
+  function minVertex() {
+    var v;    // The closest node seen so far
+    var next; // Current node being looked at
+    gnodes.reset();
+    for (next = gnodes.next(); next; next = gnodes.next()) {
+      if (!next.hasClass("visited")) {
+        v = next;
+        break;
+      }
     }
-    str += S[i].value() + ")";
-    return str;
-  }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //This function contains the implementation of Prim's algorithm.
-  function prim(S) {
-    var cut = [];
-    var edgeIndex;
-    var edges = [];
-	var reverseEdge;
-	var endNode;
-    while (S.length < graph.nodes().length) {
-      cut = findCut(S);
-      edgeIndex = findMinimumCostEdge(cut);
-      jsav.umsg("Find the minimum cost edge in cut of " + displayNodes(S));
-      cut[edgeIndex].css({"stroke-width":"2", "stroke":"red"});
-	  reverseEdge=getReverseEdge(cut[edgeIndex]);
-	  reverseEdge.css({"stroke-width":"2", "stroke":"red"});
-      edges.push(cut[edgeIndex]);
-	  edges.push(reverseEdge);
-      jsav.step();
-	  endNode=cut[edgeIndex].end();
-	  if(endNode.hasClass("marked")){
-		markIt(reverseEdge.end());
-		S.push(reverseEdge.end());
-	  }
-	  else{
-		markIt(cut[edgeIndex].end());
-		S.push(cut[edgeIndex].end());
-	  }
+    for (next = gnodes.next(); next; next = gnodes.next()) {
+      if (!(next.hasClass("visited")) && distances.value(next.index) < distances.value(v.index)) {
+        v = next;
+      }
     }
-    return edges;
+    //console.log("v is " + v.value() + ", Distance for v is " + distances.value(v.index));
+    return v;
   }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  function about() {
-    var mystring = "Prim's Algorithm Visualization\nWritten by Mohammed Fawzy\nCreated as part of the OpenDSA hypertextbook project.\nFor more information, see http://algoviz.org/OpenDSA\nWritten during Spring, 2013\nLast update: March, 2013\nJSAV library version " + JSAV.version();
-    alert(mystring);
-    alert("Prim's Algorithm visualization");
-  }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //This function is used to initialize the graph.
-  function initGraph() {
-    var a = graph.addNode("A", {"left": 25,"top":50}),
-        b = graph.addNode("B", {"left": 325,"top":50}),
-        c = graph.addNode("C", {"left": 145, "top": 75}),
-        d = graph.addNode("D", {"left": 145, "top": 200}),
-        e = graph.addNode("E", {"left": 0, "top": 300}),
-        f = graph.addNode("F", {"left": 325, "top": 250}),
-        g = graph.addNode("G", {"left": 500, "top": 150});
+  // Compute Prim's algorithm and return edges
+  function prim(s) {
+    var v;         // The current node added to the MST
+    var neighbors = []; // The neighbors of a specific node
+    var weight;         // Weight of current edge
+    var next, i;
 
-    var e1 = graph.addEdge(a, c).label("30"),
-        e2 = graph.addEdge(a, e).label("10"),
-        e3 = graph.addEdge(c, b).label("20"),
-        e4 = graph.addEdge(c, d).label("15"),
-        e5 = graph.addEdge(c, f).label("25"),
-        e6 = graph.addEdge(f, b).label("2"),
-        e7 = graph.addEdge(d, f).label("5"),
-        e8 = graph.addEdge(e, f).label("40"),
-        e9 = graph.addEdge(f, g).label("50"),
-        e10 = graph.addEdge(b, g).label("22");
-		
-	var e11 = graph.addEdge(c, a).label("30"),
-		e22 = graph.addEdge(e, a).label("10"),
-        e33 = graph.addEdge(b, c).label("20"),
-        e44 = graph.addEdge(d, c).label("15"),
-        e55 = graph.addEdge(f, c).label("25"),
-        e66 = graph.addEdge(b, f).label("2"),
-        e77 = graph.addEdge(f, d).label("5"),
-        e88 = graph.addEdge(f, e).label("40"),
-        e99 = graph.addEdge(g, f).label("50"),
-        e100 = graph.addEdge(g, b).label("22");
-  }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //This function is used to remove edges that are not in the minimum spanning tree
-  function removeEdges(edges) {
-	var reverseEdge;
-    for (var i = 0; i < graph.edges().length; i++) {
-      for (var j = 0; j < edges.length; j++) {
-        if (graph.edges()[i] === edges[j]) {
-          break;
+  // Initialize the MST "parents" to dummy values
+    for (next = gnodes.next(); next; next = gnodes.next()) {
+      next.parent = next;
+    }
+    distances.value(s.index, 0);
+    jsav.umsg("Update the distance value of node " + s.value());
+    jsav.step();
+    for (i = 0; i < graph.nodeCount(); i++) {
+      v = minVertex();
+      markIt(v);
+      if (distances.value(v.index) === Infinity) {
+        jsav.umsg("No other nodes are reachable, so quit.");
+        jsav.step();
+        return;
+      }
+      if (v !== s) {
+        //Add an edge to the MST
+        var edge = graph.getEdge(v.parent, v);
+        edge.css({"stroke-width": "4", "stroke": "red"});
+        var mstedge = mst.addEdge(mstnodes[v.parent.index], mstnodes[v.index], {"weight": edge.weight()});
+        mstedge.css({"stroke-width": "2", "stroke": "red"});
+        jsav.umsg("Add edge (" + v.parent.value() + "," + v.value() + ") to the MST");
+        jsav.step();
+      }
+      neighbors = v.neighbors();
+      for (var j = 0; j < neighbors.length; j++) {
+        if (!neighbors[j].hasClass("visited")) {
+          var w = neighbors[j];
+          weight = v.edgeTo(w).weight();
+          //Update Distances Of neighbors not in the minimum spanning tree
+          var msg = "<u>Processing edge (" + v.value() + "," + w.value() + "): </u>";
+          if (distances.value(w.index) > weight) {
+            w.parent = v;
+            distances.value(w.index, weight);
+            msg += "Update the distance value of node (" + w.value() + ")";
+          }
+          else {
+            msg += "Leave the distance value of node (" + w.value() + ") unchanged";
+          }
+          jsav.umsg(msg);
+          jsav.step();
         }
       }
-      if (j === edges.length) {
-		reverseEdge=getReverseEdge(graph.edges()[i]);
-        graph.removeEdge(graph.edges()[i].start(), graph.edges()[i].end());
-		graph.removeEdge(reverseEdge.start(), reverseEdge.end());
-      }
     }
-    jsav.umsg("Complete minimum spanning tree");
   }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  function about() {
+    var mystring = "Prim's Algorithm Visualization\nWritten by Mohammed Fawzy and Cliff Shaffer\nCreated as part of the OpenDSA hypertextbook project.\nFor more information, see http://algoviz.org/OpenDSA\nWritten during Spring, 2013\nLast update: March, 2013\nJSAV library version " + JSAV.version();
+    alert(mystring);
+  }
+
+  // Initialize the graph.
+  function initGraph() {
+
+    //Nodes of the original graph
+    var a = graph.addNode("A", {"left": 25, "top": 50});
+    var b = graph.addNode("B", {"left": 325, "top": 50});
+    var c = graph.addNode("C", {"left": 145, "top": 75});
+    var d = graph.addNode("D", {"left": 145, "top": 200});
+    var e = graph.addNode("E", {"left": 0, "top": 300});
+    var f = graph.addNode("F", {"left": 325, "top": 250});
+    //Nodes of the MST
+    mst.addNode("A", {"left": 25, "top": 50});
+    mst.addNode("B", {"left": 325, "top": 50});
+    mst.addNode("C", {"left": 145, "top": 75});
+    mst.addNode("D", {"left": 145, "top": 200});
+    mst.addNode("E", {"left": 0, "top": 300});
+    mst.addNode("F", {"left": 325, "top": 250});
+    //Original graph edges
+    graph.addEdge(a, c, {"weight": 7});
+    graph.addEdge(a, e, {"weight": 9});
+    graph.addEdge(c, b, {"weight": 5});
+    graph.addEdge(c, d, {"weight": 1});
+    graph.addEdge(c, f, {"weight": 2});
+    graph.addEdge(f, b, {"weight": 6});
+    graph.addEdge(d, f, {"weight": 2});
+    graph.addEdge(e, f, {"weight": 1});
+
+    gnodes = graph.nodes();
+    mstnodes = mst.nodes();
+    for (var i = 0; i < mstnodes.length; i++) {
+      gnodes[i].index = i;
+    }
+  }
   // Connect action callbacks to the HTML entities
   $('#about').click(about);
   $('#runit').click(runit);

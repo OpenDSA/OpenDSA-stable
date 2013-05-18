@@ -11,9 +11,17 @@ var theArray = [20, 30, 44, 54, 55, 11, 78, 14, 13, 79, 12, 98];
 var theArray2 = [13, 30, 12, 54, 55, 11, 78, 14, 20, 79, 44, 98];
 var theArray3 = [13, 11, 12, 14, 20, 30, 44, 54, 55, 79, 78, 98];
 var theArray4 = [12, 11, 13, 14, 20, 30, 44, 54, 55, 79, 78, 98];
- 
+
 var LIGHT = "rgb(215, 215, 215)";  // For "greying out" array elements
 var DARK = "black";                // Make array elements dark again
+
+function setLight(arr, index) {
+  arr.addClass(index, "light");
+}
+
+function usetLight(arr, index) {
+  arr.removeClass(index, "light");
+}
 
 // Display a slideshow for a sweep of "increment" steps on array "inArr"
 function doSweep(container, inArr, increment) {

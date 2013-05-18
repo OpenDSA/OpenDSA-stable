@@ -1,6 +1,10 @@
 final int numtests = 5;
 final int testsize = 100;
 boolean SUCCESS = true;
+long time1, time2;         // These get set by sorttime()
+
+void makenew(int[] A) { }
+void checkorder(int[] A) { }
 
 void setup() {
   int[] A = new int[testsize];

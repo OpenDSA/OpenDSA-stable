@@ -1,7 +1,7 @@
 .. _ODSAExtensions:
 
-OpenDSA ReST Extensions
-=======================
+ReST Extensions
+===============
 
 The following custom ReST extensions have been created for the OpenDSA
 project.
@@ -155,7 +155,6 @@ SYNOPSIS::
        :points: {number}
        :required: true|false
        :threshold: {number}
-       :caption: {string}
        :align: left|right|center|justify|inherit
 
 DESCRIPTION
@@ -193,10 +192,6 @@ DESCRIPTION
 
       Threshold number of points required for credit.
       **Added automatically by the configuration process, do NOT add manually.**
-
-    ``:caption: {string}``
-
-      The caption to be displayed below the AV.
 
 
     ``:align: left|right|center|justify|inherit``
@@ -348,3 +343,76 @@ NOTES
     ``<script type="text/javascript" src="../../../JSAV/build/JSAV-min.js"></script>``
 
     in the HTML output file.
+
+odsafig
+--------
+NAME
+    odsafig - provides the ability to specify caption alignment to figures.
+
+SYNOPSIS::
+
+    .. odsafig:: {path to image}
+       :capalign: left|right|center|justify|inherit
+
+DESCRIPTION
+    ``.. odsafig::``
+    The directive behaves exactly as the standard ``.. figure::`` directive.
+    It allows you to specify the positioning of figure caption on the page
+
+    ``:capalign: left|right|center|justify|inherit``
+      The alignment of the caption on the page.  
+
+NOTES
+    The directive closely matches the standard ReST ``figure`` directive. The only addition
+    is the ``:capalign:`` argument.
+
+
+odsatab
+--------
+NAME
+    odsatab - provides the ability to create tables (with ``math`` directive) that behave like figures. Caption is display above the table, and the position of the caption can be specified by the user.
+
+SYNOPSIS::
+
+    .. odsatab:: 
+       :capalign: left|right|center|justify|inherit
+       :align: left|right|center
+
+DESCRIPTION
+    ``.. odsatab::``
+    The directive allows the user to create tables using ``math`` directives. The directive numbers tables and allows numbered cross refences. 
+    It allows users to specify the positioning of the table and the table caption on the page
+
+    ``:capalign: left|right|center|justify|inherit``
+      The alignment of the caption on the page.
+    ``:align: left|right|cente``
+      The alignment of the table on the page.
+
+NOTES
+    The first paragraph of the directive content is used as table caption.
+
+
+
+
+topic (special case)
+--------------------
+
+The syntax of the  ``topic`` is not changed in OpenDSA. We are using the directive to display
+``examples, tables, and theorems``.
+To insert an example in your module, just use the keyword ``Example`` as topic title.
+To insert a theorem in your module, just use the keyword ``Theorem`` as topic title.
+The example/table/theorem can be referenced using standard Sphinx mechanism, for numbered reference,
+use the ``:num:`` directive.
+
+EXAMPLE::
+
+    (1) to add  an example with an anchor
+    .. _example1:
+
+    .. topic:: Example
+
+    This is our first example
+     
+
+    (2) to reference the example
+    See Example :num: `Example #example1`. 
