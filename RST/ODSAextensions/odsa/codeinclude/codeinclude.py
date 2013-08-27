@@ -114,24 +114,42 @@ class codeinclude(Directive):
         else:
             hl_lines = None
 
-        tag        = self.options.get('tag')
-        startafter = '/* *** ODSATag: %s *** */'%self.options.get('tag')        #self.options.get('start-after')
-        endbefore  = '/* *** ODSAendTag: %s *** */'%self.options.get('tag')        #self.options.get('end-before')
+        tag_       = self.options.get('tag')
+        tags = []
+        if tag_ is not None:
+            tag_       = tag_.replace(" ","")
+            tags       = tag_.split(',')
+        res        = []
         prepend    = self.options.get('prepend')
         append     = self.options.get('append')
-        if startafter is not None or endbefore is not None:
-            use = not tag    #startafter
-            res = []
-            for line in lines:
-                if not use and startafter and startafter in line:
-                    use = True
-                elif use and endbefore and endbefore in line:
-                    use = False
-                    break
-                elif use:
-                    res.append(line)
-            lines = res
+        for tag in tags:
+            startafter = '/* *** ODSATag: %s *** */'%tag 
+            endbefore  = '/* *** ODSAendTag: %s *** */'%tag 
+            if startafter is not None or endbefore is not None:
+                use = not tag    #startafter
+                tags_counter = 0
+                for line in lines:
+                    if not use and startafter and startafter in line:
+                        use = True
+                        tags_counter = tags_counter + 1
+                    elif use and endbefore and endbefore in line:
+                        use = False 
+                        tags_counter = tags_counter + 1
+                        break
+                    elif use and '/* *** ODSA' in line and startafter not in line:
+                        pass 
+                    elif use:
+                        res.append(line)
 
+                if tags_counter == 0:
+                    return [document.reporter.warning(str("Tag not found. Make sure the tag in your module file matches the delimiter in the source code file."), line=self.lineno)]      
+                elif tags_counter == 1:
+                    return [document.reporter.warning(str("Begin or end tag missing. Please verify your source code file."), line=self.lineno)] 
+        if tag_ is None:
+            for line in lines:
+                if not line.startswith('/* *** ODSA'):
+                    res.append(line)
+        lines = res
         if prepend:
            lines.insert(0, prepend + '\n')
         if append:

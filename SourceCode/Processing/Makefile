@@ -1,10 +1,20 @@
 # Run the commandline compiler and runtime for all Processing code.
 # This isn't quite running unit tests, but the effect should be similar.
-PROCESS = ~/processing-2.0b8/processing-java
-BUILD = c:/Cliff/OpenDSA/Sourcecode/Processing/build
-#BUILD = /home/shaffer/OpenDSA/SourceCode/Processing/build
 
-all: Demo Trees Sorting Graphs
+# If you get errors that DISPLAY is not set, then do:
+# (Bash) export DISPLAY=:0.0
+# (csh/tcsh) setenv DISPLAY :0.0
+
+PROCESS = ~/processing-2.0b9/processing-java
+
+# Use this one on Linux
+BUILD = build
+# On Windows, I can't make it work without an absolute path
+# BUILD = /c/Cliff/OpenDSA/SourceCode/Processing/build
+
+# Run this to test the code for errors
+all: Demo Misc Lists Trees Sorting Graphs
+# Use "sorttest" if you want to run sorting timings
 
 clean:
 	-rm -rf build
@@ -12,47 +22,139 @@ clean:
 
 Demo: UpDown
 
-Misc: Fact TOH Fibonnaci Largest
-
 UpDown: 
 	@echo "UpDown Test"
 	-@rm -rf build/UpDown
 	@mkdir build/UpDown
 	@cp Demo/UpDown.pde build/UpDown
-	@$(PROCESS) --run --sketch="build/UpDown" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/UpDown" --output="build/build" --force
 
-Fact: 
+Misc: Fact TOH Fibonnaci Anal
+
+Fact: build/Fact/success
+
+build/Fact/success: Misc/Fact.pde Lists/Stack.pde Lists/AStack.pde
 	@echo "Factorial Test"
 	-@rm -rf build/Fact
 	@mkdir build/Fact
 	@cp Misc/Fact.pde build/Fact
-	@$(PROCESS) --run --sketch="build/Fact" --output="build/build" --force
+	@cp Lists/Stack.pde build/Fact
+	@cp Lists/AStack.pde build/Fact
+	@$(PROCESS) --run --sketch="$(BUILD)/Fact" --output="build/build" --force
 
-TOH: 
+TOH: build/TOH/success
+
+build/TOH/success: Misc/TOH.pde Lists/Stack.pde Lists/AStack.pde
 	@echo "TOH Test"
 	-@rm -rf build/TOH
 	@mkdir build/TOH
 	@cp Misc/TOH.pde build/TOH
-	@$(PROCESS) --run --sketch="build/TOH" --output="build/build" --force
+	@cp Lists/Stack.pde build/TOH
+	@cp Lists/AStack.pde build/TOH
+	@$(PROCESS) --run --sketch="$(BUILD)/TOH" --output="build/build" --force
 
-Fibonnaci: 
+Fibonnaci: build/Fibonnaci/success
+
+build/Fibonnaci/success: Misc/Fibonnaci.pde
 	@echo "Fibonnaci Test"
 	-@rm -rf build/Fibonnaci
 	@mkdir build/Fibonnaci
 	@cp Misc/Fibonnaci.pde build/Fibonnaci
-	@$(PROCESS) --run --sketch="build/Fibonnaci" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/Fibonnaci" --output="build/build" --force
 
-Largest: 
+Anal:  build/Anal/success
+
+build/Anal/success: Misc/Anal.pde
 	@echo "Analysis Chapter Test"
 	-@rm -rf build/Anal
 	@mkdir build/Anal
 	@cp Misc/Anal.pde build/Anal
-	@$(PROCESS) --run --sketch="build/Anal" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/Anal" --output="build/build" --force
+
+Lists: ListTest ListAlt FreeList DoubleTest StackTest QueueTest
+
+ListTest: build/ListTest/success
+
+build/ListTest/success: Lists/ListADT.pde Lists/AList.pde Lists/Link.pde Lists/LList.pde Lists/ListTest.pde
+	@echo "Array-based and Linked List Test"
+	-@rm -rf build/ListTest
+	@mkdir build/ListTest
+	@cp Lists/ListADT.pde build/ListTest
+	@cp Lists/AList.pde build/ListTest/
+	@cp Lists/LList.pde build/ListTest/
+	@cp Lists/Link.pde build/ListTest/
+	@cp Lists/ListTest.pde build/ListTest/
+	@$(PROCESS) --run --sketch="$(BUILD)/ListTest" --output="$(BUILD)/build" --force
+
+ListAlt: build/ListAlt/success
+
+build/ListAlt/success: ListAlt/ListAlt.pde ListAlt/ListIndex.pde ListAlt/ListADT.pde ListAlt/AList.pde
+	@echo "Alternate list implementation test"
+	-@rm -rf build/ListAlt
+	@mkdir build/ListAlt
+	@cp ListAlt/ListADT.pde build/ListAlt
+	@cp ListAlt/AList.pde build/ListAlt/
+	@cp ListAlt/ListAlt.pde build/ListAlt/
+	@cp ListAlt/ListIndex.pde build/ListAlt/
+	@$(PROCESS) --run --sketch="$(BUILD)/ListAlt" --output="$(BUILD)/build" --force
+
+FreeList: build/FreeList/success
+
+build/FreeList/success: Lists/ListADT.pde Lists/AList.pde Lists/Freelink.pde Lists/Freelist.pde Lists/ListTest.pde
+	@echo "Freelist Test"
+	-@rm -rf build/FreeList
+	@mkdir build/FreeList
+	@cp Lists/ListADT.pde build/FreeList
+	@cp Lists/AList.pde build/FreeList/
+	@cp Lists/Freelist.pde build/FreeList/LList.pde
+	@cp Lists/Freelink.pde build/FreeList/Link.pde
+	@cp Lists/ListTest.pde build/FreeList/FreeList.pde
+	@$(PROCESS) --run --sketch="$(BUILD)/FreeList" --output="$(BUILD)/build" --force
+
+DoubleTest: build/DoubleTest/success
+
+build/DoubleTest/success: Lists/ListADT.pde Lists/AList.pde Lists/DLink.pde Lists/Dlist.pde Lists/ListTest.pde
+	@echo "Array-based and Doubly Linked List Test"
+	-@rm -rf build/DoubleTest
+	@mkdir build/DoubleTest
+	@cp Lists/ListADT.pde build/DoubleTest
+	@cp Lists/AList.pde build/DoubleTest/
+	@cp Lists/Dlist.pde build/DoubleTest/LList.pde
+	@cp Lists/DLink.pde build/DoubleTest/Link.pde
+	@cp Lists/ListTest.pde build/DoubleTest/DoubleTest.pde
+	@$(PROCESS) --run --sketch="$(BUILD)/DoubleTest" --output="$(BUILD)/build" --force
+
+StackTest: build/StackTest/success
+
+build/StackTest/success: Lists/Stack.pde Lists/AStack.pde Lists/Link.pde Lists/LStack.pde Lists/StackTest.pde
+	@echo "Array-based and Linked Stack Test"
+	-@rm -rf build/StackTest
+	@mkdir build/StackTest
+	@cp Lists/Stack.pde build/StackTest
+	@cp Lists/AStack.pde build/StackTest/
+	@cp Lists/LStack.pde build/StackTest/
+	@cp Lists/Link.pde build/StackTest/
+	@cp Lists/StackTest.pde build/StackTest/
+	@$(PROCESS) --run --sketch="$(BUILD)/StackTest" --output="$(BUILD)/build" --force
+
+QueueTest: build/QueueTest/success
+
+build/QueueTest/success: Lists/Queue.pde Lists/AQueue.pde Lists/Link.pde Lists/LQueue.pde Lists/QueueTest.pde
+	@echo "Array-based and Linked Queue Test"
+	-@rm -rf build/QueueTest
+	@mkdir build/QueueTest
+	@cp Lists/Queue.pde build/QueueTest
+	@cp Lists/AQueue.pde build/QueueTest/
+	@cp Lists/LQueue.pde build/QueueTest/
+	@cp Lists/Link.pde build/QueueTest/
+	@cp Lists/QueueTest.pde build/QueueTest/
+	@$(PROCESS) --run --sketch="$(BUILD)/QueueTest" --output="$(BUILD)/build" --force
 
 Trees: GenTree UFTest
 
 Sorting: Inssort InssortKV Bubblesort Selsort Shellsort Mergesort MergesortOpt Quicksort Heapsort Binsort Radixsort
 
+# This will do timing tests. The "Sorting" target tests for errors.
 Sorttime: InssortTime BubblesortTime SelsortTime
 
 Graphs: GraphDummy GraphTrav GraphTop GraphDijk GraphMCST
@@ -65,7 +167,7 @@ build/GenTree/success: Trees/GenTree.pde
 	-@rm -rf build/GenTree
 	@mkdir build/GenTree
 	@cp Trees/GenTree.pde build/GenTree
-	@$(PROCESS) --run --sketch="build/GenTree" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/GenTree" --output="build/build" --force
 
 UFTest: build/UFTest/success
 
@@ -75,7 +177,7 @@ build/UFTest/success: Trees/ParPtrTree.pde Trees/UFTest.pde
 	@mkdir build/UFTest
 	@cp Trees/ParPtrTree.pde build/UFTest
 	@cp Trees/UFTest.pde build/UFTest
-	@$(PROCESS) --run --sketch="build/UFTest" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/UFTest" --output="build/build" --force
 
 Inssort: build/InssortTest/success
 
@@ -235,7 +337,7 @@ build/GraphDummy/success: Graphs/GraphDummy.pde Graphs/Graph.pde Graphs/GraphM.p
 	@cp Graphs/GraphDummy.pde build/GraphDummy
 	@cp Graphs/Graph.pde build/GraphDummy
 	@cp Graphs/GraphM.pde build/GraphDummy
-	@$(PROCESS) --run --sketch="build/GraphDummy" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/GraphDummy" --output="build/build" --force
 
 GraphTrav: build/GraphTrav/success
 
@@ -254,7 +356,7 @@ build/GraphTrav/success: Graphs/BFS.pde Graphs/DFS.pde Graphs/Graph.pde Graphs/G
 	@cp Lists/Queue.pde build/GraphTrav
 	@cp Lists/LQueue.pde build/GraphTrav
 	@cp Lists/Link.pde build/GraphTrav
-	@$(PROCESS) --run --sketch="build/GraphTrav" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/GraphTrav" --output="build/build" --force
 
 GraphTop: build/GraphTop/success
 
@@ -273,7 +375,7 @@ build/GraphTop/success: Graphs/TopsortBFS.pde Graphs/TopsortDFS.pde Graphs/Graph
 	@cp Lists/Queue.pde build/GraphTop
 	@cp Lists/LQueue.pde build/GraphTop
 	@cp Lists/Link.pde build/GraphTop
-	@$(PROCESS) --run --sketch="build/GraphTop" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/GraphTop" --output="build/build" --force
 
 GraphDijk: build/GraphDijk/success
 
@@ -294,7 +396,7 @@ build/GraphDijk/success: Graphs/Graph.pde Graphs/GraphM.pde Graphs/GraphL.pde Gr
 	@cp Graphs/DijkstraPQ.pde build/GraphDijk
 	@cp Utils/KVPair.pde build/GraphDijk
 	@cp Trees/MinheapKV.pde build/GraphDijk
-	@$(PROCESS) --run --sketch="build/GraphDijk" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/GraphDijk" --output="build/build" --force
 
 GraphMCST: build/GraphMCST/success
 
@@ -317,4 +419,4 @@ build/GraphMCST/success: Graphs/Graph.pde Graphs/GraphM.pde Graphs/GraphL.pde Gr
 	@cp Utils/KVPair.pde build/GraphMCST
 	@cp Trees/MinheapKV.pde build/GraphMCST
 	@cp Trees/ParPtrTree.pde build/GraphMCST
-	@$(PROCESS) --run --sketch="build/GraphMCST" --output="build/build" --force
+	@$(PROCESS) --run --sketch="$(BUILD)/GraphMCST" --output="build/build" --force

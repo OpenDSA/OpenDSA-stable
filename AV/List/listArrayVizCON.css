@@ -1,0 +1,45 @@
+.jsavnode {
+  line-height: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+}
+
+#AlistInsertCON {
+  height: 330px;
+}
+
+#AlistInsertCON .jsavcanvas {
+  margin-top: 20px;
+}
+
+#AlistInsertCON .jsavcode {
+  margin-left: 285px;
+  width: 560px;
+}
+
+#AlistRemoveCON {
+  height: 375px;
+}
+
+#AlistRemoveCON .jsavcode {
+  margin-left: 287px;
+  width: 560px;
+}
+
+.ssAV .jsavline {
+  height: 45px;
+}
+
+.jsavcanvas {
+  height:50px;
+}
+
+#AlistVarsCON {
+  height: 310px;
+}
+
+#AlistVarsCON .jsavoutput.jsavline {
+  height: 70px;
+}

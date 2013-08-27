@@ -4,7 +4,7 @@ TARGET = build
 CSSLINTFLAGS = --quiet --errors=empty-rules,import,errors --warnings=duplicate-background-images,compatible-vendor-prefixes,display-property-grouping,fallback-colors,duplicate-properties,shorthand,gradients,font-sizes,floats,overqualified-elements,import,regex-selectors,rules-count,unqualified-attributes,vendor-prefix,zero-units
 MINIMIZE = java -jar tools/yuicompressor-2.4.7.jar --nomunge
 
-.PHONY: all clean lint csslint jshint min CS223 CS3114a CS3114b OpenDSA T1061220 allBooks nomin pull
+.PHONY: all clean lint csslint jshint min CS3114 CS3114AM CS3114PM OpenDSA allBooks nomin pull
 
 all: lint
 
@@ -47,6 +47,7 @@ update:
 	$(RM) Exercises
 	cp -r dev/OpenDSA/Exercises Exercises
 	cp dev/OpenDSA/JSAV/build/JSAV-min.js JSAV/build
+	cp dev/OpenDSA/JSAV/build/JSAV.js JSAV/build
 	$(RM) JSAV/lib
 	cp -r dev/OpenDSA/JSAV/lib JSAV/lib
 	$(RM) JSAV/css
@@ -74,20 +75,17 @@ update:
 
 min: lib/odsaUtils-min.js lib/site-min.css lib/odsaAV-min.js lib/odsaAV-min.css lib/khan-exercise-min.js lib/odsaMOD-min.js lib/odsaMOD-min.css lib/gradebook-min.js lib/gradebook-min.css
 
-CS223: min
-	python $(CONFIG_SCRIPT) config/CS223.json
+CS3114: min
+	python $(CONFIG_SCRIPT) config/CS3114.json
 
-CS3114a: min
-	python $(CONFIG_SCRIPT) config/CS3114a.json
+CS3114AM: min
+	python $(CONFIG_SCRIPT) config/CS3114AM.json
 
-CS3114b: min
-	python $(CONFIG_SCRIPT) config/CS3114b.json
+CS3114PM: min
+	python $(CONFIG_SCRIPT) config/CS3114PM.json
 
 OpenDSA: min
 	python $(CONFIG_SCRIPT) config/OpenDSA.json
-
-T1061220: min
-	python $(CONFIG_SCRIPT) config/T1061220.json
 
 test: min
 	python $(CONFIG_SCRIPT) config/test.json
@@ -101,7 +99,7 @@ Everything: min
 invalid: min
 	python $(CONFIG_SCRIPT) config/invalid.json
 
-allBooks: CS223 CS3114a CS3114b OpenDSA T1061220 Dev Everything
+allBooks: CS3114 OpenDSA Dev Everything
 
 lib/odsaUtils-min.js: lib/odsaUtils.js
 	@echo 'Minimizing lib/odsaUtils.js'

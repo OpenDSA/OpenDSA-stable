@@ -1,9 +1,9 @@
-/* *** ODSATag: LQueue *** */
+/* *** ODSATag: LQueue1 *** */
 // Linked queue implementation
 class LQueue implements Queue {
   private Link front; // Pointer to front queue node
-  private Link rear; // Pointer to rear queuenode
-  private int size; // Number of elements in queue
+  private Link rear;  // Pointer to rear queuenode
+  private int size;   // Number of elements in queue
 
   // Constructors
   LQueue() { init(); }
@@ -17,14 +17,28 @@ class LQueue implements Queue {
 
   // Reinitialize queue
   public void clear() { init(); }
+/* *** ODSAendTag: LQueue1 *** */
 
+  String toString() {
+    StringBuffer out = new StringBuffer(size * 4);
+    for (Link temp = front.next(); temp != null;  temp = temp.next()) {
+      out.append(temp.element());
+      out.append(" ");
+    }
+    return out.toString();
+  }
+/* *** ODSATag: LQueue2 *** */
+
+/* *** ODSATag: LQueueEnqueue *** */
   // Put element on rear
   public void enqueue(Object it) {
     rear.setnext(new Link(it, null));
     rear = rear.next();
     size++;
   }
+/* *** ODSAendTag: LQueueEnqueue *** */
 
+/* *** ODSATag: LQueueDequeue *** */
   // Remove and return element from front
   public Object dequeue() {
     if (size == 0) return null;
@@ -34,6 +48,7 @@ class LQueue implements Queue {
     size--;
     return it; // Return Object
   }
+/* *** ODSAendTag: LQueueDequeue *** */
 
   // Return front element
   public Object frontValue() {
@@ -44,4 +59,4 @@ class LQueue implements Queue {
   // Return queue size
   public int length() { return size; }
 }
-/* *** ODSAendTag: LQueue *** */
+/* *** ODSAendTag: LQueue2 *** */

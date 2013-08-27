@@ -1,6 +1,6 @@
 from docutils.nodes import figure, caption, Text, reference, raw, SkipNode, Element, topic
 from sphinx.roles import XRefRole
-from inlineav import av_dgm 
+from inlineav import av_dgm, av_ss
 import json
 
 # Element classes
@@ -54,16 +54,20 @@ def html_visit_num_ref(self, node):
     if len(fields) > 1:
         label, target = fields
         target_file = ''
-        chapter = json_data[target].rsplit('.',1)[0]  
-        for name_l, idx in json_data.iteritems():
-            if idx == chapter:    
-                target_file = name_l   
-        if node['refdoc']==target_file:   #target file and curent file are the same  
-            link = "%s.html#%s" %(node['refdoc'], target.lower())  
+        chapter = ''
+        if target in json_data:
+            chapter = json_data[target].rsplit('.',1)[0]  
+            for name_l, idx in json_data.iteritems():
+                if idx == chapter:    
+                    target_file = name_l   
+            if node['refdoc']==target_file:   #target file and curent file are the same  
+                link = "%s.html#%s" %(node['refdoc'], target.lower())  
+            else:
+                link = "%s.html#%s" %(target_file, target.lower())   
+            html = '<a href="%s">%s</a>' %(link,  json_data[target][:-1])  
+            self.body.append(html)
         else:
-            link = "%s.html#%s" %(target_file, target.lower())   
-        html = '<a href="%s">%s</a>' %(link,  json_data[target][:-1])  
-        self.body.append(html)
+            print 'WARNING: Missing object reference %s' %target
     else:
         self.body.append('<a href="%s.html">%s</a>' % (node['refdoc'], fields[0]))
 
@@ -74,7 +78,6 @@ def html_visit_num_ref(self, node):
 def doctree_read(app, doctree):
     # first generate figure numbers for each figure
     env = app.builder.env
-
     json_data = loadTable()
     i = getattr(env, 'i', 1)
     figids = getattr(env, 'figids', {})
@@ -103,6 +106,9 @@ def doctree_read(app, doctree):
                     figid_docname_map[id] = env.docname
                 i += 1
             if isinstance( figure_info, av_dgm ): 
+                module = env.docname
+                i += 1
+            if isinstance( figure_info, av_ss ) and len(figure_info.attributes['ids']) > 0:
                 module = env.docname
                 i += 1
             if isinstance( figure_info, topic):

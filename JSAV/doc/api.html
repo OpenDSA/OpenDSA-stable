@@ -61,8 +61,8 @@ The HTML section typical includes something like this:
 
 <pre>
   &lt;div id="container">
-  &lt;div class="jsavcontrols">&lt;/div>
-  &lt;p class="jsavoutput jsavline">&lt;/p>
+    &lt;div class="jsavcontrols">&lt;/div>
+    &lt;p class="jsavoutput jsavline">&lt;/p>
   &lt;/div>
 </pre>
 <dl>
@@ -78,6 +78,11 @@ The HTML section typical includes something like this:
       class <code>jsavline</code> or <code>jsavscroll</code>.
       See the Messages API for more details.</dd>
 </dl>
+<p>
+  If you want a finer control on where inside the JSAV container the
+  data structures are added, you can also add
+  <code>&lt;div class="jsavcanvas">&lt;/div></code>. Then, all DOM
+  elements created by JSAV will be added inside this element.</p>
 
 <h2>Creating A Visualization</h2>
 <p>Initializing the visualization container is simple:</p>
@@ -553,8 +558,8 @@ Currently, JSAV supports two types of trees: common tree and binary tree. The st
 <h3 class="apimethod">.id([newId])</h3>
 <p>Returns the ID of the structure. If optional parameter <var>newId</var> is given, sets the ID of the structure. The given ID should be unique. This function exists for all trees, nodes, and edges.</p>
 
-<h3 class="apimethod">.root([node])</h3>
-<p>Returns the root of this tree. If the optional <var>node</var> parameter is given, the root of the tree is set. This function exists for all trees.</p>
+<h3 class="apimethod">.root([node [, options]])</h3>
+<p>Returns the root of this tree. If the optional <var>node</var> parameter is given, the root of the tree is set. This function exists for all trees. If <var>node</var> is a node the old root is replaced. The replaced root will also be hidden, unless option <code>hide</code> is set to <code>false</code>. If <var>node</var> is a value the old value will be replaced in the root.</p>
 
 <h3 class="apimethod">.newNode(value)</h3>
 <p>Creates a new node that can be added to this tree. "Subclasses" override this to create nodes suited for the tree, so this method should be used when creating new nodes. This function exists for all trees.</p>
@@ -633,7 +638,7 @@ option <code>recursive</code> is set to <code>false</code>.</p>
 <p>Adds a child node to this node. The <var>node</var> can be a value or a node of correct type to the node.
   The <code>options</code> parameter works like above.</p>
 <h3 class="apimethod">.remove([options])</h3>
-<p>Removes the node from its parent.</p>
+<p>Removes the node from its parent. The node and its child nodes are hidden recursively, unless option <code>hide</code> is set to <code>false</code>.</p>
 <h3 class="apimethod">.hide([options])</h3>
 <p>Hides the node and the edge connecting it to the parent node. Also recursively hides all child nodes unless 
 option <code>recursive</code> is set to <code>false</code>.</p>
@@ -790,7 +795,7 @@ The additional <code>options</code> parameter works like for <code>.child(...)</
 <h3 class="apimethod">.ds.graph([options])</h3>
 <p>This function of a JSAV instance initializes an empty graph. Options that the optional parameter can specify:</p>
 <ul>
-  <li>layout: Defines choices of layout (currently only the default layout is supported).</li>
+  <li>layout: Defines the layout used, either <code>manual</code> or <code>automatic</code>. Defaults to manual layout.</li>
   <li>visible: Boolean to determine if initially the graph is shown or not. Default true.</li>
   <li>center: Boolean to determine if graph should be automatically centered within its container. Defaults to true.</li>
   <li>left/top/right/bottom: Values to determine the absolute position of the graph relative to its container.</li>
@@ -1018,6 +1023,8 @@ out, this method will return the current text of the label.
       <code>newTarget</code> is a JSAV object, the pointer will be updated to point to that structure.
       Valid <code>options</code> are the same as for the pointer constructor. If setting a new target,
       the change is recorded in the animationo and the function returns the pointer object.</p>
+    <p><strong>Note:</strong> the position of the pointer is only updated once the <code>jsav.step()</code>
+      <code>jsav.displayInit()</code>, or <code>jsav.recorded()</code> function is called.</p>
 
     <h2>Pseudocode API</h2>
     <p>The pseudocode API in JSAV is intended for showing a static set of codelines that can be show/hidden and
@@ -1088,6 +1095,44 @@ out, this method will return the current text of the label.
     <p>Return true/false based on if the line at given index has the CSS class <code>className</code>. Parameter
       <code>index</code> should be a number.</p>
 
+    <h2>Matrix (or 2D-Array) Data Structure API</h2>
+    <p>The Matrix data structures is essentially a 2-dimensional array.</p>
+    <h3 class="apimethod">.ds.matrix(data[, options]) or .ds.matrix(options)</h3>
+    <p>A matrix can be initialized with the <code>.ds.matrix()</code> function of a JSAV instance.
+      If the <code>data</code> argument is provided, it should be an array of arrays, all of the
+      same length. If only <code>options</code> argument is provided, it needs to specify options
+      <code>rows</code> and <code>columns</code> specifying the size of the matrix.</p>
+    <p>Options that can be specified:</p>
+    <ul>
+      <li>visible: Boolean to determine if initially the matrix is shown or not. Default true.</li>
+      <li>center: Boolean to determine if matrix should be automatically centered within its container. Defaults to true.</li>
+      <li>left/top/right/bottom: Values to determine the absolute position of the matrix relative to its container.</li>
+      <li>relativeTo: A JSAV data structure object or DOM element that this structure should be positioned relative to. If this option is specified, left and top options will change structure's position relative to the relativeTo element. Note, that the element pointed by relativeTo needs to be visible.</li>
+      <li>anchor: Defines which position on the element being positioned to align with the target element. Should be in format horizontal vertical. Possible horizontal values are "left", "center", "right" and vertical values "top", "center", "bottom". Defaults to center center. Only has an effect if relativeTo is specified.</li>
+      <li>myAnchor: Similar to anchor, but the position on this element. Defaults to center center. Only has an effect if relativeTo is specified.</li>
+      <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative to an index in that array. Only has an effect if relativeTo is specified.</li>
+      <li>style: The style of the array. Valid values are <code>plain</code>, <code>matrix</code>, and
+        <code>table</code>. Defaults to table.</li>
+      <li>element: The DOM element inside which the matrix should be added.</li>
+    </ul>
+    <p>For example, this would create a 2x2 matrix: <code>var m = jsav.ds.matrix([[0, 1], [2, 3]])</code>.
+      An empty 5x8 matrix using the matrix style could be created like this:</p>
+    <pre>var m = jsav.ds.matrix({rows: 5, columns: 8, style: "matrix"});</pre>
+
+    <h3 class="apimethod">.swap(row1, col1, row2, col2[, options])</h3>
+    <p>Swaps two values of the matrix, namely (row1, col1) with (ro2, col2).</p>
+
+    <h3 class="apimethod">.layout([options])</h3>
+    <p>Recalculates the layout for the data structure.</p>
+
+    <h3 class="apimethod">arrays methods</h3>
+    <p>Like for the array, there are similar functions in the matrix that take the row number as the
+    first argument and the rest of the arguments similarly than the corresponding array function.
+    These functions are <code>highlight</code>, <code>unhighlight</code>, <code>isHighlight</code>,
+    <code>css</code>, <code>value</code>, <code>addClass</code>, <code>hasClass</code>,
+    <code>removeClass</code>, and <code>toggleClass</code>. So, for example, whereas the array
+    has function <code>.addClass(col, className)</code>, the matrix has a function
+    <code>.addClass(row, col, className)</code>.
 
     <h2>Graphical Primitives API</h2>
     <p>JSAV supports the following graphical primitives: circle, rectangle, line,
@@ -1351,7 +1396,7 @@ q.show();</pre>
 <p>Returns a random integer number between <code>min</code> (inclusive) and
   <code>max</code> (exclusive).</p>
 
-<h3 class="apimethod">JSAV.utils.rand.numKeys(min, max, num, opts)</h3>
+<h3 class="apimethod">JSAV.utils.rand.numKeys(min, max, num[, opts])</h3>
 <p>Returns an array of <code>num</code> random integer numbers between 
   <code>min</code> (inclusive) and <code>max</code> (exclusive). Optional
   parameter <code>opts</code> is an object that can specify options:</p>
@@ -1359,11 +1404,21 @@ q.show();</pre>
     <li><code>sorted</code> If set to true, the array will be sorted.</li>
     <li><code>sortfunc</code> If sorted is set to true, this option can
       be used to specify a function for sorting.</li>
+    <li><code>test</code> A function that takes the random array as a
+      parameter and returns <code>true/false</code> indicating whether it
+      fullfills some requirements. If it returns false, a new random array is
+      generated. This is typically used with exercises to randomize and
+      test the initial data.</li>
+    <li><code>tries</code> If <code>test</code> function is provided, this
+      option specifies how many data sets are tested. If none of the first
+      tries data sets pass the tests, the last one is returned.</li>
   </ul>  
 
-<h3 class="apimethod">JSAV.utils.rand.sample(arrayCollection, num)</h3>
+<h3 class="apimethod">JSAV.utils.rand.sample(arrayCollection, num[, opts])</h3>
 <p>Returns an array of <code>num</code> elements randomly picked from the
-  given array <code>arrayCollection</code>.</p>
+  given array <code>arrayCollection</code>. The optional parameter
+  <code>opts</code> can specify options <code>test</code> and <code>tries</code>
+  like for the <code>numKeys</code> function.</p>
 
 <h3 class="apimethod">JSAV.utils.dialog(html, options)</h3>
 <p>Shows a pop-up dialog with the given HTML as content. Returns an object

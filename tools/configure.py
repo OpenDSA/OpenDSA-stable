@@ -72,17 +72,30 @@ images = []
 # Keeps a count of how many ToDo directives are encountered
 todo_count = 0
 
+# List of fulfilled prerequisite topics
+satisfied_requirements = []
+
 rst_header = '''\
 .. _%(mod_name)s:
-.. |--| unicode:: U+2013   .. en dash
-.. |---| unicode:: U+2014  .. em dash, trimming surrounding whitespace
-   :trim:
 
 .. raw:: html
 
    <script>ODSA.SETTINGS.DISP_MOD_COMP = %(dispModComp)s;ODSA.SETTINGS.MODULE_NAME = "%(mod_name)s";ODSA.SETTINGS.MODULE_LONG_NAME = "%(long_name)s";</script>
 
-%(orig_data)s'''
+%(unicode_directive)s
+
+%(orig_data)s
+
+'''
+
+rst_header_unicode = '''\
+
+.. |--| unicode:: U+2013   .. en dash
+.. |---| unicode:: U+2014  .. em dash, trimming surrounding whitespace
+   :trim:
+
+'''
+
 
 # Used to generate the index.rst file
 index_header = '''\
@@ -152,6 +165,18 @@ html: preprocessor
 	rm *.json
 	@echo
 	@echo "Build finished. The HTML pages are in $(HTMLDIR)."
+
+slides: preprocessor
+	%(remove_todo)s
+	@SLIDES=yes \
+	$(SPHINXBUILD) -b slides source $(HTMLDIR)
+	rm html/_static/jquery.js html/_static/websupport.js
+	#rm -rf html/_sources/
+	#python "%(odsa_root)sRST/preprocessor.py" -p source/ $(HTMLDIR) 
+	cp "%(odsa_root)slib/.htaccess" $(HTMLDIR)
+	rm *.json
+	@echo
+	@echo "Build finished. The HTML pages are in $(HTMLDIR)."
 '''
 
 
@@ -171,6 +196,9 @@ conf = '''\
 # serve to show the default.
 
 import sys, os
+
+#checking if we are building a book or class notes (slides)
+on_slides = os.environ.get('SLIDES', None) == "yes"
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -197,7 +225,14 @@ sys.path.append(os.path.abspath('%(odsa_root)sRST/ODSAextensions/odsa/inlineav')
 sys.path.append(os.path.abspath('%(odsa_root)sRST/ODSAextensions/odsa/html5'))
 sys.path.append(os.path.abspath('%(odsa_root)sRST/ODSAextensions/odsa/odsafig'))
 sys.path.append(os.path.abspath('%(odsa_root)sRST/ODSAextensions/odsa/odsatable'))
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'avembed', 'avmetadata','codeinclude','numref','chapnum','odsalink','odsascript','numfig','inlineav','html5','odsafig','odsatable']
+sys.path.append(os.path.abspath('%(odsa_root)sRST/ODSAextensions/odsa/chapref'))
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'avembed', 'avmetadata','codeinclude','numref','chapnum','odsalink','odsascript','numfig','inlineav','html5','odsafig','odsatable','chapref']
+
+slides_lib = '%(slides_lib)s'
+
+#only import hieroglyph when building course notes
+if slides_lib == 'hieroglyph':
+  extensions.append('hieroglyph') 
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -252,11 +287,28 @@ exclude_patterns = []
 # output. They are ignored by default.
 #show_authors = False
 
+#language to highlight source code in
+highlight_language = '%(code_lang)s'
+
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'borland' #'sphinx'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
+
+# -- Options for HTML Slide output ---------------------------------------------------
+sys.path.append(os.path.abspath('_themes'))
+slide_theme_path = ['%(odsa_root)sRST/source/_themes/']
+slide_theme = 'slidess' #'single-level'
+#slide_theme_options = {'custom_css':'custom.css'}
+
+slide_link_html_to_slides = not on_slides 
+slide_link_html_sections_to_slides = not on_slides
+#slide_relative_path = "./slides/"
+
+slide_link_to_html = True
+slide_html_relative_path = "../"
+
 
 # -- Options for HTML output ---------------------------------------------------
 #The fully-qualified name of a HTML Translator, that is used to translate document
@@ -268,7 +320,10 @@ html_translator_class = 'html5.HTMLTranslator'
 # a list of builtin themes.
 sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['%(odsa_root)sRST/source/_themes']
-html_theme = 'haiku'
+if on_slides:
+   html_theme = 'slides'
+else:
+   html_theme = 'haiku'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -387,9 +442,8 @@ todo_include_todos = True
 
 #---- OpenDSA variables ---------------------------------------
 
-# Name used to uniquely identify
-book_name = '%(book_name)s'
-
+# @efouh: despise the fact that we are using an url hash, gradebook still needs book name
+book_name = '%(book_name)s' 
 # Protocol and domain of the backend server
 server_url = '%(server_url)s'
 
@@ -445,6 +499,7 @@ def process_section(conf_data, section, index_rst, depth):
 
 def process_module(conf_data, index_rst, mod_path, mod_attrib={'exercises':{}}, depth=0):
   global todo_count
+  global satisfied_requirements
   
   odsa_dir = get_odsa_dir()
   
@@ -491,6 +546,11 @@ def process_module(conf_data, index_rst, mod_path, mod_attrib={'exercises':{}}, 
   header_data['mod_name'] = mod_name
   header_data['dispModComp'] = str(dispModComp).lower()
   header_data['long_name'] = long_name
+  #no unicode directive when building ourse notes
+  if os.environ.get('SLIDES', None) == "yes":
+    header_data['unicode_directive'] = ''
+  else:
+    header_data['unicode_directive'] = rst_header_unicode
   header_data['orig_data'] = mod_data[0]
   mod_data[0] = rst_header % header_data
   
@@ -499,8 +559,20 @@ def process_module(conf_data, index_rst, mod_path, mod_attrib={'exercises':{}}, 
   # Alter the contents of the module based on the config file
   i = 0
   while i < len(mod_data):
-    if '.. figure::' in mod_data[i] or '.. odsafig::' in mod_data[i]:
-      image_path = mod_data[i].split(' ')[2].rstrip()
+    if ':requires:' in mod_data[i]:
+      # Parse the list of prerequisite topics from the module
+      requires = [req.strip() for req in mod_data[i].replace(':requires:', '').split(';')]
+      
+      # Print a warning message if a missing prereq is encountered
+      for req in requires:
+        if req not in satisfied_requirements:
+          print ("  " * (depth + 1 )) + "WARNING: " + req + " is an unsatisfied prerequisite for " + mod_name + ", line " + str(i + 1)
+    elif ':satisfies:' in mod_data[i]:
+      # Parse the list of prerequisite topics this module satisfies and add them to the list of satisfied prereqs
+      satisfied_requirements += [req.strip() for req in mod_data[i].replace(':satisfies:', '').split(';')]
+    elif '.. figure::' in mod_data[i] or '.. odsafig::' in mod_data[i]:
+      l_image = len(mod_data[i].split(' '))
+      image_path = mod_data[i].split(' ')[l_image-1].rstrip()
       images.append(os.path.basename(image_path))
     elif '.. TODO::' in mod_data[i]:
       if conf_data['suppress_todo']:
@@ -515,53 +587,72 @@ def process_module(conf_data, index_rst, mod_path, mod_attrib={'exercises':{}}, 
         # Increment the TODO directive counter
         todo_count += 1
     elif '.. inlineav::' in mod_data[i]:
-      # Parse the AV name from the line
-      av_name = mod_data[i].split(' ')[2].rstrip()
-      type = mod_data[i].split(' ')[3].rstrip()
-
-      if av_name not in exercises:
-        # If the AV is not listed in the config file, add its name to a list of missing exercises
-        missing_exercises.append(av_name)
-      elif type == 'ss':
-        # Add the necessary information from the slideshow from the configuration file
-        # Diagrams (type == 'dgm') do not require this extra information
-        exer_conf = exercises[av_name]
-
-        # List of valid options for inlineav directive
-        options = ['long_name', 'points', 'required', 'threshold']
-
-        rst_options = ['   :%s: %s\n' % (option, str(exer_conf[option])) for option in options if option in exer_conf]
-        mod_data[i] += ''.join(rst_options)
-    elif '.. avembed::' in mod_data[i]:
-      # Parse the exercise name from the line
-      av_name = mod_data[i].split(' ')[2].rstrip()
-      av_name = av_name[av_name.rfind('/') + 1:].replace('.html', '')
-      type = mod_data[i].split(' ')[3].rstrip()
-
-      # If the config file states the exercise should be removed, remove it
-      if av_name in exercises and 'remove' in exercises[av_name] and exercises[av_name]['remove']:
-        print ("  " * (depth + 1 )) + 'Removing: ' + av_name
-
-        # Config file states exercise should be removed, remove it from the RST file
-        while (i < len(mod_data) and mod_data[i].rstrip() != ''):
-          mod_data[i] = ''
-          i += 1
+      # Parse the arguments from the directive
+      args = mod_data[i].strip().split(' ')
+      
+      if len(args) < 4:
+        # Print a warning if inlineav is invoked without the minimum number of arguments
+        print ("  " * (depth + 1 )) + "ERROR: Invalid directive arguments for object on line " + str(i + 1) + ", skipping object"
       else:
-        # Append module name to embedded exercise
-        mod_data[i] += '   :module: %s\n' % mod_name
-        
-        if av_name not in exercises:
-          # Add the name to a list of missing exercises
-          missing_exercises.append(av_name)
+        av_name = args[2].rstrip()
+        type = args[3].rstrip()
+
+        if type == 'ss':
+          if av_name not in exercises:
+            # If the SS is not listed in the config file, add its name to a list of missing exercises, ignore missing diagrams
+            missing_exercises.append(av_name)
+          else:
+            # Add the necessary information from the slideshow from the configuration file
+            # Diagrams (type == 'dgm') do not require this extra information
+            exer_conf = exercises[av_name]
+
+            # List of valid options for inlineav directive
+            options = ['long_name', 'points', 'required', 'threshold']
+
+            rst_options = ['   :%s: %s\n' % (option, str(exer_conf[option])) for option in options if option in exer_conf]
+            mod_data[i] += ''.join(rst_options)
+        elif type == 'dgm' and av_name in exercises and exercises[av_name] != {}:
+          # If the configuration file contains attributes for diagrams, warn the user that attributes are not supported
+          print ("  " * (depth + 1 )) + "WARNING: " + av_name + " is a diagram (attributes are not supported), line " + str(i + 1)
+        elif type not in ['ss', 'dgm']:
+          # If a warning if the exercise type doesn't match something we expect 
+          print ("  " * (depth + 1 )) + "WARNING: Unsupported type '" + type + "' specified for " + av_name + ", line " + str(i + 1)
+    elif '.. avembed::' in mod_data[i]:
+      # Parse the arguments from the directive
+      args = mod_data[i].strip().split(' ')
+      
+      if len(args) < 4:
+        # Print a warning if avembed is invoked without the minimum number of arguments
+        print ("  " * (depth + 1 )) + "ERROR: Invalid directive arguments for embedded object on line " + str(i + 1) + ", skipping object"
+      else:
+        av_name = args[2].rstrip()
+        av_name = av_name[av_name.rfind('/') + 1:].replace('.html', '')
+        type = args[3].rstrip()
+
+        # If the config file states the exercise should be removed, remove it
+        if av_name in exercises and 'remove' in exercises[av_name] and exercises[av_name]['remove']:
+          print ("  " * (depth + 1 )) + 'Removing: ' + av_name
+
+          # Config file states exercise should be removed, remove it from the RST file
+          while (i < len(mod_data) and mod_data[i].rstrip() != ''):
+            mod_data[i] = ''
+            i += 1
         else:
-          # Add the necessary information from the configuration file
-          exer_conf = exercises[av_name]
+          # Append module name to embedded exercise
+          mod_data[i] += '   :module: %s\n' % mod_name
+          
+          if av_name not in exercises:
+            # Add the name to a list of missing exercises
+            missing_exercises.append(av_name)
+          else:
+            # Add the necessary information from the configuration file
+            exer_conf = exercises[av_name]
 
-          # List of valid options for avembed directive
-          options = ['long_name', 'points', 'required', 'showhide', 'threshold']
+            # List of valid options for avembed directive
+            options = ['long_name', 'points', 'required', 'showhide', 'threshold']
 
-          rst_options = ['   :%s: %s\n' % (option, str(exer_conf[option])) for option in options if option in exer_conf]
-          mod_data[i] += ''.join(rst_options)
+            rst_options = ['   :%s: %s\n' % (option, str(exer_conf[option])) for option in options if option in exer_conf]
+            mod_data[i] += ''.join(rst_options)
     elif '.. avmetadata::' in mod_data[i]:
       avmetadata_found = True
 
@@ -610,6 +701,14 @@ def set_defaults(conf_data):
   # 'exercises_root_dir' should default to the OpenDSA root directory
   if 'exercises_root_dir' not in conf_data:
     conf_data['exercises_root_dir'] = odsa_dir
+    
+  # Require slideshows to be fully completed for credit by default
+  if 'req_full_ss' not in conf_data:
+    conf_data['req_full_ss'] = True
+    
+  # Allow anonymous credit by default
+  if 'allow_anonymous_credit' not in conf_data:
+    conf_data['allow_anonymous_credit'] = True
 
 
 def get_odsa_dir():
@@ -630,8 +729,9 @@ def get_src_dir(conf_data):
   return get_output_dir(conf_data) + 'source/'
 
 
-def configure(config_file):
+def configure(config_file, slides = False):
   """Configure an OpenDSA textbook based on a validated configuration file"""
+  global satisfied_requirements
   
   print "Configuring OpenDSA, using " + config_file + '\n'
 
@@ -644,10 +744,18 @@ def configure(config_file):
 
   # Assign defaults to optional settings
   set_defaults(conf_data)
+  
+  # Add the list of topics the book assumes students know to the list of fulfilled prereqs
+  if 'assumes' in conf_data:
+    satisfied_requirements += [a.strip() for a in conf_data['assumes'].split(';')]
 
-  # Process the code and output directory paths
+  # Process the code and output directory paths, get code language
   code_dir = process_path(conf_data['code_dir'], odsa_dir)
   output_dir = get_output_dir(conf_data)
+  code_lang = conf_data['code_dir'].rsplit('/',1)[1].lower()
+  #special case treats Processing as Java
+  if code_lang =='processing':
+    code_lang = 'java'
 
   # Prevent user from setting the output directory where the configuration process 
   # would overwrite important things
@@ -689,8 +797,15 @@ def configure(config_file):
     header_data['dispModComp'] = 'false'
     header_data['long_name'] = 'Contents'
     header_data['orig_data'] = index_header
-    index_rst.write(rst_header % header_data)
+    slides_lib = ''
+    if slides:
+      header_data['unicode_directive'] = ''
+      slides_lib = 'hieroglyph'
+    else:
+      header_data['unicode_directive'] = rst_header_unicode
 
+    index_rst.write(rst_header % header_data)
+    
     # Process all the chapter and module information
     process_section(conf_data, conf_data['chapters'], index_rst, 0)
 
@@ -698,7 +813,8 @@ def configure(config_file):
     index_rst.write("   :maxdepth: 3\n\n")
     
     # Process the Gradebook as well
-    process_module(conf_data, mod_path='Gradebook', index_rst=index_rst)
+    if not slides:
+      process_module(conf_data, mod_path='Gradebook', index_rst=index_rst)
     
     if todo_count > 0:
       index_rst.write("   ToDo\n")
@@ -718,19 +834,21 @@ def configure(config_file):
   # Initialize options for conf.py
   options = {}
   options['title'] = conf_data['title']
-  options['book_name'] = conf_data['name']
+  options['book_name'] = conf_data['name'] 
   options['server_url'] = conf_data['backend_address']
   options['module_origin'] = conf_data['module_origin']
   options['odsa_root'] = odsa_dir
   options['output_dir'] = output_dir
   options['rel_ebook_path'] = rel_ebook_path
   options['code_dir'] = code_dir
+  options['code_lang'] = code_lang
   options['av_dir'] = conf_data['av_root_dir']
   options['exercises_dir'] = conf_data['exercises_root_dir']
   # TODO: Temporary fix until preprocessor.py stops creating a ToDo.rst file when were are no TODO directives
   options['remove_todo'] = 'rm source/ToDo.rst'
   # The relative path between the ebook output directory (where the HTML files are generated) and the root ODSA directory
   options['eb2root'] = os.path.relpath(odsa_dir, output_dir + rel_ebook_path) + '/'
+  options['slides_lib'] = slides_lib
 
   if todo_count > 0:
     options['remove_todo'] = ''
@@ -759,8 +877,8 @@ def configure(config_file):
   "use strict";
   (function () {
     var settings = {};
-    // Stores the name of the book, used to uniquely identify a book in the database
-    settings.BOOK_NAME = "%(book_name)s";
+    //@efouh: added this variable back because it is needed by gradebook.html
+    settings.BOOK_NAME = "%(book_name)s"; 
     // The (protocol and) domain address of the backend server
     // Set SERVER_URL = "" in order to disable server communication and logging
     settings.SERVER_URL = "%(server_url)s";
@@ -768,11 +886,8 @@ def configure(config_file):
     settings.EXERCISE_ORIGIN = "%(exercise_origin)s";
     settings.AV_ORIGIN = "%(av_origin)s";
     // Flag controlling whether or not the system will assign credit (scores) obtained by anonymous users to the next user to log in
-    settings.ALLOW_ANON_CREDIT = "%(allow_anon_credit)s";
-    // Flag which controls debugMode
-    // When set to true, the framework will print a full stacktrace to the console, allowing developers to easily trace execution
-    // This value can be changed at runtime via the JavaScript console
-    settings.DEBUG_MODE = false;
+    settings.ALLOW_ANON_CREDIT = %(allow_anon_credit)s;
+    settings.REQ_FULL_SS = %(req_full_ss)s;
 
     window.ODSA = {};
     window.ODSA.SETTINGS = settings;
@@ -788,11 +903,8 @@ def configure(config_file):
     conf_js_data['module_origin'] = conf_data['module_origin']
     conf_js_data['exercise_origin'] = conf_data['exercise_origin']
     conf_js_data['av_origin'] = conf_data['av_origin']
-
-    if 'allow_anonymous_credit' in conf_data:
-      conf_js_data['allow_anon_credit'] = str(conf_data['allow_anonymous_credit']).lower()
-    else:
-      conf_js_data['allow_anon_credit'] = 'true'
+    conf_js_data['allow_anon_credit'] = str(conf_data['allow_anonymous_credit']).lower()
+    conf_js_data['req_full_ss'] = str(conf_data['req_full_ss']).lower()
 
     config_js.writelines(config_js_template % conf_js_data)
 
@@ -816,7 +928,10 @@ def configure(config_file):
 
     try:
       os.chdir(output_dir)
-      proc = subprocess.Popen('make', stdout=subprocess.PIPE)
+      if slides:
+        proc = subprocess.Popen(['make','slides'], stdout=subprocess.PIPE)
+      else:
+        proc = subprocess.Popen('make', stdout=subprocess.PIPE)
       for line in iter(proc.stdout.readline,''):
         print line.rstrip()
     finally:
@@ -827,13 +942,26 @@ def configure(config_file):
 # Code to execute when run as a standalone program
 if __name__ == "__main__":
   # Process script arguments
-  if len(sys.argv) != 2:
+  if len(sys.argv) > 3:
     print "Invalid config filename"
-    print "Usage: " + sys.argv[0] + " config_file"
+    print "Usage: " + sys.argv[0] + " [s] config_file"
     sys.exit(1)
 
-  config_file = sys.argv[1]
+  slides = False 
+  #building book
+  if len(sys.argv) == 2: 
+    config_file = sys.argv[1]
+    os.environ['SLIDES'] = 'no'
+  #building slides
+  if len(sys.argv) == 3:
+    if sys.argv[1] == "s":
+      slides = True
+      os.environ['SLIDES'] = 'yes'
+    else:
+      print "Invalid build option"
+      print "Usage: " + sys.argv[0] + " s config_file"
+    config_file = sys.argv[2]
 
   validate_config_file(config_file)
   
-  configure(config_file)
+  configure(config_file, slides)

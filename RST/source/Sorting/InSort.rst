@@ -5,7 +5,8 @@
 
 .. avmetadata::
    :author: Cliff Shaffer
-   :prerequisites:
+   :requires: comparison
+   :satisfies: sorting introduction
    :topic: Sorting
 
 Chapter Introduction: Sorting
@@ -73,7 +74,7 @@ good solution for special niche applications (:ref:`Heapsort <Heapsort>`).
 Sorting provides an example of a significant technique for
 analyzing the lower bound for a problem.
 Sorting also motivates the the study of file processing
-(Module :numref:`<FileProc>`).
+(Chapter :numchap:`File Processing`).
 
 This chapter covers several standard algorithms appropriate
 for sorting a collection of records that fit into the computer's
@@ -90,4 +91,3 @@ The final sorting method presented requires only
 The chapter concludes with a proof that sorting in general
 requires :math:`\Omega(n \log n)` time in the worst case
 (Module :numref:`<SortingLowerBound>`).
-

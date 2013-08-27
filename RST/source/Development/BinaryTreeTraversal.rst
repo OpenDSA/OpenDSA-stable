@@ -5,11 +5,12 @@
 
 .. avmetadata::
    :author: Cliff Shaffer
-   :prerequisites:
+   :requires: binary tree terminology; recursion
+   :satisfies: binary tree traversal
    :topic: Binary Trees
 
-Binary Tree Traversals [Text]
-=============================
+Binary Tree Traversals
+======================
 
 Often we wish to process a binary tree by "visiting" each of its
 nodes, each time performing a specific action such as printing the
@@ -129,7 +130,7 @@ call is made only on non-empty children.
 Such a design typically looks as follows
 
 .. codeinclude:: Trees/Traverse.pde
-   :tag: preorder
+   :tag: preorder2
 
 At first it might appear that ``preorder2`` is more efficient
 than ``preorder``, because it makes only half as many recursive
@@ -166,8 +167,6 @@ The net result is that many programmers forget to test for the
 possibility that the empty tree is being traversed.
 By using the first design, which explicitly supports processing of
 empty subtrees, the problem is avoided.
-
-.. avembed:: AV/Development/binarytreePreorder.html pe
 
 Another issue to consider when designing a traversal is how to
 define the visitor function that is to be executed on every node.
@@ -213,7 +212,7 @@ that we communicate information back up the tree to the end user.
    us.
    Thus, we can implement ``count`` as follows.
 
-   .. codeinclude:: Trees/BinNode.pde
+   .. codeinclude:: Trees/Traverse.pde
       :tag: count
 
 Another problem that occurs when recursively processing data
@@ -263,8 +262,24 @@ That information might come from any of the node's ancestors.
 Thus, relevant range information must be passed down the tree.
 We can implement this function as follows.
 
-.. codeinclude:: Trees/BinNode.pde
+.. codeinclude:: Trees/Traverse.pde
    :tag: checkBST
+
+Inorder Traversal Exercise.
+
+.. avembed:: AV/Development/binarytree-inorder.html pe
+
+Level order Traversal Exercise.
+
+.. avembed:: AV/Development/binarytree-levelorder.html pe
+
+Postorder Traversal Exercise.
+
+.. avembed:: AV/Development/binarytree-postorder.html pe
+
+Preorder Traversal Exercise.
+
+.. avembed:: AV/Development/binarytree-preorder.html pe
 
 .. TODO::
    :type: Exercise

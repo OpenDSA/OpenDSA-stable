@@ -41,6 +41,15 @@ def isTheorem(topic):
         return False
 
 
+def isFigure(item):
+    if item.startswith('.. figure::') or item.startswith('.. odsafig::') or item.startswith('.. inlineav::'):
+        if item.startswith('.. inlineav::') and 'dgm' not in item:
+            return False
+        return True
+    else:
+        return False
+
+
 #defines the color of output text (warnings, errors, and info)
 class bcolors:
     HEADER = '\033[95m'
@@ -92,7 +101,9 @@ class modPreReq:
       tab = 1
       exp = 1
       thr = 1 
+      eq = 1
       label = ''
+      anonym_fig = 0
       fls = open(filename,'r')
       data = fls.readlines()
       new_data = []
@@ -118,7 +129,14 @@ class modPreReq:
          if ':topic:' in line:
             str =  re.split('topic:', line, re.IGNORECASE)[1]
             self.covers =  p.sub('',str).split(',')
-         #label = ''
+        
+         if '.. math::' in line:
+             if ':label:' in data[cpt]:
+                 equation = re.split(':label:', data[cpt], re.IGNORECASE)[1]
+                 tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
+                 config.table['equation-'+equation.strip()] = tb + '.%s#' %eq
+                 eq+=1
+
          if line.startswith('.. _'):
             label =  re.split(':', re.split('.. _', line, re.IGNORECASE)[1], re.IGNORECASE)[0]
             if data[cpt+1].startswith('.. figure::') or data[cpt+1].startswith('.. odsafig::') or data[cpt+1].startswith('.. inlineav::'): 
@@ -126,6 +144,7 @@ class modPreReq:
                  tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
                  config.table[label] = tb + '.%s#' %fig
                  fig+=1
+               label = 'label_used'
             if data[cpt+1].startswith('.. table::') or data[cpt+1].startswith('.. odsatab') or isTable(data[cpt+1]):
                 if os.path.splitext(os.path.basename(filename))[0] in config.table:
                   tb = config.table[os.path.splitext(os.path.basename(filename))[0]]
@@ -157,6 +176,12 @@ class modPreReq:
              else:
                  thr+=1
    
+         if isFigure(line):
+             if label != 'label_used':    
+                 fig_label = 'anon_fig%s' %anonym_fig
+                 config.table[fig_label] = fig 
+                 fig+=1
+                 anonym_fig+=1
 
          if ':target:' in line:
              trgt =  re.split('target:', line, re.IGNORECASE)[1]
@@ -176,7 +201,6 @@ class modPreReq:
                if expr is not None:
                   if  ':type:' not in line:
                      print bcolors.FAIL + 'Error: in %s line %s... unknown Option %s for TODO directive'%(filename,cpt,expr.group()[1:]) + bcolors.ENDC
-                     sys.exit(0)
                if ':type:' in line:
                   type =  re.split('type:', line, re.IGNORECASE)[1]
                len_wthsp = len(re.match(r'\s*',line).group())
@@ -395,7 +419,6 @@ def updateTOC(args):
          start = True
     if directive==0:
        print bcolors.FAIL + 'Error: No .. sectnum:: or .. chapnum:: directive in index.rst. Please include the directive and try again.'+bcolors.ENDC
-       sys.exit(0)
 
 
     try:
@@ -483,7 +506,10 @@ def updateTOC(args):
                 for i in range(1,7):
                    if '<h%s>' %i in idxLine and td==0 and pagename != 'index' and pagename != 'Gradebook':
                       par  = re.split('<h%s>'%i,re.split('<a', idxLine, re.IGNORECASE)[0],re.IGNORECASE)[1]
-                      par1 = '%s.' %data[pagename][1] + par
+                      if pagename in data:
+                         par1 = '%s.' %data[pagename][1] + par
+                      else:
+                         par1 = par
                       idxLine = idxLine.replace(par,par1)
                 if td == 1 and pagename != 'index' and pagename != 'Gradebook':
                     if 'a class="headerlink"' in idxLine:
@@ -597,6 +623,7 @@ def enumFile(folder, folder1):
         if isSection(iLine1[t+1]):
            flag = 1
            chap = iLine[t]
+           config.table[chap.rstrip('\n')] = -1 
         if flnm in dirlist and not isSection(iLine1[t+1]):
            chaplist =[]
            filelist.append(folder+flnm+'.rst')
@@ -610,6 +637,8 @@ def enumFile(folder, folder1):
               if isIncludeChapter(mod):
                  if is_first_chapter:
                     config.table[flnm]='%s.%s'%(section,chapter)
+                    if config.table[chap.rstrip('\n')] == -1:
+                        config.table[chap.rstrip('\n')]=flnm
                     chaplist.append(chap.rstrip('\n'))
                     chaplist.append(section)
                     chap_mod[flnm]= chaplist
@@ -666,11 +695,11 @@ def main(argv):
      modList1 = sorted(modList,key = attrgetter('prereqNum'))
      for ml in modList1:
         ml.verifPreref(modRost)
-     finalList =modOrdering(modList1)
+     #finalList =modOrdering(modList1)
 
      #create JSON and CSV files with modules information
-     generateJSON(finalList, modDest)
-     generateCSV(finalList, modDest)
+     #generateJSON(finalList, modDest)
+     #generateCSV(finalList, modDest)
 
      #ToDO list page
      todolist1 = sorted(config.todolist, key=lambda todo: todo[1])

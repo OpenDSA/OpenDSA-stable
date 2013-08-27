@@ -26,6 +26,4 @@
   av.g.rect(180, 140, 158, 55);
   av.label("Data Items:",  {"top": "145px", "left": "185px"});
   av.label("Physical Form",  {"top": "165px", "left": "195px"});
-
-  
 }(jQuery));

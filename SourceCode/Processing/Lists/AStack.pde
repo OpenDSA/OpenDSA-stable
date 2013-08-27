@@ -1,44 +1,54 @@
-/* *** ODSATag: AStack *** */
-/** Array-based stack implementation */
-class AStack<E> implements Stack<E> {
-
+// Array-based stack implementation
+/* *** ODSATag: AStack1 *** */
+class AStack implements Stack {
   private static final int defaultSize = 10;
-
   private int maxSize;            // Maximum size of stack
   private int top;                // Index for top Object
-  private E [] listArray;         // Array holding stack
+  private Object listArray[];     // Array holding stack
 
-  /** Constructors */
-  AStack() { this(defaultSize); }
-  @SuppressWarnings("unchecked") // Generic array allocation
+  // Constructors
   AStack(int size) {
     maxSize = size;
     top = 0; 
-    listArray = (E[])new Object[size];   // Create listArray
+    listArray = new Object[size]; // Create listArray
   }
 
-  /** Reinitialize stack */
-  public void clear() { top = 0; }
+  AStack() { this(defaultSize); }
+/* *** ODSAendTag: AStack1 *** */
 
-  /** Push "it" onto stack */
-  public void push(E it) {
-    assert top != maxSize : "Stack is full";
+  String toString() {
+    StringBuffer out = new StringBuffer(top * 4);
+    for (int i=top-1; i>=0; i--) {
+      out.append(listArray[i]);
+      out.append(" ");
+    }
+    return out.toString();
+  }
+/* *** ODSATag: AStack2 *** */
+
+  void clear() { top = 0; }       // Reinitialize stack
+
+// Push "it" onto stack
+/* *** ODSATag: AStackPush *** */
+  void push(Object it) {
+    if (top >= maxSize) return;
     listArray[top++] = it;
   }
+/* *** ODSAendTag: AStackPush *** */
 
-  /** Remove and top element */
-  public E pop() {
-    assert top != 0 : "Stack is empty";
+// Remove and return top element
+/* *** ODSATag: AStackPop *** */
+  Object pop() {               
+    if (top == 0) return null;
     return listArray[--top];
   }
+/* *** ODSAendTag: AStackPop *** */
 
-  /** @return Top element */
-  public E topValue() {
-    assert top != 0 : "Stack is empty";
+  Object topValue() {             // Return top element
+    if (top == 0) return null;
     return listArray[top-1];
   }
 
-  /** @return Stack size */
-  public int length() { return top; }
-};
-/* *** ODSAendTag: AStack *** */
+  int length() { return top; }    // Return stack size
+}
+/* *** ODSAendTag: AStack2 *** */

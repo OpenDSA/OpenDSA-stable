@@ -9,23 +9,21 @@
   "allow_anonymous_credit": true,
   "suppress_todo": false,
   "chapters": {
-    "Preface": {
-      "Intro": {
-        "long_name": "How to Use this System",
-        "exercises": {}
+    "Algorithm Analysis": {
+      "Test/AnalProgram": {
+        "long_name": "Calculating",
+        "exercises": {
+        }
       }
     },
-    "Test Stuff": {
-      "Development/ListArray": {
-        "long_name": "Array-based Lists",
-        "exercises": {
-          "AlistCON1": {
-            "long_name": "Alist Slideshow 1",
-            "required": true,
-            "points": 0.1,
-            "threshold": 1.0
-          }
-        }
+    "Appendix": {
+      "Glossary": {
+        "long_name": "Glossary",
+        "exercises": {}
+      },
+      "Bibliography": {
+        "long_name": "Bibliography",
+        "exercises": {}
       }
     }
   }

@@ -97,6 +97,8 @@ SYNOPSIS::
        :author: {string}
        :prerequisites: {list of module_name}
        :topic: {string}
+       :requires: {string}
+       :satisfies: {string}
 
 DESCRIPTION
     ``:author: {string}``
@@ -106,6 +108,10 @@ DESCRIPTION
       These represent the prerequisites for this module.
     ``:topic: {string}``
       The topic covered by this module.
+    ``:requires: {string}``
+      A semi-colon delimited list of topics students are expected to know prior to completing the module
+    ``:satisfies: {string}``
+      A semi-colon delimited list of topics covered in this module that satisfy prerequisite knowledge requirements of other modules
 
 codeinclude
 -----------
@@ -115,20 +121,32 @@ NAME
 SYNOPSIS::
 
     .. codeinclude:: {relative_path}
-       [:tag: {my tag}]
+       [:tag: {mytag1} [, {mytag2}, ...]]
 
 DESCRIPTION
     ``.. codeinclude:: {relative_path}``
 
-      Include the code present inside the file located at
+      Include the contents of the file located at
       ``{relative_path}``.
 
     ``:tag: {my_tag}``
 
-      A tag inside the source code file that delimits the block
-      of code that will be included.
-      Note that the source code must use the tags correctly, as shown
-      below.
+      Optionally, a tag or a comma separated list of tags can be
+      specified. These tags must appear inside the source code file
+      as specially formatted comments that delimit the block(s) of
+      code that will be included.
+      If tags are used, then only the code block(s) with the tags will
+      appear.
+      If multiple tags are used, then the multiple blocks will appear
+      as though they were one continuous block of code without the
+      intervening code that does not appear with the tags.
+      If additional tags are hierarchically embedded within a tag
+      block, then those tags will not appear (but the code will).
+      Note that the source code must format the tags correctly,
+      as::
+
+         /* *** ODSATag: my_tag *** */
+         /* *** ODSAendTag: my_tag *** */
 
 NOTES
     The ``codeinclude`` directive closely matches the standard ReST
@@ -162,8 +180,9 @@ DESCRIPTION
 
       Create a container for an inline AV with the given ID and type.
       If the type is ``ss`` a slideshow will be created and if it is
-      ``dgm`` a diagram will be created. Also treats inline AVs as figure,
-      when a cross reference target is declared along with ``caption`` and ``align`` options.
+      ``dgm`` a diagram will be created. inlineav diagrams behave like 
+      typicall reStructuredText figures. Cross reference target and 
+      caption are declared using the standard syntax.
 
       ``<type>`` **is automatically appended to the inlineav directive
       by the configuration process and should not be added manually.**
@@ -230,6 +249,39 @@ NOTES
     The ODSA preprocessor creates a table of all referenced objects
     with numbers and writes it into a file that is read by the ``numref``
     role.
+    When referencing equation (declared with ``math`` directive), 'equation-' 
+    need to be added in front of the label to work, eg to reference the equation with label 'sum2' you write
+    ``:numref:`<equation-sum2>``` 
+
+
+.. _chap:
+
+chap/numchap
+-------------
+NAME
+    chap/numchap - adds a reference to the first (introduction) module
+    of a chapter. 
+
+SYNOPSIS::
+
+    :chap: {chapter_name}
+    :numchap: {chapter_name}
+
+DESCRIPTION
+    ``:chap: {chapter_name}``
+
+    A custom interpreted role that adds the chapter name as the label
+    for a link to the first module of the indicated chapter.
+
+    ``:numchap: {chapter_name}``
+
+    A custom interpreted role that adds a chapter number as the label
+    for a link to the first module of the indicated chapter.
+
+    ``{chapter_name}``
+  
+    The name of the chapter. It should be identical (case sensitive)
+    to the one specified in the json configuration file.
 
 
 TODO
