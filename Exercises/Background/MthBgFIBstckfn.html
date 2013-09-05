@@ -6,41 +6,36 @@
   <script src="../../lib/jquery.min.js"></script>
   <script src="../../lib/jquery-ui.min.js"></script>
   <script src="../../ODSAkhan-exercises/khan-exercise.js"></script>
-</head>
 
-<body>
 <script>
 var answer=0;
 function checkAnswer(answer, M , N) {
-var firstPart= M/N ;
-//var modelAnswer= Math.pow(Math.LOG2E ,(Math.log(2,M/N)/10)).toFixed(2);
-//X=e^(lnM/N)/10
-var modelAnswer= Math.exp(Math.log(firstPart)/10).toFixed(2);
+  var firstPart= M/N ;
+  var modelAnswer= Math.exp(Math.log(firstPart)/10).toFixed(2);
+  // Convert to integer growth rate
+  modelAnswer = Math.round((modelAnswer - 1.0) * 100.0);
+  console.log(modelAnswer);
 
-console.log("mans "+ modelAnswer);
-console.log("ans "+ answer);
- if ( answer== modelAnswer) {
-     
-      return true;
+  if ( answer== modelAnswer) {
+    return true;
   } else {
-      
       return false;
-    }
   }
-
+}
 </script>
+</head>
 
+<body>
 <div class="exercise">
 <div class="vars">
   <var id="N"> randRange(1,9)</var>
-  <var id="MULTPL"> randRange(2,4)</var>
-  <var id="M"> MULTPL* N</var>
+  <var id="M"> randRange(2*N,4*N)</var>
 </div>
   <div class="problems">
     <div id="problem-type-or-description">
-      <p class="question">An investor places <var>N</var>,000 into a
+      <p class="question">An investor places $<var>N</var>,000 into a
         stock fund. 10 years later the account has a value
-        of <var>M</var>,000. Using logarithms and  antilogarithms,
+        of $<var>M</var>,000. Using logarithms and  antilogarithms,
         determine the average annual growth rate for this fund.
 	(Round to the nearest integer.) 
       <br> <textarea rows="1" cols="9" style="resize:none"  id="answerTextarea" ></textarea></p>
@@ -69,6 +64,8 @@ console.log("ans "+ answer);
           <code>X = e^{(\ln M/N)/10}</code><br/>
 	  Find a calculator that can solve this for you.
 	</p>
+        <p>If <code>X</code> is a number like 1.123, then the annual
+        percentage increase is 12.3%, which to the nearest integer is 12%.
       </div> 
     </div>
   </div>

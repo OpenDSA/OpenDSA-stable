@@ -7,7 +7,7 @@
   "build_JSAV": false,
   "build_ODSA": true,
   "allow_anonymous_credit": true,
-  "suppress_todo": false,
+  "suppress_todo": true,
   "chapters": {
     "Preface": {
       "Intro": {
@@ -123,7 +123,7 @@
           "AnalPairSumm": {
             "long_name": "Function Pairs",
             "required": true,
-            "points": 1.0,
+            "points": 2.0,
             "threshold": 5
           }
         }

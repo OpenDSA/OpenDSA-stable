@@ -37,15 +37,7 @@ jshint:
 	-@jshint lib/odsaMOD.js
 	-@jshint lib/gradebook.js
 
-update:
-	$(RM) AV
-	cp -r dev/OpenDSA/AV AV
-	$(RM) config
-	cp -r dev/OpenDSA/config config
-	$(RM) Doc
-	cp -r dev/OpenDSA/Doc Doc
-	$(RM) Exercises
-	cp -r dev/OpenDSA/Exercises Exercises
+jsav:
 	cp dev/OpenDSA/JSAV/build/JSAV-min.js JSAV/build
 	cp dev/OpenDSA/JSAV/build/JSAV.js JSAV/build
 	$(RM) JSAV/lib
@@ -58,6 +50,16 @@ update:
 	cp -r dev/OpenDSA/JSAV/doc JSAV/doc
 	$(RM) JSAV/examples
 	cp -r dev/OpenDSA/JSAV/examples JSAV/examples
+
+update: jsav
+	$(RM) AV
+	cp -r dev/OpenDSA/AV AV
+	$(RM) config
+	cp -r dev/OpenDSA/config config
+	$(RM) Doc
+	cp -r dev/OpenDSA/Doc Doc
+	$(RM) Exercises
+	cp -r dev/OpenDSA/Exercises Exercises
 	$(RM) lib
 	cp -r dev/OpenDSA/lib lib
 	$(RM) lib/*-min.*

@@ -30,6 +30,8 @@
   padding: 0;
   /* prevent text cursor on nodes*/
   cursor: default;
+  /* add a subtle shadow to nodes */
+  box-shadow: 2px 2px 5px rgba(120, 120, 120, 0.5);
 }
 .jsavcenter {
   margin-left: auto;
@@ -126,6 +128,10 @@
   overflow: visible;
   padding-bottom: 30px;
 }
+.jsavbararray .jsavnode {
+  /* remove shadow from the white bars */
+  box-shadow: none;
+} 
 .jsavbararray .jsavindex {
   height: 100%;
   vertical-align: bottom;
@@ -145,6 +151,8 @@
   -ms-border-radius: 0;
   -webkit-border-radius: 0;
   border-radius: 0;
+  /* add a subtle shadow to bars */
+  box-shadow: 2px 2px 5px rgba(120, 120, 120, 0.5);
 }
 .jsavbararray .jsavvalue span {
   position: absolute;
@@ -531,6 +539,35 @@ ul.jsavcode {
 }
 .jsavhiddencode {
   display: none !important;
+}
+
+/******** POINTER STRUCTURE ****/
+.jsavpointer .jsavpointerarea {
+  border: 1px solid black;
+  height: 10px;
+  width: 10px;
+  margin: 0 auto;
+  position: relative;
+}
+.jsavnullpointer .jsavpointerarea:after {
+  content: "";
+  display: block;
+  width: 14px; /* sqrt(width^2+height^2) */
+  height: 1px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: red;
+  -webkit-transform: rotate(-45deg);
+  -webkit-transform-origin: right top;
+  -ms-transform: rotate(-45deg);
+  -ms-transform-origin: right top;
+  -o-transform: rotate(-45deg);
+  -o-transform-origin: right top;
+  -moz-transform: rotate(-45deg);
+  -moz-transform-origin: right top;
+  transform: rotate(-45deg);
+  transform-origin: right top;
 }
 
 /******** MATRIX DATA STRUCTURE ****/

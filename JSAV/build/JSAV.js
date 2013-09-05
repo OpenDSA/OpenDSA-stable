@@ -1,6 +1,6 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v0.6.0-164-gdb5529a
+ * Version v0.7.0-0-gbc97e11
  * Copyright (c) 2011-2012 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
@@ -116,9 +116,10 @@
   var inp = $("<input type='range' />");
   $.support.inputTypeRange = (inp.prop("type") === "range");
 
-  var objcommons = {};
+  var ObjCommons = function() {},
+      objproto = ObjCommons.prototype;
   // gets or sets the id of the object
-  objcommons.id = function(newId) {
+  objproto.id = function(newId) {
     if (newId) {
       this.element[0].id = newId;
       return this;
@@ -131,7 +132,7 @@
       return id;
     }
   };
-  objcommons.bounds = function(recalculate, options) {
+  objproto.bounds = function(recalculate, options) {
     if (recalculate && $.isFunction(this.layout)) {
       return this.layout($.extend({boundsOnly: true}, options));
     } else {
@@ -139,20 +140,20 @@
       return $.extend({width: this.element.width(), height: this.element.height()}, pos);
     }
   };
-  objcommons.position = function() {
+  objproto.position = function() {
     return JSAV.position(this.element);
   };
-  objcommons.isVisible = function() {
+  objproto.isVisible = function() {
     // use the jquery :visible pseudo filter for checking for visibility
     return this.element.filter(":visible").size() > 0;
   };
-  objcommons.clear = function() {
+  objproto.clear = function() {
     if (this.element) {
       this.element.remove();
     }
   };
 
-  JSAV._types.common = objcommons;
+  JSAV._types.JSAVObject = ObjCommons;
 
   JSAV.utils = {};
   var u = JSAV.utils; // shortcut for easier and faster access
@@ -1605,7 +1606,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     "use strict";
     if (typeof JSAV === "undefined") { return; }
 
-    var common = {
+    var JSAVGraphical = function() {};
+    JSAVGraphical.prototype = {
       // utility function that actually implements hide
       // animated show function
       show: function(options) {
@@ -1697,7 +1699,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
         var bbox = this.rObj.getBBox();
         return { left: bbox.x, top: bbox.y, width: bbox.width, height: bbox.height };
       },
-      id: JSAV._types.common.id
+      id: JSAV._types.JSAVObject.id
     };
     var init = function(obj, jsav, props) {
       obj.jsav = jsav;
@@ -1773,8 +1775,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       init(this, jsav, props);
       return this;
     };
+    JSAV.utils.extend(Circle, JSAVGraphical);
     var cproto = Circle.prototype;
-    $.extend(cproto, common);
     cproto.center = function(x, y, options) {
       if (typeof x === "undefined") { // getting center
         return this.rObj.attr(["cx", "cy"]);
@@ -1801,8 +1803,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       init(this, jsav, props);
       return this;
     };
+    JSAV.utils.extend(Rect, JSAVGraphical);
     var rectproto = Rect.prototype;
-    $.extend(rectproto, common);
     rectproto.width = function(w, options) {
       if (typeof w === "undefined") {
         return this.rObj.attr("width");
@@ -1826,7 +1828,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       this._points = [[x1, y1], [x2, y2]];
       return this;
     };
-    $.extend(Line.prototype, common);
+    JSAV.utils.extend(Line, JSAVGraphical);
 
     Line.prototype.translatePoint = translatePoint;
     Line.prototype.movePoints = movePoints;
@@ -1837,8 +1839,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       init(this, jsav, props);
       return this;
     };
+    JSAV.utils.extend(Ellipse, JSAVGraphical);
     var ellproto = Ellipse.prototype;
-    $.extend(ellproto, common);
     ellproto.center = cproto.center;
     ellproto.radius = function(x, y, options) {
       if (typeof x === "undefined") { // getting radius
@@ -1868,7 +1870,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       this._points = points;
       return this;
     };
-    $.extend(Polyline.prototype, common);
+    JSAV.utils.extend(Polyline, JSAVGraphical);
 
     Polyline.prototype.translatePoint = translatePoint;
     Polyline.prototype.movePoints = movePoints;
@@ -1879,6 +1881,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       init(this, jsav, props);
       return this;
     };
+    JSAV.utils.extend(Path, JSAVGraphical);
     Path.prototype.path = function(newPath, options)  {
       if (typeof newPath === "undefined") {
         return this.rObj.attr("path");
@@ -1886,15 +1889,14 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
         return this._setattrs({ path: newPath }, options);
       }
     };
-    $.extend(Path.prototype, common);
 
     var Set = function(jsav, raphael, props) {
       this.rObj = raphael.set();
       init(this, jsav, props);
       return this;
     };
+    JSAV.utils.extend(Set, JSAVGraphical);
     var setproto = Set.prototype;
-    $.extend(setproto, common);
     setproto.push = function(g) {
       this.rObj.push(g.rObj);
       return this;
@@ -1948,6 +1950,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 
     // expose the types
     var gTypes = {
+      JSAVGraphical: JSAVGraphical,
       Circle: Circle,
       Rect: Rect,
       Line: Line,
@@ -2107,8 +2110,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     JSAV.utils._helpers.handlePosition(this);
     JSAV.utils._helpers.handleVisibility(this, this.options);
   };
+  JSAV.utils.extend(Label, JSAV._types.JSAVObject);
   var labelproto = Label.prototype;
-  $.extend(labelproto, JSAV._types.common);
   labelproto._toggleVisible = JSAV.anim(JSAV.ext.effects._toggleVisible);
   labelproto.show = JSAV.ext.effects.show;
   labelproto.hide = JSAV.ext.effects.hide;
@@ -2134,6 +2137,10 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
   };
   labelproto.css = JSAV.utils._helpers.css;
   labelproto._setcss = JSAV.anim(JSAV.utils._helpers._setcss);
+  labelproto.addClass = JSAV.utils._helpers.addClass;
+  labelproto.removeClass = JSAV.utils._helpers.removeClass;
+  labelproto.hasClass = JSAV.utils._helpers.hasClass;
+  labelproto.toggleClass = JSAV.anim(JSAV.utils._helpers._toggleClass);
   JSAV._types.Label = Label; // expose the label type
 
   JSAV.ext.label = function(text, options) {
@@ -2170,29 +2177,30 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 
   // common properties/functions for all data structures, these can be copied
   // to the prototype of a new DS using the addCommonProperties(prototype) function
-  var common = {
-      getSvg: function() {
-        if (!this.svg) { // lazily create the SVG overlay only when needed
-          this.svg = new Raphael(this.element[0]);
-          this.svg.renderfix();
-          var style = this.svg.canvas.style;
-          style.position = "absolute";
-        }
-        return this.svg;
-      },
-      _toggleVisible: JSAV.anim(JSAV.ext.effects._toggleVisible),
-      show: JSAV.ext.effects.show,
-      hide: JSAV.ext.effects.hide,
-      addClass: JSAV.utils._helpers.addClass,
-      removeClass: JSAV.utils._helpers.removeClass,
-      hasClass: JSAV.utils._helpers.hasClass,
-      toggleClass: JSAV.anim(JSAV.utils._helpers._toggleClass),
-      // dummy methods for initializing a DS, the DS should override these
-      initialize: function() { },
-      initializeFromElement: function() { },
-      clone: function() {}
+  var JSAVDataStructure = function() {};
+  JSAV.utils.extend(JSAVDataStructure, JSAV._types.JSAVObject);
+  var dsproto = JSAVDataStructure.prototype;
+  dsproto.getSvg = function() {
+      if (!this.svg) { // lazily create the SVG overlay only when needed
+        this.svg = new Raphael(this.element[0]);
+        this.svg.renderfix();
+        var style = this.svg.canvas.style;
+        style.position = "absolute";
+      }
+      return this.svg;
     };
-  $.extend(common, JSAV._types.common);
+  dsproto._toggleVisible = JSAV.anim(JSAV.ext.effects._toggleVisible);
+  dsproto.show = JSAV.ext.effects.show;
+  dsproto.hide = JSAV.ext.effects.hide;
+  dsproto.addClass = JSAV.utils._helpers.addClass;
+  dsproto.removeClass = JSAV.utils._helpers.removeClass;
+  dsproto.hasClass = JSAV.utils._helpers.hasClass;
+  dsproto.toggleClass = JSAV.anim(JSAV.utils._helpers._toggleClass);
+  // dummy methods for initializing a DS, the DS should override these
+  dsproto.initialize = function() { };
+  dsproto.initializeFromElement = function() { };
+  dsproto.clone = function() {};
+
 
 
   // implementation for a tree edge
@@ -2243,8 +2251,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       this.g.show();
     }
   };
+  JSAV.utils.extend(Edge, JSAVDataStructure);
   var edgeproto = Edge.prototype;
-  $.extend(edgeproto, common);
   edgeproto.layout = function(options) {
     if (this.start().value() === "jsavnull" || this.end().value() === "jsavnull") {
       this.addClass("jsavedge", options).addClass("jsavnulledge", options);
@@ -2422,9 +2430,9 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     this.removeClass("jsavhighlight", options);
   };
 
-  var Node = function() {},
-  nodeproto = Node.prototype;
-  $.extend(nodeproto, common);
+  var Node = function() {};
+  JSAV.utils.extend(Node, JSAVDataStructure);
+  var nodeproto = Node.prototype;
 
   nodeproto.value = function(newVal, options) {
     if (typeof newVal === "undefined") {
@@ -2461,7 +2469,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
   nodeproto.css = JSAV.utils._helpers.css;
   nodeproto._setcss = JSAV.anim(JSAV.utils._helpers._setcss);
 
-  JSAV._types.ds = { "common": common, "Edge": Edge, "Node": Node };
+  JSAV._types.ds = { "JSAVDataStructure": JSAVDataStructure, "Edge": Edge, "Node": Node };
   // expose the extend for the JSAV
   JSAV.ext.ds = {
     layout: {}
@@ -2512,9 +2520,9 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       this.element.addClass("jsavindexed");
     }
   };
+  JSAV.utils.extend(AVArray, JSAV._types.ds.JSAVDataStructure);
   AVArray._templates = templates;
   var arrproto = AVArray.prototype;
-  $.extend(arrproto, JSAV._types.ds.common);
 
   arrproto.isHighlight = function(index, options) {
     return this.hasClass(index, "jsavhighlight");
@@ -3012,8 +3020,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
   var Tree = function(jsav, options) {
     this.init(jsav, options);
   };
+  JSAV.utils.extend(Tree, JSAV._types.ds.JSAVDataStructure);
   var treeproto = Tree.prototype;
-  $.extend(treeproto, JSAV._types.ds.common);
   treeproto.init = function(jsav, options) {
     this._layoutDone = false;
     this.jsav = jsav;
@@ -3942,8 +3950,8 @@ TreeContours.prototype = {
     JSAV.utils._helpers.handlePosition(this);
     JSAV.utils._helpers.handleVisibility(this, this.options);
   };
+  JSAV.utils.extend(List, JSAV._types.ds.JSAVDataStructure);
   var listproto = List.prototype;
-  $.extend(listproto, JSAV._types.ds.common);
   listproto.first = function(newFirst, options) {
     if (typeof newFirst === "undefined") {
       return this._first;
@@ -4106,8 +4114,8 @@ TreeContours.prototype = {
     JSAV.utils._helpers.handleVisibility(this, this.options);
   };
   
+  JSAV.utils.extend(ListNode, JSAV._types.ds.Node);
   var listnodeproto = ListNode.prototype;
-  $.extend(listnodeproto, JSAV._types.ds.Node.prototype);
   
   listnodeproto.next = function(newNext, options) {
     if (typeof newNext === "undefined") {
@@ -4304,8 +4312,8 @@ TreeContours.prototype = {
     JSAV.utils._helpers.handlePosition(this);
     JSAV.utils._helpers.handleVisibility(this, this.options);
   };
+  JSAV.utils.extend(Graph, JSAV._types.ds.JSAVDataStructure);
   var graphproto = Graph.prototype;
-  $.extend(graphproto, JSAV._types.ds.common);
   graphproto.css = JSAV.utils._helpers.css;
   graphproto._setcss = JSAV.anim(JSAV.utils._helpers._setcss);
 
@@ -4353,8 +4361,6 @@ TreeContours.prototype = {
     // set the nodes (makes the operation animated)
     this._setnodes(newNodes, options);
 
-    // TODO: remove all edges connected to the removed node ??
-
     // update the adjacency lists
     var firstAdjs = this._edges.slice(0, nodeIndex),
         newAdjs = firstAdjs.concat(this._edges.slice(nodeIndex + 1));
@@ -4368,13 +4374,14 @@ TreeContours.prototype = {
 
   // adds an edge from fromNode to toNode
   graphproto.addEdge = function(fromNode, toNode, options) {
+    // only allow one edge between two nodes
+    if (this.hasEdge(fromNode, toNode)) { return; }
+
     var opts = $.extend({}, this.options, options);
     if (opts.directed && !opts["arrow-end"]) {
       opts["arrow-end"] = "classic-wide-long";
     }
 
-    // only allow one edge between two nodes
-    if (this.hasEdge(fromNode, toNode)) { return; }
     // get indices of the nodes
     var fromIndex = this._nodes.indexOf(fromNode),
         toIndex = this._nodes.indexOf(toNode);
@@ -4388,12 +4395,6 @@ TreeContours.prototype = {
     // set the adjlist (makes the operation animated)
     this._setadjlist(adjlist, fromIndex, opts);
 
-    if (!opts.directed) {
-      edge = new Edge(this.jsav, toNode, fromNode, opts);
-      adjlist = this._edges[toIndex].slice(0);
-      adjlist.push(edge);
-      this._setadjlist(adjlist, toIndex, opts);
-    }
     return edge;
   };
 
@@ -4425,32 +4426,21 @@ TreeContours.prototype = {
     this._setadjlist(newAdjlist, fromIndex, options);
     // we "remove" the edge by hiding it
     edge.hide();
-
-    if (!this.options.directed) { // if not directed graph, remove the edge to other direction as well
-      edge = this.getEdge(toNode, fromNode);
-      adjlist = this._edges[toIndex];
-      edgeIndex = adjlist.indexOf(edge);
-      newAdjlist = adjlist.slice(0, edgeIndex).concat(adjlist.slice(edgeIndex + 1));
-      this._setadjlist(newAdjlist, toIndex, options);
-      // we "remove" the edge by hiding it
-      edge.hide();
-    }
   };
 
   // returns true/false whether an edge from fromNode to toNode exists
   graphproto.hasEdge = function(fromNode, toNode) {
-    return !!this.getEdge(fromNode, toNode);
+    return this.getEdge(fromNode, toNode);
   };
 
   graphproto.getEdge = function(fromNode, toNode) {
-    var fromIndex = this._nodes.indexOf(fromNode),
-        adjlist = this._edges[fromIndex];
-    if (adjlist) {
-      for (var i = 0, l = adjlist.length; i < l; i++) {
-        var edge = adjlist[i];
-        if (edge.end() === toNode) {
-          return edge;
-        }
+    var edges = this.edges();
+    for (var i = 0, l = edges.length; i < l; i++) {
+      var edge = edges[i];
+      if (edge.start() === fromNode && edge.end() === toNode) {
+        return edge;
+      } else if (edge.end() === fromNode && edge.start() === toNode) {
+        return edge;
       }
     }
     return undefined;
@@ -4712,16 +4702,31 @@ TreeContours.prototype = {
     JSAV.utils._helpers.handlePosition(this);
     JSAV.utils._helpers.handleVisibility(this, this.options);
   };
+  JSAV.utils.extend(GraphNode, JSAV._types.ds.Node);
   var nodeproto = GraphNode.prototype;
-  $.extend(nodeproto, JSAV._types.ds.Node.prototype);
   nodeproto.css = JSAV.utils._helpers.css;
   nodeproto._setcss = JSAV.anim(JSAV.utils._helpers._setcss);
 
   nodeproto.neighbors = function() {
-    var edges = this.container._edges[this.container._nodes.indexOf(this)],
-        neighbors = [];
-    for (var i = 0, l = edges.length; i < l; i++) {
-      neighbors.push(edges[i].end());
+    var edges,
+        neighbors = [],
+        edge, i, l;
+    if (this.container.options.directed) { // directed graph
+      edges = this.container._edges[this.container._nodes.indexOf(this)];
+      for (i = 0, l = edges.length; i < l; i++) {
+        neighbors.push(edges[i].end());
+      }
+    } else { // undirected graph
+      // inefficient way to go through all edges, but educational graphs should be small :)
+      edges = this.container.edges();
+      for (i = 0, l = edges.length; i < l; i++) {
+        edge = edges[i];
+        if (edge.start() === this) {
+          neighbors.push(edge.end());
+        } else if (edge.end() === this) {
+          neighbors.push(edge.start());
+        }
+      }
     }
     return JSAV.utils.iterable(neighbors);
   };
@@ -4801,8 +4806,8 @@ TreeContours.prototype = {
     this.layout();
     JSAV.utils._helpers.handleVisibility(this, this.options);
   };
+  JSAV.utils.extend(Matrix, JSAV._types.ds.JSAVDataStructure);
   var matrixproto = Matrix.prototype;
-  $.extend(matrixproto, JSAV._types.ds.common);
 
   // swap two elements in the matrix, (row1, col1) with (row2, col2)
   matrixproto.swap = function(row1, col1, row2, col2, options) {
@@ -4977,8 +4982,8 @@ TreeContours.prototype = {
     JSAV.utils._helpers.handlePosition(this);
     JSAV.utils._helpers.handleVisibility(this, this.options);
   };
+  JSAV.utils.extend(Variable, JSAV._types.JSAVObject);
   var varproto = Variable.prototype;
-  $.extend(varproto, JSAV._types.common);
   varproto._toggleVisible = JSAV.anim(JSAV.ext.effects._toggleVisible);
   varproto.show = JSAV.ext.effects.show;
   varproto.hide = JSAV.ext.effects.hide;
@@ -5028,6 +5033,7 @@ TreeContours.prototype = {
     var arrow = pointer.jsav.g.line(arrowPoints[0][1], arrowPoints[0][2],
                               arrowPoints[1][1], arrowPoints[1][2],
                               {"arrow-end": "classic-wide",
+                               "arrow-start": "oval-medium-medium",
                                 "stroke-width": 2,
                                 "opacity": 0});
     if (pointer.isVisible()) {
@@ -5052,7 +5058,8 @@ TreeContours.prototype = {
                           left: 0,
                           top: "-20px" };
     this.options = $.extend(defaultOptions, options);
-    this.element = $('<div class="jsavlabel jsavpointer">' + name + '</div>');
+    this.element = $('<div class="jsavpointer"><div class="jsavlabel">' + name + '</div>' +
+                     '<div class="jsavpointerarea"></div></div>');
     if (this.options.before) {
       this.element.insertBefore(this.options.before.element);
     } else if (this.options.after) {
@@ -5072,9 +5079,9 @@ TreeContours.prototype = {
       this.arrow = _createArrow(this);
     }
   };
-  var pointerproto = Pointer.prototype;
   // Extend the Label type
-  $.extend(pointerproto, JSAV._types.Label.prototype);
+  JSAV.utils.extend(Pointer, JSAV._types.Label);
+  var pointerproto = Pointer.prototype;
   // Helper function to record the change of the pointer target.
   pointerproto._setTarget = JSAV.anim(
     function(newTarget, options) {
@@ -5115,8 +5122,8 @@ TreeContours.prototype = {
                                  height: targetElem.outerHeight,
                                  left: targetOffset.left - canvasOffset.left,
                                  top: targetOffset.top - canvasOffset.top},
-        newPoints = [[0, myBounds.left + myBounds.width/2,
-                        myBounds.top + myBounds.height],
+        newPoints = [[0, myBounds.left + myBounds.width/2 + 1, //+1 to center the arrow start "ball"
+                        myBounds.top + myBounds.height - 5], // -5 to get to center of pointerarea
                      [1, targetBounds.left + targetBounds.width/2,
                         targetBounds.top]];
     return newPoints;
@@ -5131,8 +5138,10 @@ TreeContours.prototype = {
       // if setting target to null, hide the arrow
       if (newTarget === null) {
         if (this.arrow) { this.arrow.hide(); }
+        this.addClass("jsavnullpointer");
         return this;
       }
+      this.removeClass("jsavnullpointer");
       if (!this.arrow) {
         this.arrow = _createArrow(this, options);
       } else if (!this.arrow.isVisible()) {
@@ -5242,8 +5251,8 @@ TreeContours.prototype = {
     }
     return clElem;
   };
+  JSAV.utils.extend(Code, JSAV._types.JSAVObject);
   var codeproto = Code.prototype;
-  $.extend(codeproto, JSAV._types.common);
   codeproto._toggleVisible = JSAV.anim(JSAV.ext.effects._toggleVisible);
   codeproto.addCodeLine = JSAV.anim(function(newLine) {
     this.element.append(createCodeLine(newLine, this));
@@ -5740,7 +5749,7 @@ TreeContours.prototype = {
     var cont = $(this.options.controls),
         self = this;
     if (cont.size() === 0) {
-       cont = this.jsav.container.find(".jsavexercisecontrols");
+      cont = this.jsav.container.find(".jsavexercisecontrols");
     }
     if (cont.size()) {
       var $reset = $('<input type="button" name="reset" value="Reset" />').click(
@@ -5755,25 +5764,26 @@ TreeContours.prototype = {
               self.showModelanswer();
               cont.removeClass("active");
             }),
-          $grade = $('<input type="button" name="grade" value="Grade" />').click(
-            function() {
-              cont.addClass("active");
-              self.showGrade();
-              cont.removeClass("active");
-              self.jsav.logEvent({type: "jsav-exercise-grade", score: $.extend({}, self.score)});
-            }),
-          $undo = $('<input type="button" name="undo" value="Undo" />"').click(
-            function() {
-              self.jsav.logEvent({type: "jsav-exercise-undo"});
-              self.undo();
-            }),
           $action = $('<span class="actionIndicator"></span>');
-      // only show undo button if not in continuous mode
+      // only add undo and grade button if not in continuous mode
       if (this.options.feedback !== "continuous") {
-        cont.append($undo);
+        var $grade = $('<input type="button" name="grade" value="Grade" />').click(
+              function() {
+                cont.addClass("active");
+                self.showGrade();
+                cont.removeClass("active");
+                self.jsav.logEvent({type: "jsav-exercise-grade", score: $.extend({}, self.score)});
+              }),
+            $undo = $('<input type="button" name="undo" value="Undo" />"').click(
+              function() {
+                self.jsav.logEvent({type: "jsav-exercise-undo"});
+                self.undo();
+              });
+        cont.append($undo, $reset, $model, $grade, $action);
+      } else {
+        cont.append($reset, $model, $action);
       }
-      cont.append($reset, $model, $grade, $action);
-      $action.position({of: $grade, at: "right center", my: "left center", offset: "5 -2"});
+      $action.position({of: cont.children().last(), at: "right center", my: "left center", offset: "5 -2"});
     }
     // if feedbacktype can be selected, add settings for it
     if (this.options.feedbackSelectable) {
@@ -6148,7 +6158,7 @@ TreeContours.prototype = {
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v0.6.0-164-gdb5529a";
+  var theVERSION = "v0.7.0-0-gbc97e11";
 
   JSAV.version = function() {
     return theVERSION;
