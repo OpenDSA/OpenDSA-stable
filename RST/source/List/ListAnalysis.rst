@@ -25,7 +25,7 @@ space whether they are simple integers or large objects with many
 fields.
 Any container data structure like a list then requires some additional
 space to organize the elements being stored.
-This additional space is called :term`overhead`.
+This additional space is called :term:`overhead`.
 
 Array-based lists have the disadvantage that their size must be
 predetermined before the array can be allocated.
@@ -92,13 +92,6 @@ That is, the array-based implementation would be more efficient (if
 the link field and the element field are the same size) whenever the
 array is more than half full.
 
-.. TODO::
-   :type: Exercise
-
-   Give the student a scenario in terms of sizes required for D, E,
-   P. Then the student must deterimine which representation is more
-   space efficient (or if they are the same).
-
 As a rule of thumb, linked lists are more space efficient when
 implementing lists whose number of elements varies widely or is
 unknown.
@@ -106,6 +99,8 @@ Array-based lists are generally more space efficient when
 the user knows in advance approximately how large the list will
 become, and can be confident that the list will never grow beyond a
 certain limit.
+
+.. avembed:: Exercises/List/ListOverhead.html ka
 
 Time Comparison
 ---------------

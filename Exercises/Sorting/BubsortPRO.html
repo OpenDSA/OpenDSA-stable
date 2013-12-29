@@ -10,7 +10,7 @@ Written by Gayathri Subramanian and Cliff Shaffer
   <title>Bubble Sort Proficiency Exercise</title>
   <script src="../../lib/jquery.min.js"></script>
   <script src="../../lib/jquery-ui.min.js"></script>
-  <script src="../../JSAV/lib/jquery.transform.light.js"></script>
+  <script src="../../JSAV/lib/jquery.transit.js"></script>
   <script src="../../JSAV/lib/raphael.js"></script>
   <script src="../../ODSAkhan-exercises/khan-exercise.js"></script>
   <script src="../../JSAV/build/JSAV-min.js"></script>
@@ -56,6 +56,7 @@ var f_reset = function () {
   jsavArr = jsav.ds.array(cloneArr, {indexed: true, center: false});
   jsavArr.click(clickHandler); // Rebind click handler after reset
   userInput = false;
+  selected_index = -1;         // Reset to nothing selected
 };
 
 // swap two values in array

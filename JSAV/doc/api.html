@@ -6,7 +6,7 @@
   </head>
 
 <body>
-<h1>Documentation for the JavaScript Algorithm Visualization API (JSAV) Version 0.7</h1>
+<h1>Documentation for the JavaScript Algorithm Visualization API (JSAV) Version 0.8dev</h1>
 
 <p class="note">
 This documentation reflects the current status of the library.
@@ -28,8 +28,8 @@ JSAV library directory, which depends on where you are developing from.
 </p> 
 
 <ul>
-  <li>jquery.transform: <code>[JSAV]/lib/jquery.transform.light.js</code></li>
-  <li>Raphael: <code>[JSAV]/lib/raphael.js</code></li>
+  <li>jquery.transit: <code>[JSAV]/lib/jquery.transit.js</code></li>
+  <li>Rapha&euml;l: <code>[JSAV]/lib/raphael.js</code></li>
   <li>The library: Either <code>[JSAV]/build/jsav.js</code> or
       <code>[JSAV]/build/jsav-min.js</code>.
       This must always be included.</li>
@@ -38,10 +38,10 @@ JSAV library directory, which depends on where you are developing from.
 
 <p>
 The main jQuery library must always be loaded.
-jQuery UI and jquery.transform are only needed when you use the
+jQuery UI and jquery.transit are only needed when you use the
 library to show animations, such as using the data structures or
 graphical primitives and modifying them. In other words, using
-any other part of the library than the messaging API. Raphael is
+any other part of the library than the messaging API. Rapha&euml;l is
 only needed when using graphical primitives like circles and
 rectangles or when using data structures with edges.
 </p>
@@ -103,6 +103,9 @@ var av = new JSAV(jQuery("#container"));</pre>
     slideshow.</dd><br/>
   <dt><code>animationMode</code></dt>
   <dd>Use "none" to turn off animation (slideshow) mode.</dd>
+  <dt><code>output</code></dt>
+  <dd>The output buffer element to use with the Messaging API. The value
+    of the option should be a DOM element, CSS selector string, or a jQuery object.</dd>
 </dl>
 <p>In addition to the options passed to the function, any options specified
   in a global variable <code>JSAV_OPTIONS</code> will be used. Those passed on
@@ -199,6 +202,9 @@ optional standard parameters can be used such as
 the textbox unwriteable by the user, or to
 override the default height and width.
 </p>
+<p>Alternative way to specify where the output buffer element is to use the
+<code>output</code> option when initializing the JSAV instance. The value
+of the option should be a DOM element, CSS selector string, or a jQuery object.</p>
 
 <h3 class="apimethod">.umsg(msg[, options])</h3>
 <p>
@@ -231,6 +237,11 @@ for example, the <code>step</code> method.
 
 <h3 class="apimethod">.clearumsg()</h3>
 <p>Clear the contents of the output message buffer.</p>
+
+<h3 class="apimethod">Events</h3>
+<p>The message API will trigger a <code>jsav-message</code> event on the JSAV
+  <code>container</code> whenever the output buffer content should change. You
+  can listen for this event to integrate more complex output behavior.</p>
 
 <h2>Array Data Structure API</h2>
 
@@ -391,8 +402,10 @@ the following would return 4:
 </p>
 <pre>arr.size();</pre>
     
-<h3 class="apimethod">.swap(index1, index2)</h3>
-<p>Swaps the contents (and graphics state) of the two array positions.</p>
+<h3 class="apimethod">.swap(index1, index2, [options])</h3>
+<p>Swaps the contents (and graphics state) of the two array positions. Has one supported option <code>arrow</code>
+  which controls whether or not to show an arrow highlighting the elements being swapped. Note, the arrow is not
+  shown if raphael.js is not loaded.</p>
     
 <h3 class="apimethod">.unhighlight(indices)</h3>
 <p>
@@ -1011,11 +1024,14 @@ out, this method will return the current text of the label.
     <li> <code>{visible: &lt;boolean>}</code> Determine whether the pointer
     is visible on creation. Defaults to true.</li>
     <li><code>{left/top/right/bottom: &lt;lengthUnit>}</code> Values to determine the absolute position of the label relative to the pointer's target.</li>
-    <li>anchor: Defines which position on the element being positioned to align with the target element. Should be in 
+    <li><code>{anchor: &lt;String>}</code> Defines which position on the element being positioned to align with the target element. Should be in 
       format <code>horizontal vertical</code>. Possible horizontal values are "left", "center", "right" and vertical values "top", "center", "bottom". Defaults to <code>center center</code>.</li>
-    <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>.</li>
-    <li>targetIndex: If target is a JSAV array, this option can be used to target
+    <li><code>{myAnchor: &lt;String>}</code> Similar to anchor, but the position on this element. Defaults to <code>center center</code>.</li>
+    <li><code>{targetIndex: &lt; Number>}</code> If target is a JSAV array, this option can be used to target
       an index in that array.</li>
+    <li><code>{fixed: &lt;boolean>}</code> A boolean indicating whether the pointer should move when it's target changes.
+      Note, that if the pointer has a target when initialized, the pointer will still be positioned
+      relative to that target.</li>
     </ul>
     <p>A pointer instance has the functions of the Label object as well as the following functions.</p>
     <h3 class="apimethod">.target([newTarget], [options])</h3>
@@ -1335,12 +1351,14 @@ q.show();</pre>
     <li><code>{compare: &lt;Object or Array>}</code> Specifies which properties to compare for the structures. In the example below, we set the comparison to be CSS property background-color so grading would check if the structures have same background color (that is, if they are highlighted). <strong>Required.</strong></li>
     <li><code>{feedback: &lt;string>}</code> Will change the feedback mode, possible values continuous and atend (default). See Continuous feedback below.</li>
     <li><code>{fixmode: &lt;string>}</code> Change the behavior in continuous mode, possible values are undo and fix. The default is undo.</li>
-    <li><code>{feedbackSelectable: &lt;>boolean}</code> The settings dialog will not, by default, allow student to change the feedback mode. Setting this option to true enables this choice.</li>
-    <li><code>{fixmodeSelectable: &lt;>boolean}</code> The settings dialog will not, by default, allow student to change the behavior in continuous feedback mode. Setting this option to true enables this choice.</li>
+    <li><code>{feedbackSelectable: &lt;boolean>}</code> The settings dialog will not, by default, allow student to change the feedback mode. Setting this option to true enables this choice.</li>
+    <li><code>{fixmodeSelectable: &lt;boolean>}</code> The settings dialog will not, by default, allow student to change the behavior in continuous feedback mode. Setting this option to true enables this choice.</li>
     <li><code>{fix: &lt;function}</code> A function that will fix the student's solution to match the current step in model solution. Before this function is called, the previous incorrect step in student's solution is undone. The function gets the model structures as a parameter. For an example, see the examples/ShellsortProficiency.html.</li>
     <li><code>{showGrade}: &lt;function>}</code> A function that can be used to customize the way the grade is shown. The function will be added to the exercise and can be called with <code>exercise.showGrade</code>. The function can access the grade information from attribute <code>this.score</code>. Example content of that attribute: <code>{total: 15, correct: 3, undo: 0, fix: 0, student: 5}</code>. Total is the total number of steps in the model solution, student the number of steps in student solution, and correct the number of correct steps. Values undo and fix show how many steps were undone/fixed in the continuous feedback mode. Note, that to make sure the grading is up to date, this function should call the <code>grade</code> function of the exercise before showing the grade.</li>
     <li><code>{modelDialog}: &lt;object>}</code> An object that can specify options for the model answer dialog. For
       the possible options, see the documentation for the JSAV.utils.dialog.</li>
+    <li><code>{debug: &lt;boolean>}</code> If true, print out some debug information for exercise developers. 
+      Mainly, the continuous feedback mode will log possible errors in the fix function.</li>
   </ul>
   <p>For example, assuming <code>modelSolution</code> and <code>reset</code> are functions, the following would initialize an exercise:</p>
   <pre>

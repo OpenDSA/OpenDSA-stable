@@ -16,16 +16,16 @@ Often we wish to process a binary tree by "visiting" each of its
 nodes, each time performing a specific action such as printing the
 contents of the node.
 Any process for visiting all of the nodes in some order is
-called a :dfn:`traversal`.
+called a :term:`traversal`.
 Any traversal that lists every node in the tree exactly once is
-called an :dfn:`enumeration` of the tree's nodes.
+called an :term:`enumeration` of the tree's nodes.
 Some applications do not require that the nodes be visited in any
 particular order as long as each node is visited precisely once.
 For other applications, nodes must be visited in an order that
 preserves some relationship.
 For example, we might wish to make sure that we visit any given node
 *before* we visit its children.
-This is called a :dfn:`preorder traversal`.
+This is called a :term:`preorder traversal`.
 
 .. topic:: Example
 
@@ -45,7 +45,7 @@ We would like to delete the children of a node before deleting the
 node itself.
 But to do that requires that the children's children be deleted
 first, and so on.
-This is called a :dfn:`postorder traversal`.
+This is called a :term:`postorder traversal`.
 
 .. topic:: Example
 
@@ -53,7 +53,7 @@ This is called a :dfn:`postorder traversal`.
    Figure :num:`Figure #BinExample` is
    **D B G E H I F C A**.
 
-An :dfn:`inorder traversal` first visits the left child
+An :term:`inorder traversal` first visits the left child
 (including its entire subtree), then visits the node, and finally
 visits the right child (including its entire
 subtree).
@@ -65,11 +65,6 @@ traversal to print all nodes in ascending order of value.
    The inorder enumeration for the tree of
    Figure :num:`Figure #BinExample` is
    **B D A G E C H F I**.
-
-.. TODO::
-   :type: Exercise
-
-   Add the exercises like what Ville did for traversals.
 
 Now we will discuss some implementations for the traversals, but we
 need to define a node ADT to work with.
@@ -83,7 +78,7 @@ set or return a pointer to the left child,
 set or return a pointer to the right child,
 or indicate whether the node is a leaf.
 
-.. codeinclude:: Trees/BinNode.pde
+.. codeinclude:: Binary/BinNode.pde
    :tag: BinNode
 
 A traversal routine is naturally written as a recursive
@@ -99,7 +94,7 @@ For example, a preorder traversal specifies that ``rt`` be
 visited before its children.
 This can easily be implemented as follows.
 
-.. codeinclude:: Trees/Traverse.pde
+.. codeinclude:: Binary/Preorder.pde
    :tag: preorder
 
 Function ``preorder`` first checks that the tree is not
@@ -129,21 +124,15 @@ right pointers of the current node are checked so that the recursive
 call is made only on non-empty children.
 Such a design typically looks as follows
 
-.. codeinclude:: Trees/Traverse.pde
+.. codeinclude:: Binary/Preorder.pde
    :tag: preorder2
 
 At first it might appear that ``preorder2`` is more efficient
 than ``preorder``, because it makes only half as many recursive
-calls.
+calls (since it won't try to call on a null pointer).
 On the other hand, ``preorder2`` must access the left and right
 child pointers twice as often.
-The net result is little or no performance improvement.
-
-.. TODO::
-   :type: Exercise
-
-   Why does ``preorder2`` make only half as many recursive calls?
-   Answer: Because half the pointers are null.
+The net result is that there is no performance improvement.
 
 In reality, the design of ``preorder2`` is inferior to
 that of ``preorder`` for two reasons.
@@ -178,11 +167,11 @@ It is probably better design to permit only the tree class to have
 access to the ``BinNode`` class.
 
 Another approach is for the tree class to supply a generic traversal
-function which takes the visitor as a function parameter.
+function that takes the visitor as a function parameter.
 This is known as the
-:dfn:`visitor design pattern`.
+:term:`visitor design pattern`.
 A major constraint on this approach is that the
-:dfn:`signature` for all visitor functions, that is,
+:term:`signature` for all visitor functions, that is,
 their return type and parameters, must be fixed in advance.
 Thus, the designer of the generic traversal function must be able to
 adequately judge what parameters and return type will likely be needed
@@ -212,7 +201,7 @@ that we communicate information back up the tree to the end user.
    us.
    Thus, we can implement ``count`` as follows.
 
-   .. codeinclude:: Trees/Traverse.pde
+   .. codeinclude:: Binary/Traverse.pde
       :tag: count
 
 .. avembed:: Exercises/Development/BTLeafPROG.html ka
@@ -265,47 +254,14 @@ That information might come from any of the node's ancestors.
 Thus, relevant range information must be passed down the tree.
 We can implement this function as follows.
 
-.. codeinclude:: Trees/Traverse.pde
+.. codeinclude:: Binary/checkBST.pde
    :tag: checkBST
 
-Inorder Traversal Exercise.
+Here are some exercises to practice the traversals.
 
 .. avembed:: AV/Development/binarytree-inorder.html pe
 
-Level order Traversal Exercise.
-
-.. avembed:: AV/Development/binarytree-levelorder.html pe
-
-Postorder Traversal Exercise.
 
 .. avembed:: AV/Development/binarytree-postorder.html pe
 
-Preorder Traversal Exercise.
-
 .. avembed:: AV/Development/binarytree-preorder.html pe
-
-.. TODO::
-   :type: Exercise
-
-   Given one of the three traversals (randomly selected), and a random
-   tree, give the enumeration.
-
-.. TODO::
-   :type: Exercise
-
-   Given the three lines of code related to
-   doing any of the traversals, arrange them in proper order to get the
-   desired traversal. The answer can easily be checked, either by
-   examining the resulting code (since it is so constrained) or by
-   examining a computed output.
-
-.. TODO::
-   :type: Exercise
-
-   Given an enumeration from a tree, determine if it is pre-order,
-   post-order, in-order, or none of the above.
-
-.. TODO::
-   :type: Exercise
-
-   Need a battery of MCQ questions on content

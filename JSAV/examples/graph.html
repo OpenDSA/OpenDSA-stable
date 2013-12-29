@@ -36,14 +36,14 @@
        src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js">
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-    <script src="../lib/jquery.transform.light.js"></script>
+    <script src="../lib/jquery.transit.js"></script>
     <script src="../lib/raphael.js"></script>
     <script src="../build/JSAV.js"></script>
     <script>
     var jsav = new JSAV("av"),
         g;
     var initGraph = function() {
-      g = jsav.ds.graph({width: 500, height: 200});
+      g = jsav.ds.graph({width: 500, height: 200, layout: "automatic"});
       var a = g.addNode("A"),
           b = g.addNode("B"),
           c = g.addNode("C"),

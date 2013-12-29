@@ -32,6 +32,7 @@
     }
     return this;
   };
+  
   JSAV._types.ds.BinaryTree.prototype.postOrderTraversal = function() {
     var i = 0,
         jsav = this.jsav;
@@ -50,6 +51,7 @@
     };
     postorderNode(this.root());
   };
+  
   JSAV._types.ds.BinaryTree.prototype.preOrderTraversal = function() {
     var i = 0,
         jsav = this.jsav;
@@ -68,6 +70,7 @@
     };
     preorderNode(this.root());
   };
+  
   JSAV._types.ds.BinaryTree.prototype.inOrderTraversal = function() {
     var i = 0,
         jsav = this.jsav;
@@ -86,6 +89,7 @@
     };
     inorderNode(this.root());
   };
+  
   JSAV._types.ds.BinaryTree.prototype.levelOrderTraversal = function() {
     var i = 0,
         jsav = this.jsav,
@@ -106,12 +110,15 @@
       }
     }
   };
+  
   JSAV._types.ds.BinaryTree.prototype.state = function(newState) {
     var state,
         i,
         queue = [this.root()],
         curr;
-    if (typeof newState === "undefined") {
+    if (typeof newState === "undefined") { // return the state
+      // go through tree in levelorder and add true/false to the state
+      // array indicating whether the node is highlighted or not
       state = [];
       while (queue.length > 0) {
         curr = queue.shift();
@@ -120,7 +127,7 @@
         if (curr.right()) { queue.push(curr.right()); }
       }
       return state;
-    } else {
+    } else { // set the state
       i = 0;
       while (queue.length > 0) {
         curr = queue.shift();
@@ -137,7 +144,6 @@
     }
   };
 
-    
   var modelWrapper = function(tt) {
     return function model(modeljsav) {
       var modelBst = modeljsav.ds.bintree({center: true, nodegap: 15});
@@ -150,9 +156,9 @@
       return modelBst;
     };
   };
+  var bt;
   var initWrapper = function (tt) {
     return function() {
-      var bt;
       var nodeNum = 9;
       if (bt) {
         bt.clear();
@@ -166,6 +172,7 @@
           return result;
         };
       })();
+      tt.jsav.canvas.find(".jsavlabel").remove();
       initData = JSAV.utils.rand.numKeys(10, 100, nodeNum, {test: dataTest, tries: 30});
       bt = tt.jsav.ds.bintree({center: true, visible: true, nodegap: 15});
       bt.insert(initData);
@@ -178,16 +185,45 @@
     };
   };
 
+  var fixFunction = function(modelTree) {
+    // get the highliht states in model tree (see state() above)
+    var modelState = modelTree.state(),
+        queue = [bt.root()],
+        curr,
+        i = 0;
+    // go through the tree in level order (like state does)
+    while (queue.length > 0) {
+      curr = queue.shift();
+      // check if a highlight is missing
+      if (modelState[i] && !curr.isHighlight()) {
+        // highlight the node
+        curr.highlight();
+        // add a label next to the just highlighted node
+        var pos = curr.jsav.canvas.find(".jsavlabel:visible").size();
+        curr.jsav.label(pos + 1, {relativeTo: curr, anchor: "right top"});
+      } else if (!modelState[i] && curr.isHighlight()) {
+        // if we have additional highlight (shouldn't be possible due to
+        // how JSAV undo works)
+        curr.unhighlight();
+      }
+      i++;
+      if (curr.left()) { queue.push(curr.left()); }
+      if (curr.right()) { queue.push(curr.right()); }
+    }
+
+  };
+
   var TreeTraversal = function (modelFunction) {
     this.modelFunction = modelFunction;
-    console.log(this.modelFunction);
-    this.jsav = new JSAV($(".avcontainer"));
+    var settings = new JSAV.utils.Settings($(".jsavsettings"));
+    this.jsav = new JSAV($(".avcontainer"), {settings: settings});
     this.jsav.recorded();
-    this.exercise = this.jsav.exercise(modelWrapper(this), initWrapper(this), {"css": "background-color"}, {
-      controls: $(".jsavexercisecontrols")
-    });
+    this.exercise = this.jsav.exercise(modelWrapper(this), initWrapper(this),
+      { "css": "background-color" },
+      { controls: $(".jsavexercisecontrols"), fix: fixFunction});
     this.exercise.reset();
   };
+  
   TreeTraversal.prototype.nodeClick = function(exercise) {
     return function() {
       if (this.element.hasClass("jsavnullnode") || this.isHighlight()) { return; }
@@ -197,5 +233,6 @@
       exercise.gradeableStep();
     };
   };
+  
   window.TreeTraversal = TreeTraversal;
 }(jQuery));

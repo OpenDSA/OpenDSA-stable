@@ -9,43 +9,18 @@
    :satisfies: BST
    :topic: Binary Trees
 
+.. odsalink:: AV/Development/BSTCON.css
 
 Binary Search Trees
 ===================
-
-Module :numref:`<Dictionary>` presented the dictionary ADT,
-along with dictionary implementations based on sorted and unsorted
-lists.
-When implementing the dictionary with an unsorted list,
-inserting a new record into the dictionary can be performed quickly by
-putting it at the end of the list.
-However, searching an unsorted list for a particular record
-requires :math:`\Theta(n)` time in the average case.
-For a large database, this is probably much too slow.
-Alternatively, the records can be stored in a sorted list.
-If the list is implemented using a linked list, then no speedup to the
-search operation will result from storing the records in sorted order.
-On the other hand, if we use a sorted array-based list to implement
-the dictionary, then binary search can be used to find a record in
-only :math:`\Theta(\log n)` time.
-However, insertion will now require :math:`\Theta(n)` time on average
-because, once the proper location for the new record in the sorted
-list has been found, many records might be shifted to make room for
-the new record.
-
-Is there some way to organize a collection of records so
-that inserting records and searching for records can both be done
-quickly?
-This module presents the binary search tree (BST),
-which allows an improved solution to this problem.
 
 A BST is a binary tree that conforms to the following condition, known
 as the :dfn:`Binary Search Tree Property`.
 All nodes stored in the left
 subtree of a node whose key value is :math:`K` have key values less
-than :math:`K`.
+than or equal to :math:`K`.
 All nodes stored in the right subtree of a node whose key value
-is :math:`K` have key values greater than or equal to :math:`K`.
+is :math:`K` have key values greater than :math:`K`.
 Figure :num:`Figure #BSTShape` shows two BSTs for a collection of
 values.
 One consequence of the Binary Search Tree Property is that if the BST
@@ -56,7 +31,7 @@ sorted order from lowest to highest.
 
 .. _BSTShape:
 
-.. odsafig:: Images/BSTShape.png
+.. odsafig:: Images/BSTShape2.png
    :width: 500
    :align: center
    :capalign: justify
@@ -78,40 +53,17 @@ there are various ways to deal with keys and comparing records
 (three approaches being key/value pairs, a special comparison
 method such as using the ``Comparator`` class,
 and passing in a comparator function).
-Our BST implementation will handle comparison by explicitly storing
-a key separate from the data value at each node of the tree.
+Our BST implementation will require that records implement the
+``Comparable`` inteface.
+Module :numref:`BSTDict` discusses using a ``KVPair`` as the
+(``Comparable``) record type in a dictionary implementation of the
+BST.
 
-.. codeinclude:: Trees/BST.pde
+.. codeinclude:: Binary/BST.pde
    :tag: BST
 
-To find a record with key value :math:`K` in a BST, begin at the root.
-If~the root stores a record with key value :math:`K`,
-then the search is over.
-If not, then we must search deeper in the tree.
-What makes the BST efficient during search is that we need search only
-one of the node's two subtrees.
-If :math:`K` is less than the root node's key value,
-we search only the left subtree.
-If :math:`K` is greater than the root node's key value, we search only
-the right subtree.
-This process continues until a record with key value :math:`K` is
-found, or we reach a leaf node.
-If we reach a leaf node without encountering :math:`K`, then
-no record exists in the BST whose key value is :math:`K`.
-
-.. topic:: Example
-
-   Consider searching for the node with key value 32 in the tree of
-   Figure :num:`Figure #BSTShape` (a).
-   Because 32 is less than the root value of 37, the search
-   proceeds to the left subtree.
-   Because 32 is greater than 24, we search in 24's right subtree.
-   At this point the node containing 32 is found.
-   If the search value were 35, the same path would be followed to the
-   node containing 32.
-   Because this node has no children, we know that 35 is not
-   in the BST.
-
+The first operation that we will look at in detail will find the
+record that matches a given key.
 Notice that in the BST class, public member function
 ``find`` calls private member function ``findhelp``.
 Method ``find`` takes the search key as an explicit parameter
@@ -123,69 +75,34 @@ subtree and the search key.
 Member ``findhelp`` has the desired form for this recursive
 subroutine and is implemented as follows.
 
-.. codeinclude:: Trees/BST.pde
-   :tag: findhelp
-
-Once the desired record is found, it is passed through
-return values up the chain of recursive calls.
-If a suitable record is not found, NULL is returned.
+.. inlineav:: searchCON ss
+   :output: show
 
 .. avembed:: AV/Development/BST-search-proficiency.html pe
 
-Inserting a record with key value :math:`K` requires that we first
-find where that record would have been if it were in the tree.
-This takes us to either a leaf node, or to an internal node with no
-child in the appropriate direction. [#]_
+Now we look at how to insert a new node into the BST.
 
-.. _BSTAdd:
+.. inlineav:: insertCON ss
+   :output: show
 
-.. odsafig:: Images/BSTAdd.png
-   :width: 300
-   :align: center
-   :capalign: justify
-   :figwidth: 90%
-   :alt: Inserting a node into a BST
-
-   An example of BST insertion.
-   A record with value 35 is inserted into the BST of
-   Figure :num:`Figure #BSTShape` (a).
-   The node with value 32 becomes the parent of the new node
-   containing 35.
-
-Call this node :math:`R'`.
-We then add a new node containing the new record as a child
-of :math:`R'`.
-Figure :num:`Figure #BSTAdd` illustrates this operation.
-The value 35 is added as the right child of the node with value 32.
-Here is the implementation for ``inserthelp``.
-
-.. codeinclude:: Trees/BST.pde
-   :tag: inserthelp
-
-You should pay careful attention to the implementation for
-``inserthelp``.
-Note that ``inserthelp`` returns a pointer to a
-``BSTNode``.
-What is being returned is a subtree identical to the old subtree,
-except that it has been modified to contain the new record being
-inserted.
-Each node along a path from the root to the parent of the new node
-added to the tree will have its appropriate child pointer assigned to
-it.
-Except for the last node in the path, none of these nodes will
-actually change their child's pointer value.
+Note that, except for the last node in the path, ``inserthelp``
+will not actually change the child pointer for any of the nodes that
+are visited.
 In that sense, many of the assignments seem redundant.
 However, the cost of these additional assignments is worth paying to
 keep the insertion process simple.
 The alternative is to check if a given assignment is necessary, which
 is probably more expensive than the assignment!
 
-.. avembed:: AV/Development/BST-insert.html ss
-
-.. TODO::
-   :type: Slideshow
-
-   Get this AV working
+We have to decide what to do when the node that we want to
+insert has has a key value equal to the key of some node already in
+the tree.
+If during insert we find a node that duplicates the key value to be
+inserted, then we have two options.
+If the application does not allow nodes with equal keys, then this
+insertion should be treated as an error (or ignored).
+If duplicate keys are allowed, our convention will be to insert the
+duplicate in the left subtree.
 
 The shape of a BST depends on the order in which elements are inserted.
 A new element is added to the BST as a new leaf node,
@@ -205,70 +122,27 @@ This keeps the average cost of a BST operation low.
 Removing a node from a BST is a bit trickier than inserting a node,
 but it is not complicated if all of the possible cases are considered
 individually.
-Before tackling the general node removal process, let us first discuss
-how to remove from a given subtree the node with the smallest key
+Before tackling the general node removal process, we will first see
+how to remove from a given subtree the node with the largest key
 value.
 This routine will be used later by the general node removal function.
-To~remove the node with the minimum key value from a subtree,
-first find that node by continuously moving down the left link until
-there is no further left link to follow.
-Call this node :math:`S`.
-To remove :math:`S`, simply have the parent of :math:`S` change
-its pointer to point to the right child of :math:`S`.
-We know that :math:`S` has no left child (because if :math:`S`
-did have a left child, :math:`S` would not be the node with minimum
-key value).
-Thus, changing the pointer as described will maintain a BST, with
-:math:`S` removed.
-The code for this method, named ``deletemin``, is as follows
 
-.. codeinclude:: Trees/BST.pde
-   :tag: deletemin
+.. inlineav:: deletemaxCON ss
+   :output: show
 
-Here is an example
+The return value of the ``deletemax`` method is the subtree of
+the current node with the maximum-valued node in the subtree removed.
+Similar to the ``inserthelp`` method, each node on the path back to
+the root has its right child pointer reassigned to the subtree
+resulting from its call to the ``deletemax`` method.
 
-.. topic:: Example
+A useful companion method is ``getmax`` which returns a
+pointer to the node containing the maximum value in the subtree.
 
-   Figure :num:`Figure #DelMin` illustrates the ``deletemin``
-   process.
-   Beginning at the root node with value 10,
-   ``deletemin`` follows the left link until there is no further
-   left link, in this case reaching the node with value 5.
-   The node with value10 is changed to point to the right child of the
-   node containing the minimum value.
-   This is indicated in Figure :num:`Figure #DelMin` by a dashed line.
+.. codeinclude:: Binary/BST.pde
+   :tag: getmax
 
-.. _DelMin:
-
-.. odsafig:: Images/DelMin.png
-   :width: 200
-   :align: center
-   :capalign: justify
-   :figwidth: 90%
-   :alt: Deleting the node with minimum value
-
-   An example of deleting the node with minimum value.
-   In this tree, the node with minimum value, 5, is the left child
-   of the root.
-   Thus, the root's ``left`` pointer is changed to point to 5's
-   right child.
-
-.. avembed:: AV/Development/BST-delete.html pe
-
-A pointer to the node containing the minimum-valued element is stored
-in parameter ``S``.
-The return value of the ``deletemin`` method is the subtree of
-the current node with the minimum-valued node in the subtree removed.
-As with method ``inserthelp``, each node on the path back to the
-root has its left child pointer reassigned to the subtree resulting
-from its call to the ``deletemin`` method.
-
-A useful companion method is ``getmin`` which returns a
-pointer to the node containing the minimum value in the subtree.
-
-.. codeinclude:: Trees/BST.pde
-   :tag: getmin
-
+Now we are ready for the ``removehelp`` method.
 Removing a node with given key value :math:`R` from the BST
 requires that we first find :math:`R` and then remove it from the
 tree.
@@ -291,71 +165,30 @@ Which value can substitute for the one being removed?
 It cannot be any arbitrary value, because we must preserve the BST
 property without making major changes to the structure of the tree.
 Which value is most like the one being removed?
-The answer is the least key value greater than (or equal to) the one
-being removed, or else the greatest key value less than the one being
-removed.
+The answer is the least key value greater than the one
+being removed, or else the greatest key value less than (or equal to)
+the one being removed.
 If either of these values replace the one being removed,
 then the BST property is maintained.
 
-.. topic:: Example
-
-   Assume that we wish to remove the value 37 from the BST
-   of Figure :num:`Figure #BSTShape` (a).
-   Instead of removing the root node, we remove the node with the
-   least value in the right subtree (using the ``deletemin`` 
-   operation).
-   This value can then replace the value in the root.
-   In this example we first remove the node with value 40,
-   because it contains the least value in the right subtree.
-   We then substitute 40 as the new value for the root node.
-   Figure :num:`Figure #Remove` illustrates this process.
-
-.. _Remove:
-
-.. odsafig:: Images/Remove.png
-   :width: 300
-   :align: center
-   :capalign: justify
-   :figwidth: 90%
-   :alt: Removing a node from the BST
-
-   An example of removing the value 37 from the BST.
-   The node containing this value has two children.
-   We replace value 37 with the least value from the
-   node's right subtree, in this case 40.
-
-.. avembed:: AV/Development/BST-delete-proficiency.html ss
-
-.. TODO::
-   :type: Slideshow
-
-   Get this AV working.
+.. inlineav:: removeCON ss
+   :output: show
 
 When duplicate node values do not appear in the tree, it makes no
 difference whether the replacement is the greatest value from the
 left subtree or the least value from the right subtree.
-If duplicates are stored, then we must select
-the replacement from the *right* subtree.
-To see why, call the greatest value in the left subtree :math:`G`.
-If multiple nodes in the left subtree have value :math:`G`,
-selecting :math:`G` as the replacement value for the root of the
-subtree will result in a tree with equal values to the left of the
-node now containing :math:`G`.
-Precisely this situation occurs if we replace value 120 with the
-greatest value in the left subtree of Figure
-:num:`Figure #BSTShape` (b).
-Selecting the least value from the right subtree does not
+If duplicates are stored in the left subtree, then we must select
+the replacement from the *left* subtree. [#]_
+To see why, call the leat value in the right subtree :math:`L`.
+If multiple nodes in the right subtree have value :math:`L`,
+selecting :math:`L` as the replacement value for the root of the
+subtree will result in a tree with equal values to the right of the
+node now containing :math:`L`.
+Selecting the greatest value from the left subtree does not
 have a similar problem, because it does not violate the Binary Search
-Tree Property if equal values appear in the right subtree.
+Tree Property if equal values appear in the left subtree.
 
-From the above, we see that if we want to remove the record stored in
-a node with two children, then we simply call ``deletemin`` on
-the node's right subtree and substitute the record returned for the
-record being removed.
-Here is an implementation for ``removehelp``.
-
-.. codeinclude:: Trees/BST.pde
-   :tag: removehelp
+.. avembed:: AV/Development/BST-delete-proficiency.html ss
 
 The cost for ``findhelp`` and ``inserthelp`` is the depth of
 the node found or inserted.
@@ -391,11 +224,11 @@ the tree.
 Each node is visited exactly once, and each child pointer
 is followed exactly once.
 
-Below is an example traversal, named :math:`printhelp`.
+Below is an example traversal, named ``printhelp``.
 It performs an inorder traversal on the BST to print the node values
 in ascending order.
 
-.. codeinclude:: Trees/BST.pde
+.. codeinclude:: Binary/BST.pde
    :tag: printhelp
 
 While the BST is simple to implement and efficient when the tree is
@@ -409,11 +242,8 @@ balanced, such as the 2-3 Tree.
 Notes
 -----
 
-.. [#] This assumes that no node
-       has a key value equal to the one being inserted.
-       If we find a node that duplicates the key value to be inserted,
-       we have two options.
-       If the application does not allow nodes with equal keys, then this
-       insertion should be treated as an error (or ignored).
-       If duplicate keys are allowed, our convention will be to insert the
-       duplicate in the right subtree.
+.. [#] Alternatively, if we prefer to store duplicate values in the
+       right subtree, then we must replace a deleted node with the
+       least value from its right subtree.
+
+.. odsascript:: AV/Development/BSTCON.js

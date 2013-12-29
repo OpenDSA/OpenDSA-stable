@@ -37,6 +37,22 @@ boolean find(List L, int k) {
 }
 /* *** ODSAendTag: listfind *** */
 
+void testAppend(List L2) {
+  L2.append(10);
+  String temp = toString(L2);
+  if (!temp.equals("< | 10 >")) {
+    SUCCESS = false;
+    println("Expected " + "< | 10 >" + ", got " + temp);
+  }
+  L2.append(20);
+  L2.append(15);
+  temp = toString(L2);
+  if (!temp.equals("< | 10 20 15 >")) {
+    SUCCESS = false;
+    println("Expected " + "< | 10 20 15 >" + ", got " + temp);
+  }
+}
+
 void test(List L) {
   L.moveToStart();
   L.insert(5);
@@ -77,6 +93,10 @@ void setup() {
 
   test(AL);
   test(LL);
+  AL.clear();
+  LL.clear();
+  testAppend(AL);
+  testAppend(LL);
   if (SUCCESS) {
     PrintWriter output = createWriter("success");
     output.println("Success");

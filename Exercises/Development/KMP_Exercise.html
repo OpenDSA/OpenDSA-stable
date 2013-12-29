@@ -32,7 +32,7 @@
   </style>
   <script src="../../lib/jquery.min.js"></script>
   <script src="../../lib/jquery-ui.min.js"></script>
-  <script src="../../JSAV/lib/jquery.transform.light.js"></script>
+  <script src="../../JSAV/lib/jquery.transit.js"></script>
   <script src="../../JSAV/lib/raphael.js"></script>
   <script src="../../ODSAkhan-exercises/khan-exercise.js"></script>
   <script src="../../JSAV/build/JSAV-min.js"></script>
@@ -301,7 +301,7 @@
 
     var index_match = kmp(master_arr, sub_arr);
 
-    main_text = kmp_exercise.ds.array([' '], {indexed: true});
+    main_text = kmp_exercise.ds.array([' '], {indexed: false});
     for(i=0; i<master_str.length;i++) {
         main_text.value(i, master_str.charAt(i));
         if(i < master_answer_location && i >= substring_start_location){
@@ -334,7 +334,7 @@
     }
 
     //initializing the alignment array
-    alignment_table = kmp_exercise.ds.array([' '], {indexed: true});
+    alignment_table = kmp_exercise.ds.array([' '], {indexed: false});
     var align_table_temp = new Array();
     align_table_temp = compute_align_array(sub_arr);
     for(f=0;f<align_table_temp.length;f++) {

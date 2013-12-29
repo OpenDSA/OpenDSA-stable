@@ -101,7 +101,7 @@ uses an array.
 Here is an implementation for max-heaps.
 The class uses KVPairs to support arbitrary data payloads.
 
-.. codeinclude:: Trees/Maxheap.pde
+.. codeinclude:: Binary/Maxheap.pde
    :tag: Maxheap
 
 This class definition makes two concessions to the fact that an
@@ -323,6 +323,8 @@ the object's heap index, so that the object can be
 deleted from the heap and reinserted with its new priority.
 Modules :numref:`<GraphShortest>` and :numref:`<MCST>` present
 applications for a priority queue with priority updating.
+
+.. avembed:: Exercises/Binary/HeapSumm.html ka
 
 Notes
 -----

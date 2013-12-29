@@ -79,13 +79,13 @@ Settings (all are required unless otherwise specified)
 
 * **title** - the title of the OpenDSA textbook
 
-* **book_dir** - (optional) the directory where the configured book directory will be created, defaults to 'Books' if omitted 
+* **build_dir** - (optional) the directory where the configured book directory will be created, defaults to 'Books' if omitted
 
   * A new directory, named after the book, will be created at this location and serve as the output directory for the configuration process.  Files required to compile the book will be copied / written to the output directory, including modified version of the source RST files
-  
-    * Example: Assume "book_dir": "Books" and the name of the configuration file used is "CS3114.json", the output directory would be "Books/CS3114/"
-  
-  * The compiled textbook will appear in ``[book_dir]/[book name]/html``
+
+    * Example: Assume "build_dir": "Books" and the name of the configuration file used is "CS3114.json", the output directory would be "Books/CS3114/"
+
+  * The compiled textbook will appear in ``[build_dir]/[book name]/html``
   * This directory must be web accessible
 
 * **code_dir** - specifies the directory containing the source code to be used in textbook examples
@@ -103,11 +103,13 @@ Settings (all are required unless otherwise specified)
   * If this attribute is not present, the OpenDSA root directory will be used as the default
   * Ex: "av_root_dir": "/home/algoviz/OpenDSA/test/",
   * Ex: "av_root_dir": "http://algoviz.org/OpenDSA/", // This directory contains an AV/ directory
-  
+
 * **av_origin** - (optional, unless **av_root_dir** is defined) the protocol and domain where the AV files are hosted, defaults to match ``module_origin`` if omitted
 
   * Used on module pages to allow HTML5 post messages from this origin, allows embedded AVs to communicate with the parent module page
   * Ex: "av_origin": "http://algoviz.org",
+
+* **glob_jsav_exer_options** - (optional) a JSON object containing the global grading options that will be applied to all JSAV exercises in the book, unless overridden by exercise-specific options.
 
 * **exercises_root_dir** - (optional) allows the user to change the default location where the Exercises/ directory can be found, defaults to OpenDSA root directory if omitted
 
@@ -142,6 +144,8 @@ Settings (all are required unless otherwise specified)
 
 * **req_full_ss** - (optional) a boolean controlling whether students must view every step of a slideshow in order to obtain credit, defaults to ``true`` if omitted
 
+* **start_chap_num** - (optional) specifies at which number to start numbering chapters, defaults to 0 if omitted
+
 * **suppress_todo** - (optional) a boolean controlling whether or not the TODO directives are removed from the RST source files, if this attribute is not present, defaults to ``false`` if omitted
 
   * **Note**: When changing from ``false`` to ``true``, you must run ``make clean`` to completely remove any references to ``ToDo``
@@ -165,6 +169,8 @@ Settings (all are required unless otherwise specified)
 
       * Omitting an exercise from the module's "exercises" object will cause the exercise to be removed from the configured module
       * Each exercise object contains required information about that exercise including:
+
+        * **jsav_exer_options** - (optional) a JSON object containing exercise-specific grading options for JSAV.  Can be used to override the options set using ``glob_jsav_exer_options``. The string 'JXOP-' is prepended to every option name so that the client can determine which values should be applied to the ``JSAV_EXERCISE_OPTIONS`` global variable in ``odsaAV.js``
 
         * **long_name** - (optional) a long form, human-readable name used to identify the exercise in the GUI, defaults to short exercise name if omitted
         * **points** - (optional) the number of points the exercise is worth, defaults to ``0`` if omitted

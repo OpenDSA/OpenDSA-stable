@@ -35,7 +35,6 @@
         bh.value(i, modelHeap.value(i));
       }
       bh.heapsize(modelHeap.heapsize());
-      exercise.gradeableStep();
     }
 
     function model(modeljsav) {
@@ -102,10 +101,7 @@
     }
 
     exercise = jsav.exercise(model, init, { css: "background-color" },
-                             { feedback: "continuous",
-                               controls: $('.jsavexercisecontrols'),
-                               fixmode: "fix",
-                               fix: fixState });
+      { controls: $('.jsavexercisecontrols'), fix: fixState });
     exercise.reset();
 
     $(".jsavcontainer").on("click", ".jsavarray .jsavindex", function () {

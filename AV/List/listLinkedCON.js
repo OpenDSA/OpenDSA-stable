@@ -3,7 +3,7 @@
 // following sections of the tutorial.
 
 // Helper function for seting pointer
-function setPointer(name, node, opt){
+function setPointer(name, node, opt) {
   var pointerRight = {anchor: "right top",
     myAnchor: "left bottom",
     left: -10,
@@ -65,20 +65,8 @@ function setPointer(name, node, opt){
   var labelLeftMargin = 350;
   var labelTopMargin = 10;
 
-  var nodeLabel = jsav.label("nodes",
-                    {before: l, left: labelLeftMargin + 70, top: labelTopMargin});
-  var node1Arrow = jsav.g.line(labelLeftMargin + 75, labelTopMargin + 20,
-                              labelLeftMargin + 15, labelTopMargin + 35,
-	  {"arrow-end": "classic-wide-long", "opacity": 100,"stroke-width": 1});
-
-  var node2Arrow = jsav.g.line(labelLeftMargin + 90, labelTopMargin + 20,
-                              labelLeftMargin + 90, labelTopMargin + 35,
-	  {"arrow-end": "classic-wide-long", "opacity": 100,"stroke-width": 1});
-
-  var node3Arrow = jsav.g.line(labelLeftMargin + 105, labelTopMargin + 20,
-                              labelLeftMargin + 165, labelTopMargin + 35,
-	  {"arrow-end": "classic-wide-long", "opacity": 100,"stroke-width": 1});
-
+  var nodeLabel = jsav.label("3 nodes, joined by links",
+                    {before: l, left: labelLeftMargin + 5, top: labelTopMargin});
   l.addFirst("").addFirst("").addFirst("");
   l.layout();
 }(jQuery));
@@ -180,7 +168,7 @@ function setPointer(name, node, opt){
   l.get(1).highlight();
   l.layout();
 
-  //Hiddent JSAV array for animation
+  // Hidden JSAV array for animation
   var arr = jsav.ds.array([""], 
             {indexed: false, layout: "array", left:0}).hide();
   // Head
@@ -195,7 +183,7 @@ function setPointer(name, node, opt){
   // Another vertical line
   var bar2 = l.get(3).odsa_addVLine({visible : 0});
 
-  //Diagonal slash
+  // Diagonal slash
   var slash = l.get(4).odsa_addTail( );
   //dash line in step 4
   var dashlineLeftMargin = 452
