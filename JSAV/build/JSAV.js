@@ -1,12 +1,13 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v0.7.0-66-gda89ad6
+ * Version v0.7.0-150-g845add1
  * Copyright (c) 2011-2013 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
 /**
 * Module that contains JSAV core.
 */
+/*global JSAV, jQuery, Raphael */
 (function($) {
   "use strict";
   var JSAV = function() {
@@ -45,33 +46,33 @@
   };
   JSAV.init.functions = [];
   
-  var AV = function() {},
-    create = function() {
-      if (typeof arguments[0] === "string") {
-        this.container = $(document.getElementById(arguments[0]));
-      } else {
-        this.container = $(arguments[0]); // make sure it is jQuery object
-      }
-      var initialHTML = this.container.clone().wrap("<p/>").parent().html();
-      this.container.addClass("jsavcontainer");
-      this.canvas = this.container.find(".jsavcanvas");
-      if (this.canvas.size() === 0) {
-        this.canvas = $("<div />").addClass("jsavcanvas").appendTo(this.container);
-      }
-      // element used to block events when animating
-      var shutter = $("<div class='jsavshutter' />").appendTo(this.container);
-      this._shutter = shutter;
+  var create = function() {
+    // this will point to a newly-created JSAV instance
+    if (typeof arguments[0] === "string") {
+      this.container = $(document.getElementById(arguments[0]));
+    } else {
+      this.container = $(arguments[0]); // make sure it is jQuery object
+    }
+    var initialHTML = this.container.clone().wrap("<p/>").parent().html();
+    this.container.addClass("jsavcontainer");
+    this.canvas = this.container.find(".jsavcanvas");
+    if (this.canvas.size() === 0) {
+      this.canvas = $("<div />").addClass("jsavcanvas").appendTo(this.container);
+    }
+    // element used to block events when animating
+    var shutter = $("<div class='jsavshutter' />").appendTo(this.container);
+    this._shutter = shutter;
 
-      this.options = $.extend({}, window.JSAV_OPTIONS, arguments[1]);
-      this.RECORD = true;
-      jQuery.fx.off = true; // by default we are recording changes, not animating them
-      // initialize stuff from init namespace
-      initializations(this, this.options);
-      // add all plugins from ext namespace
-      extensions(this, this, JSAV.ext);
+    this.options = $.extend({autoresize: true}, window.JSAV_OPTIONS, arguments[1]);
+    this.RECORD = true;
+    jQuery.fx.off = true; // by default we are recording changes, not animating them
+    // initialize stuff from init namespace
+    initializations(this, this.options);
+    // add all plugins from ext namespace
+    extensions(this, this, JSAV.ext);
 
-      this.logEvent({ type: "jsav-init", initialHTML: initialHTML });
-    };
+    this.logEvent({ type: "jsav-init", initialHTML: initialHTML });
+  };
   function initializations(jsav, options) {
     var fs = JSAV.init.functions;
     for (var i = 0; i < fs.length; i++) {
@@ -100,13 +101,489 @@
       }
     }
   }
+
+  // register a handler for autoresizing the jsavcanvas
+  JSAV.init(function() {
+    // in a JSAV init function, this will be the just-created JSAV instance
+    if (this.options.autoresize) {
+      var that = this;
+      // register event handler for jsav-updaterelative which is triggered on each step
+      this.container.on("jsav-updaterelative", function() {
+        // collect max top and left positions of all JSAV objects
+        var maxTop = parseInt(that.canvas.css("minHeight"), 10),
+            maxLeft = parseInt(that.canvas.css("minWidth"), 10);
+
+        // go through all elements inside jsavcanvas
+        that.canvas.children().each(function(index, item) {
+          var $item = $(item),
+              itemPos = $item.position();
+          // ignore SVG, since it will be handled differently since it's sized 100%x100%
+          if (item.nodeName.toLowerCase() !== "svg") {
+            maxTop = Math.max(maxTop, itemPos.top + $item.innerHeight());
+            maxLeft = Math.max(maxLeft, itemPos.left + $item.innerWidth());
+          }
+        });
+        if (that.svg) { // handling of SVG
+          var curr = that.svg.bottom, // start from the element in the behind
+              bbox, strokeWidth;
+          while (curr) { // iterate all SVG objects in Raphael
+            bbox = curr.getBBox();
+            strokeWidth = curr.attr("stroke-width");
+            maxTop = Math.max(maxTop, bbox.y2 + strokeWidth);
+            maxLeft = Math.max(maxLeft, bbox.x2 + strokeWidth);
+            curr = curr.next;
+          }
+        }
+        // set minheight and minwidth on the jsavcanvas element
+        that.canvas.css({"minHeight": maxTop, "minWidth": maxLeft});
+      });
+    }
+  }); // end autoresize handler
+
   if (window) {
     window.JSAV = JSAV;
   }
 }(jQuery));/**
+* Module that contains the animator implementations.
+* Depends on core.js
+*/
+/*global JSAV, jQuery */
+(function($) {
+  "use strict";
+
+  var DEFAULT_SPEED = 300,
+      playingCl = "jsavplaying"; // class used to mark controls when playing
+
+
+  if (typeof JSAV === "undefined") { return; }
+
+  var AnimatableOperation = function(opts) {
+    this.obj = opts.obj;
+    this.effect = opts.effect;
+    this.args = opts.args;
+    if (opts.undo) {
+      this.undoeffect = opts.undo;
+    }
+    if (opts.undoargs) {
+      this.undoArgs = opts.undoargs;
+    }
+  };
+  AnimatableOperation.prototype.apply = function() {
+    var self = this;
+    var obj = self.obj,
+      state = obj.state?obj.state():null;
+    var retVal = this.effect.apply(this.obj, this.args);
+    if (typeof retVal === "undefined" || retVal === this.obj) {
+      if (typeof this.undoeffect === "undefined" || !$.isFunction(this.undoeffect)) {
+        this.undoeffect = (function() {
+          return function() { // we create one that will set the state of obj to its current state
+            obj.state(state);
+          };
+        }());
+      }
+    } else {
+      this.undoArgs = retVal;
+    }
+  };
+  AnimatableOperation.prototype.undo = function() {
+    if (typeof this.undoArgs === "undefined") {
+      this.undoeffect.apply(this.obj, this.args);
+    } else {
+      this.effect.apply(this.obj, this.undoArgs);
+    }
+  };
+
+  var AnimStep = function(options) {
+    this.operations = [];
+    this.options = options || {};
+  };
+  AnimStep.prototype.add = function(oper) {
+    this.operations.push(oper);
+  };
+  AnimStep.prototype.isEmpty = function() {
+    return this.operations.length === 0;
+  };
+
+  function backward(filter) {
+    if (this._undo.length === 0) { return; }
+    var step = this._undo.pop();
+    var ops = step.operations; // get the operations in the step we're about to undo
+    for (var i = ops.length - 1; i >= 0; i--) { // iterate the operations
+      // operation contains: [target object, effect function, arguments, undo function]
+      var prev = ops[i];
+      prev.undo();
+    }
+    this._redo.unshift(step);
+    // if a filter function is given, check if this step matches
+    // if not, continue moving backward
+    if (filter && $.isFunction(filter) && !filter(step)) {
+      this.backward(filter);
+    }
+    // trigger an event on the container to update the counter
+    this.container.trigger("jsav-updatecounter", [this.currentStep() + 1, this.totalSteps() + 1]);
+    return step;
+  }
+
+  function forward() {
+    if (this._redo.length === 0) { return; }
+    var step = this._redo.shift();
+    var ops = step.operations; // get the operations in the step we're about to undo
+    for (var i = 0; i < ops.length; i++) {
+      var next = ops[i];
+      next.apply();
+    }
+    this._undo.push(step);
+    // trigger an event on the container to update the counter
+    this.container.trigger("jsav-updatecounter", [this.currentStep() + 1, this.totalSteps() + 1]);
+    return step; // return the just applied step
+  }
+
+  function begin() {
+    var oldFx = $.fx.off || false;
+    $.fx.off = true;
+    while (this._undo.length) {
+      this.backward();
+    }
+    $.fx.off = oldFx;
+    return this;
+  }
+  
+  function end() {
+    var oldFx = $.fx.off || false;
+    $.fx.off = true;
+    while (this._redo.length) {
+      this.forward();
+    }
+    $.fx.off = oldFx;
+    return this;
+  }
+  
+
+  JSAV.init(function() {
+    this._animations = 0;
+    this._redo = []; // stack for operations to redo
+    this._undo = []; // stack for operations to undo
+    var that = this,
+        $controls = $(".jsavcontrols", this.container);
+
+    function logAnimEvent(action) {
+      var eventData = {
+        "type": action,
+        "currentStep": that.currentStep(),
+        "totalSteps": that.totalSteps()
+      };
+      that.logEvent(eventData);
+    }
+
+    // set a timer to remove the class indicating animation playing
+    // once the animation is completed. optional callback function that
+    // will be called once done.
+    function clearPlayingTimeout(jsav, callback) {
+      var timerid;
+      var timeouter = function() {
+        if (!jsav.isAnimating()) {
+          jsav.container.removeClass(playingCl);
+          jsav._animations = 0;
+          if ($.isFunction(callback)) {
+            callback();
+          }
+          clearInterval(timerid);
+        }
+      };
+      timerid = setInterval(timeouter, 50);
+    }
+
+    // function for clearing the playing flag
+    this._clearPlaying = function clearPlaying(callback) {
+      if (this.isAnimating()) {
+        clearPlayingTimeout(this, callback);
+      } else {
+        this.container.removeClass(playingCl);
+        if ($.isFunction(callback)) {
+          callback();
+        }
+      }
+    };
+    // reqister event handlers for the control buttons
+    var beginHandler = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      // if playing flag is set, don't respond
+      if (that.container.hasClass(playingCl)) { return; }
+      // set the playing flag, that is, a class on the controls
+      that.container.addClass(playingCl);
+      that.begin(); // go to beginning
+      that._clearPlaying(); // clear the flag
+      // log the event
+      logAnimEvent("jsav-begin");
+    };
+    var backwardHandler = function(e, filter) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopPropagation();
+      if (that.container.hasClass(playingCl)) { return; }
+      that.container.addClass(playingCl);
+      that.backward(filter);
+      // clear playing flag after a timeout for animations to end
+      that._clearPlaying();
+      // log the event
+      logAnimEvent("jsav-backward");
+    };
+    var forwardHandler = function(e, filter) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (that.container.hasClass(playingCl)) { return; }
+      that.container.addClass(playingCl);
+      that.forward(filter);
+      that._clearPlaying();
+      // log the event
+      logAnimEvent("jsav-forward");
+    };
+    var endHandler = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (that.container.hasClass(playingCl)) { return; }
+      that.container.addClass(playingCl);
+      that.end();
+      that._clearPlaying();
+      // log the event
+      logAnimEvent("jsav-end");
+    };
+    if ($controls.size() !== 0) {
+      $("<a class='jsavbegin' href='#' title='Begin'>Begin</a>").click(beginHandler).appendTo($controls);
+      $("<a class='jsavbackward' href='#' title='Backward'>Backward</a>").click(backwardHandler).appendTo($controls);
+      $("<a class='jsavforward' href='#' title='Forward'>Forward</a>").click(forwardHandler).appendTo($controls);
+      $("<a class='jsavend' href='#' title='End'>End</a>").click(endHandler).appendTo($controls);
+    }
+    // bind the handlers to events to enable control by triggering events
+    this.container.bind({ "jsav-forward": forwardHandler,
+                          "jsav-backward": backwardHandler,
+                          "jsav-begin": beginHandler,
+                          "jsav-end": endHandler });
+                          
+    // add slideshow counter if an element with class counter exists
+    var counter = $(".jsavcounter", this.container);
+    // register an event to be triggered on container to update the counter
+    if (counter.size() > 0) {
+      counter.text("0 / 0"); // initialize the counter text
+      // register event handler to update the counter
+      this.container.bind("jsav-updatecounter", function(evet, current, total) {
+        counter.text(current + " / " + total);
+      });
+    }
+    
+    // register a listener for the speed change event
+    $(document).bind("jsav-speed-change", function(e, args) {
+      that.SPEED = args;
+    });
+  });
+  
+  // this function can be used to "decorate" effects to be applied when moving forward
+  // in the animation
+  function anim(effect, undo) {
+    // returns a function that can be used to provide function calls that are applied later
+    // when viewing the visualization
+    return function() {
+      var jsav = this; // this points to the objects whose function was decorated
+      var args = $.makeArray(arguments),
+          norecord = false;
+      if (args.length > 0 && args[args.length-1] && typeof args[args.length-1] === "object" &&
+              args[args.length-1].record === false) {
+        norecord = true;
+      }
+      if (!jsav.hasOwnProperty("_redo")) { jsav = this.jsav; }
+      if (jsav.options.animationMode === 'none' || norecord) { // if not recording, apply immediately
+        effect.apply(this, arguments);
+      } else {
+        var stackTop = jsav._undo[jsav._undo.length - 1];
+        if (!stackTop) {
+          stackTop = new AnimStep();
+          jsav._undo.push(stackTop);
+        }
+        // add to stack: [target object, effect function, arguments, undo function]
+        var oper = new AnimatableOperation({obj: this, effect: effect,
+          args: arguments, undo: undo});
+        stackTop.add(oper);
+        if (jsav._shouldAnimate()) {
+          jsav.container.addClass(playingCl);
+        }
+        oper.apply();
+        if (jsav._shouldAnimate()) {
+          jsav._clearPlaying();
+        }
+      }
+      return this;
+    };
+  }
+  function moveWrapper(func, filter) {
+    var origStep = this.currentStep(),
+      step = func.call(this);
+    if (!step) {
+      return false;
+    }
+    if (filter) {
+      if ($.isFunction(filter)) {
+        var filterMatch = filter(step),
+          matched = filterMatch;
+        while (!filterMatch && this.currentStep() < this.totalSteps()) {
+          step = func.call(this);
+          if (!step) { break; }
+          filterMatch = filter(step);
+          matched = matched || filterMatch;
+        }
+        if (!matched) {
+          this.jumpToStep(origStep);
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  JSAV.anim = anim;
+  if (localStorage) { // try to fetch a stored setting for speed from localStorage
+    var spd = localStorage.getItem("jsav-speed");
+    if (spd) { // if we have a value, it is a string (from localStorage)
+      spd = parseInt(spd, 10);
+      if (isNaN(spd)) { // if we couldn't parse an int, fallback to default speed
+        spd = DEFAULT_SPEED;
+      }
+    } else { // no value in localStorage, go with the default speed
+      spd = DEFAULT_SPEED;
+    }
+    JSAV.ext.SPEED = spd;
+  } else {
+    JSAV.ext.SPEED = DEFAULT_SPEED;
+  }
+  JSAV.ext.begin = begin;
+  JSAV.ext.end = end;
+  JSAV.ext.forward = function(filter) {
+    return moveWrapper.call(this, forward, filter);
+  };
+  JSAV.ext.backward = function(filter) {
+    return moveWrapper.call(this, backward, filter);
+  };
+  JSAV.ext.currentStep = function() {
+    return this._undo.length;
+  };
+  JSAV.ext.totalSteps = function() {
+    return this._undo.length + this._redo.length;
+  };
+  JSAV.ext.animInfo = function() {
+    // get some "size" info about the animation, namely the number of steps
+    // and the total number of effects (or operations) in the animation
+    var info = { steps: this.totalSteps()},
+      i,
+      effects = 0;
+    for (i = this._undo.length; i--; ) {
+      effects += this._undo[i].operations.length;
+    }
+    for (i = this._redo.length; i--; ) {
+      effects += this._redo[i].operations.length;
+    }
+    info.effects = effects;
+    return info;
+  };
+  JSAV.ext.step = function(options) {
+    this.container.trigger("jsav-updaterelative");
+    this._undo.push(new AnimStep(options)); // add new empty step to oper. stack
+    if (options && this.message && options.message) {
+      this.message(options.message);
+    }
+    return this;
+  };
+  JSAV.ext.clear = function(options) {
+    var opts = $.extend({undo: true, redo: true}, options);
+    if (opts.undo) {
+      this._undo = [];
+    }
+    if (opts.redo) {
+      this._redo = [];
+    }
+  };
+  JSAV.ext.displayInit = function() {
+    this.container.trigger("jsav-updaterelative");
+    this.clear({redo: false});
+    return this;
+  };
+  /** Jumps to step number step. */
+  JSAV.ext.jumpToStep = function(step) {
+    var stepCount = this.totalSteps(),
+        jsav = this,
+        stepFunction = function(stp) {
+          return jsav.currentStep() === step;
+        };
+    var oldFx = $.fx.off || false;
+    $.fx.off = true;
+    if (step >= stepCount) {
+      this.end();
+    } else if (step < 0) {
+      this.begin();
+    } else if (step < this.currentStep()) {
+      this.backward(stepFunction);
+    } else {
+      this.forward(stepFunction);
+    }
+    $.fx.off = oldFx;
+    return this;
+  };
+  JSAV.ext.stepOption = function(name, value) {
+    var step = this._undo[this._undo.length - 1];
+    if (value !== undefined) { // set named property
+      if (step) {
+        step.options[name] = value;
+      }
+    } else if (typeof name === "string") { // get named property
+      if (step) {
+        return step.options[name];
+      } else {
+        return undefined;
+      }
+    } else { // assume an object
+      for (var item in name) {
+        if (name.hasOwnProperty(item)) {
+          this.stepOption(item, name[item]);
+        }
+      }
+    }
+  };
+  JSAV.ext.recorded = function() {
+    // if there are more than one step, and the last step is empty, remove it
+    if (this._undo.length > 1 && this._undo[this._undo.length - 1].isEmpty()) {
+      this._undo.pop();
+    } else {
+      this.container.trigger("jsav-updaterelative");
+    }
+    this.begin();
+    this.RECORD = false;
+    $.fx.off = false;
+    this.logEvent({type: "jsav-recorded"});
+    return this;
+  };
+  JSAV.ext.isAnimating = function() {
+    // returns true if animation is playing, false otherwise
+    return !!this.container.find(":animated").size() || this._animations > 0;
+  };
+  JSAV.ext._shouldAnimate = function() {
+    return (!this.RECORD && !$.fx.off);
+  };
+}(jQuery));
+
+/** Override the borderWidth/Color CSS getters to return the
+ info for border-top. */
+jQuery.cssHooks.borderColor = {
+	get: function(elem) {
+    return jQuery(elem).css("border-top-color");
+	}
+};
+jQuery.cssHooks.borderWidth = {
+	get: function(elem) {
+    return jQuery(elem).css("border-top-width");
+	}
+};/**
 * Module that contains utility functions.
 * Depends on core.js
 */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -149,6 +626,57 @@
   objproto.clear = function() {
     if (this.element) {
       this.element.remove();
+    }
+  };
+  objproto._animateTranslate = JSAV.anim(function(dx, dy, options) {
+    var leftie = this.element.css("left")==="auto"?dx:"+="+dx,
+        toppie = this.element.css("top")==="auto"?dy:"+="+dy;
+    this.element.css({left: leftie + "px", top: toppie + "px"});
+    if (this.jsav._shouldAnimate()) {
+      this.element.css({x: -dx, y: -dy, z: 1});
+      this.jsav.effects.transition(this.element, {x: 0, y: 0, z: 1}, options);
+    }
+    return [-dx, -dy, options];
+  });
+  objproto.translate = function(dx, dy, options) {
+    var val = this._animateTranslate(dx, dy, options);
+    if (this._moveListeners) {
+      this.element.trigger("jsav-object-move", [dx, dy]);
+    }
+    return val;
+  };
+  objproto.translateX = function(dx, options) {
+    return this.translate(dx, 0, options);
+  };
+  objproto.translateY = function(dy, options) {
+    return this.translate(0, dy, options);
+  };
+  objproto.moveTo = function(newLeft, newTop, options) {
+    var curPos = this.element.position(),
+        dx = newLeft - curPos.left,
+        dy = newTop - curPos.top;
+    var val = this._animateTranslate(dx, dy, options);
+    if (this._moveListeners) {
+      this.element.trigger("jsav-object-move", [dx, dy]);
+    }
+  };
+  objproto._registerMoveListener = function(callback) {
+    // if callback isn't a function, do nothing
+    if (!$.isFunction(callback)) { return; }
+    // register the callback as an event handler for jsav-move-object
+    this._moveListeners = (this._moveListeners || 0) + 1;
+    this.element.on("jsav-object-move", callback);
+    // if we have a parent container (such as tree for tree nodes), register for
+    // moves of that as well
+    if (this.container) {
+      this.container._registerMoveListener(callback);
+    }
+  };
+  objproto._unregisterMoveListener = function(callback) {
+    this.element.off("jsav-object-move", callback);
+    this._moveListeners--;
+    if (this.container) {
+      this.container._unregisterMoveListener(callback);
     }
   };
 
@@ -396,6 +924,102 @@
     constructor.prototype = prototypeObject;
   };
 
+  /* Returns a function which interpet given labels to a values
+   * (usually a strings) in the selected language.
+   *
+   * langJSON         - a JavaScript object or a URL to a JSON file
+   *                    containing the translation(s)
+   * selectedLanguage - a string which tells which language to select.
+   *                    If undefined the langJSON is assumed to already
+   *                    contain the translation for a language.
+   *
+   * If the translations are in separate files the URL can be written
+   * with the label {lang}. This label will then be replaced with the
+   * selected language. For instance if the translations are in BST-en.json
+   * and BST-fi.json, langJSON can be "BST-{lang}.json" and selectedLanguage
+   * "en" or "fi".
+   *
+   * A translation object for only one language could look like this:
+   *    {message: "Hello!"}
+   * and for two languages it could look like this:
+   *    {
+   *      en: {message: "Hello!"},
+   *      fi: {message: "Moi!"}
+   *    }
+   */
+  u.getInterpreter = function (langJSON, selectedLanguage) {
+    var trans;
+
+    // get the translation from the given location or object 
+    if (typeof langJSON === "string") {
+      // assume langJSON is a url
+      if (langJSON.indexOf("{lang}") !== -1) {
+        // replace {lang} label with the selected language
+        langJSON = langJSON.replace("{lang}", selectedLanguage);
+        selectedLanguage = undefined;
+      }
+      $.ajax({
+        url: langJSON,
+        async: false,
+        dataType: "json",
+        success: function (data) {
+          if (selectedLanguage) {
+            trans = data[selectedLanguage];
+          } else {
+            trans = data;
+          }
+        }
+      });
+    } else if (typeof langJSON === "object") {
+      // assume this is an object containing one or more translations
+      if (selectedLanguage) {
+        trans = langJSON[selectedLanguage];
+      } else {
+        trans = langJSON;
+      }
+    }
+
+    // if the selected translation is not an object give a warning and
+    // return a dummy function
+    if (typeof trans !== "object") {
+      console.warn("Language not found (" + selectedLanguage + ")");
+      return function (label) {
+        return "[" + label + "]";
+      };
+    }
+
+    // return the interpreter function for the selected language
+    return function (label) {
+      if (typeof trans[label] === "undefined") {
+        console.warn("Cannot find label: " + label);
+        return "[" + label + "]";
+      }
+      return trans[label];
+    };
+  };
+
+  /* Replaces the labels (surrounded by curly brackets) in a string with a value
+   * 
+   * For instance if the string is "The value of x is {x}" and the object
+   * containing the replacements for the tag is {x: 7}, this function will
+   * return the string "The value of x is 7"
+   *
+   * This function uses regular expressions to replace the tags. Therefore tags
+   * should not use numbers or special characters such as . ? * + etc.
+   */
+  u.replaceLabels = function (string, replacementObject) {
+    if (!replacementObject || typeof replacementObject !== "object")
+      return string;
+
+    var result = string;
+    for (var label in replacementObject) {
+      var reg = new RegExp("{"+label+"}", "g");
+      result = result.replace(reg, replacementObject[label]);
+    }
+
+    return result;
+  };
+
 /*!
 // based on seedrandom.js version 2.0.
 // Author: David Bau 4/2/2011
@@ -626,14 +1250,18 @@ mixkey(math.random(), pool);
     }
   };
   _helpers._setcss = function(cssprop, value, options) {
-    var oldProps = $.extend(true, {}, cssprop),
+    var oldProps,
         el = this.element,
         newprops, opts = options;
     if (typeof cssprop === "string" && typeof value !== "undefined") {
+      // handle args like (propName, newValue)
+      oldProps = {}; //we will still return an object of old props
       oldProps[cssprop] = el.css(cssprop);
-      newprops = {};
+      newprops = {}; // newProps for animation
       newprops[cssprop] = value;
+      value = undefined;
     } else {
+      oldProps = $.extend(true, {}, cssprop);
       for (var i in cssprop) {
         if (cssprop.hasOwnProperty(i)) {
           oldProps[i] = el.css(i);
@@ -643,7 +1271,7 @@ mixkey(math.random(), pool);
       newprops = cssprop;
     }
     if (this.jsav._shouldAnimate()) { // only animate when playing, not when recording
-      this.jsav.effects.transition(this.element, newprops, opts)
+      this.jsav.effects.transition(this.element, newprops, opts);
     } else {
       this.element.css(newprops);
     }
@@ -688,62 +1316,127 @@ mixkey(math.random(), pool);
     }
     return normIndices;
   };
-
-  // Returns an handler for the jsav-update-relative event
-  // to maintain scope.
-  var relativeUpdateHandlerFunction = function(jsavobj, relElem, offsetLeft, offsetTop, 
-                  elemPos, elemTop, elemLeft, anchor, myAnchor) {
-    return function() {
-      // on update:
-      //  - check relElems position
-      //  - check elems position
-      //  - update elems position using jqUI
-      //  - store new pos and revert elems position change
-      //  - calculate new pos and animate
-      var el = jsavobj.element,
-          elemCurPos = el.position(),
-          elemCurLeft = elemCurPos.left,
-          elemCurTop = elemCurPos.top,
-          offsetChangeLeft = elemCurLeft - elemLeft, // element position has been changed
-          offsetChangeTop = elemCurTop - elemTop; // element position has been changed
-
-      // if the element is not visible, setting position won't work so simply return
-      if (el.filter(":visible").size() === 0) {
-        return;
+  _helpers.cssEquals = function(jsavObj1, jsavObj2, cssProps) {
+    var cssprop, i;
+    if ($.isArray(cssProps)) { // array of property names
+      for (i = 0; i < cssProps.length; i++) {
+        cssprop = cssProps[i];
+        if (jsavObj1.css(cssprop) !== jsavObj2.css(cssprop)) { return false; }
       }
-      
-      offsetLeft = offsetLeft + offsetChangeLeft;
-      offsetTop = offsetTop + offsetChangeTop;
-      // use jqueryui to position the el relative to the relElem
-      el.position({my: myAnchor,
-                   at: anchor,
-                   of: relElem,
-                   offset: offsetLeft + " " + offsetTop,
-                   collision: "none"});
-      elemPos = el.position();
-      elemLeft = elemPos.left;
-      elemTop = elemPos.top;
-      if (elemLeft === elemCurLeft && elemTop === elemCurTop && // relativeTo element has not changed pos
-                offsetChangeLeft === 0 && offsetChangeTop === 0) { // this element has not changed pos
-        return; // no change to animate, just return
+    } else { // if not array, expect it to be a property name string
+      cssprop = cssProps;
+      if (jsavObj1.css(cssprop) !== jsavObj2.css(cssprop)) { return false; }
+    }
+    return true;
+  };
+  _helpers.classEquals = function(jsavObj1, jsavObj2, classNames) {
+    var clazzname, i, l;
+    if ($.isArray(classNames)) { // array of property names
+      for (i = 0, l = classNames.length; i < l; i++) {
+        clazzname = classNames[i];
+        if (jsavObj1.hasClass(clazzname) !== jsavObj2.hasClass(clazzname)) {
+          return false;
+        }
       }
-      el.css({left: elemCurLeft, top: elemCurTop}); // restore the element position
-      jsavobj.css({left: elemLeft, top: elemTop}); // .. and animate the change
+    } else { // if not array, expect it to be a property name string
+      clazzname = classNames;
+      if (jsavObj1.hasClass(clazzname) !== jsavObj2.hasClass(clazzname)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // position the given object relative to relElem, taking into account offsets and anchors
+  // the move is animated
+  var animateToNewRelativePosition = function(jsavobj, relElem, offsetLeft, offsetTop, anchor, myAnchor) {
+    var el = jsavobj.element,
+        elemCurPos = el.position();
+
+    // use jqueryui to position the el relative to the relElem
+    el.position({my: myAnchor,
+      at: anchor,
+      of: relElem,
+      offset: offsetLeft + " " + offsetTop,
+      collision: "none"});
+    var elemPos = el.position();
+    var elemLeft = elemPos.left;
+    var elemTop = elemPos.top;
+    if (elemLeft === elemCurPos.left && elemTop === elemCurPos.top) { // relativeTo element has not changed pos
+      return {left: 0, top: 0}; // no change to animate, just return
+    } else {
+      // move it back to the original position
+      el.css({left: elemCurPos.left, top: elemCurPos.top});
+      // animate the move
+      jsavobj.moveTo(elemLeft, elemTop); // change the position
+    }
+    // return the change in position
+    return {left: elemLeft - elemCurPos.left, top: elemTop - elemCurPos.top};
+  };
+
+  // Set jsavobj to move after target. possible optional options. Both jsavobj and target
+  // need to be instances of JSAVObject.
+  //
+  // - callback: a function that will be called with deltaleft and deltatop arguments
+  //             indicating the change in position
+  // - autotranslate: if true, the jsavobj will be moved at the end of the step when
+  //                  jsav-updaterelative triggers
+  _helpers._setRelativeFollowUpdater = function(jsavobj, target, options) {
+    // unbind possible previous handlers on the jsavobj
+    // this enables changing the target by calling this function again
+    if (jsavobj._relativehandle) {
+      jsavobj._relativetarget._unregisterMoveListener(jsavobj._relativehandle);
+      jsavobj.jsav.container.off("jsav-updaterelative", jsavobj._updaterelativehandle);
+    }
+    // keep track of the size of the change. the target can move position multiple times,
+    // and we will make the animation simpler and sum those changes and move the jsavobj once
+    var leftSum = 0,
+        topSum = 0,
+        callbackFunc = options && $.isFunction(options.callback);
+
+    // handler for the jsav-updaterelative event, this is when the jsavobj is finally moved
+    var updaterelativehandle = function() {
+      if (leftSum !== 0 || topSum !== 0) {
+        jsavobj.translate(leftSum, topSum);
+        leftSum = 0;
+        topSum = 0;
+      }
     };
+    // handler for the target object moves
+    var relativehandle = function(evt, dleft, dtop) {
+      evt.stopPropagation();
+      if (callbackFunc) { options.callback(dleft, dtop); }
+      leftSum += dleft;
+      topSum += dtop;
+    };
+    // if we should translate jsavobj at the end, register the updaterelativehandle to
+    // lister for jsav.updaterelative event
+    if (!options || options.autotranslate) {
+      jsavobj.jsav.container.on("jsav-updaterelative", updaterelativehandle);
+    }
+    // store the listeners
+    jsavobj._relativetarget = target;
+    jsavobj._relativehandle = relativehandle;
+    jsavobj._updaterelativehandle = updaterelativehandle;
+    // register move listener to the target object
+    target._registerMoveListener(relativehandle);
   };
 
   // Sets the given jsavobj to be positioned relative to the options.relativeTo object
   _helpers.setRelativePositioning = function(jsavobj, options) {
+    // possible options
     var el = jsavobj.element,
-        relElem = options.relativeTo,
+        relElem = options.relativeTo, // REQUIRED
         anchor = options.anchor || "center",
-        myAnchor = options.myAnchor || "center";
+        myAnchor = options.myAnchor || "center",
+        follow = !!options.follow; // default to false
+
     if (!(relElem instanceof jQuery)) {
       if (relElem.nodeType === Node.ELEMENT_NODE) { // check if it's DOM element
         relElem = $(relElem);
       } else if (relElem.constructor === JSAV._types.ds.AVArray && "relativeIndex" in options)  {
         // position relative to the given array index, so set relElem to that index element
-        relElem = relElem.element.find(".jsavindex:eq(" + options.relativeIndex + ")");
+        relElem = relElem.index(options.relativeIndex).element; // get the array index object
       } else if (JSAV.utils.isGraphicalPrimitive(relElem)) { // JSAV graphical primitive
         relElem = $(relElem.rObj.node);
       } else {
@@ -751,16 +1444,18 @@ mixkey(math.random(), pool);
         relElem = relElem.element || relElem;
       }
     }
+    // make sure the jsavobj element is absolutely positioned
     el.css({ position: "absolute" });
     var offsetLeft = parseInt(options.left || 0, 10),
         offsetTop = parseInt(options.top || 0, 10);
-    // store relElems position
-    var relPos = relElem.position(),
-        relLeft = relPos.left,
-        relTop = relPos.top;
-    // unbind previous event handler
+
+    // if we have previous handler (and we are thus changing targets), animate to the new position
+    // and also call the callback with the position change if we have one
     if (jsavobj._relativehandle) {
-      jsavobj.jsav.container.off("jsav-updaterelative", jsavobj._relativehandle);
+      var move = animateToNewRelativePosition(jsavobj, relElem, offsetLeft, offsetTop, anchor, myAnchor);
+      if ($.isFunction(options.callback)) {
+        options.callback(move.left, move.top);
+      }
     } else { // set the initial position to the current position (to prevent unnecessary animations)
       el.position({my: myAnchor,
                    at: anchor,
@@ -768,13 +1463,11 @@ mixkey(math.random(), pool);
                    offset: offsetLeft + " " + offsetTop,
                    collision: "none"});
     }
-    var elemPos = el.position(),
-        elemLeft = elemPos.left,
-        elemTop = elemPos.top;
-    var hdanle = relativeUpdateHandlerFunction(jsavobj, relElem, offsetLeft, offsetTop, elemPos, elemTop, elemLeft, anchor, myAnchor) // end relative positioning
-    jsavobj.jsav.container.on("jsav-updaterelative", hdanle);
-    jsavobj._relativehandle = hdanle;
+    if (follow) { // if the jsavobj should move along with the target, register it to do so
+      this._setRelativeFollowUpdater(jsavobj, options.relativeTo, $.extend({autotranslate: true}, options));
+    }
   };
+
   /* Handles top, left, right, bottom options and positions the given element accordingly */
   _helpers.handlePosition = function(jsavobj) {
     var el = jsavobj.element,
@@ -847,435 +1540,87 @@ mixkey(math.random(), pool);
   };
 
 }(jQuery));/**
-* Module that contains the animator implementations.
-* Depends on core.js
+* Module that contains the translation implementation.
+* Depends on core.js, utils.js
 */
-/*global JSAV:true */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
-
-  var DEFAULT_SPEED = 300,
-      playingCl = "jsavplaying"; // class used to mark controls when playing
-
-
   if (typeof JSAV === "undefined") { return; }
 
-  var AnimatableOperation = function(opts) {
-    this.obj = opts.obj;
-    this.effect = opts.effect;
-    this.args = opts.args;
-    if (opts.undo) {
-      this.undoeffect = opts.undo;
-    }
-    if (opts.undoargs) {
-      this.undoArgs = opts.undoargs;
+  var translations = {
+    "en": {
+      "resetButtonTitle": "Reset",
+      "undoButtonTitle": "Undo",
+      "modelButtonTitle": "Model Answer",
+      "gradeButtonTitle": "Grade",
+
+      "modelWindowTitle": "Model Answer",
+
+      "feedbackLabel":"Grade Feedback: ",
+      "continuous": "Continuous",
+      "atend": "At end",
+
+      "fixLabel": "Continuous feedback behaviour",
+      "undo": "Undo incorrect step",
+      "fix": "Fix incorrect step",
+
+      "scoreLabel": "Score:",
+      "remainingLabel": "Points remaining:",
+      "lostLabel": "Points lost:",
+      "doneLabel": "DONE",
+
+      "yourScore": "Your score:",
+      "fixedSteps": "Fixed incorrect steps:",
+
+      "fixedPopup": "Your last step was incorrect. Your work has been replaced with the correct step so that you can continue.",
+      "fixFailedPopup": "Your last step was incorrect and I should fix your solution, but don't know how. So it was undone and you can try again.",
+      "undonePopup": "Your last step was incorrect. Things are reset to the beginning of the step so that you can try again."
+    },
+    "fi": {
+      "resetButtonTitle": "Uudelleen",
+      "undoButtonTitle": "Kumoa",
+      "modelButtonTitle": "Mallivastaus",
+      "gradeButtonTitle": "Arvostele",
+
+      "modelWindowTitle": "Mallivastaus",
+
+      "feedbackLabel":"Arvostelumuoto: ",
+      "continuous": "Jatkuva",
+      "atend": "Lopussa",
+
+      "fixLabel": "Jatkuvan arvostelun asetukset",
+      "undo": "Kumoa väärin menneet askeleet",
+      "fix": "Korjaa väärin menneet askeleet",
+
+      "scoreLabel": "Pisteet:",
+      "remainingLabel": "Pisteitä jäljellä:",
+      "lostLabel": "Menetetyt pisteet:",
+      "doneLabel": "VALMIS",
+
+      "yourScore": "Sinun pisteesi:",
+      "fixedSteps": "Korjatut askeleet:",
+
+      "fixedPopup": "Viime askeleesi meni väärin. Se on korjattu puolestasi, niin että voit jatkaa tehtävää.",
+      "fixFailedPopup": "Viime askeleesi meni väärin ja minun tulisi korjata se. En kuitenkaan osaa korjata sitä, joten olen vain kumonnut sen.",
+      "undonePopup": "Viime askeleesi meni väärin. Askel on kumottu, niin että voit yrittää uudelleen."
     }
   };
-  AnimatableOperation.prototype.apply = function() {
-    var self = this;
-    var obj = self.obj,
-      state = obj.state?obj.state():null;
-    var retVal = this.effect.apply(this.obj, this.args);
-    if (typeof retVal === "undefined" || retVal === this.obj) {
-      if (typeof this.undoeffect === "undefined" || !$.isFunction(this.undoeffect)) {
-        this.undoeffect = (function() {
-          return function() { // we create one that will set the state of obj to its current state
-            obj.state(state);
-          };
-        }());
-      }
+
+  JSAV.init(function (options) {
+    var language = options.lang || "en";
+    if (typeof translations[language] === "object") {
+      this._translate = JSAV.utils.getInterpreter(translations, language);
     } else {
-      this.undoArgs = retVal;
+      this._translate = JSAV.utils.getInterpreter(translations, "en");
     }
-  };
-  AnimatableOperation.prototype.undo = function() {
-    if (typeof this.undoArgs === "undefined") {
-      this.undoeffect.apply(this.obj, this.args);
-    } else {
-      this.effect.apply(this.obj, this.undoArgs);
-    }
-  };
-
-  var AnimStep = function(options) {
-    this.operations = [];
-    this.options = options || {};
-  };
-  AnimStep.prototype.add = function(oper) {
-    this.operations.push(oper);
-  };
-  AnimStep.prototype.isEmpty = function() {
-    return this.operations.length === 0;
-  };
-
-  function backward(filter) {
-    if (this._undo.length === 0) { return; }
-    var step = this._undo.pop();
-    var ops = step.operations; // get the operations in the step we're about to undo
-    for (var i = ops.length - 1; i >= 0; i--) { // iterate the operations
-      // operation contains: [target object, effect function, arguments, undo function]
-      var prev = ops[i];
-      prev.undo();
-    }
-    this._redo.unshift(step);
-    // if a filter function is given, check if this step matches
-    // if not, continue moving backward
-    if (filter && $.isFunction(filter) && !filter(step)) {
-      this.backward(filter);
-    }
-    // trigger an event on the container to update the counter
-    this.container.trigger("jsav-updatecounter", [this.currentStep() + 1, this.totalSteps() + 1]);
-    return step;
-  }
-
-  function forward() {
-    if (this._redo.length === 0) { return; }
-    var step = this._redo.shift();
-    var ops = step.operations; // get the operations in the step we're about to undo
-    for (var i = 0; i < ops.length; i++) {
-      var next = ops[i];
-      next.apply();
-    }
-    this._undo.push(step);
-    // trigger an event on the container to update the counter
-    this.container.trigger("jsav-updatecounter", [this.currentStep() + 1, this.totalSteps() + 1]);
-    return step; // return the just applied step
-  }
-
-  function begin() {
-    var oldFx = $.fx.off || false;
-    $.fx.off = true;
-    while (this._undo.length) {
-      this.backward();
-    }
-    $.fx.off = oldFx;
-    return this;
-  }
-  
-  function end() {
-    var oldFx = $.fx.off || false;
-    $.fx.off = true;
-    while (this._redo.length) {
-      this.forward();
-    }
-    $.fx.off = oldFx;
-    return this;
-  }
-  
-
-  JSAV.init(function() {
-    this._animations = 0;
-    this._redo = []; // stack for operations to redo
-    this._undo = []; // stack for operations to undo
-    var that = this,
-        $controls = $(".jsavcontrols", this.container);
-
-    function logAnimEvent(action) {
-      var eventData = {
-        "type": action,
-        "currentStep": that.currentStep(),
-        "totalSteps": that.totalSteps()
-      };
-      that.logEvent(eventData);
-    }
-
-    // set a timer to remove the class indicating animation playing
-    // once the animation is completed. optional callback function that
-    // will be called once done.
-    function clearPlayingTimeout(jsav, callback) {
-      var timerid;
-      var timeouter = function() {
-        if (!jsav.isAnimating()) {
-          jsav.container.removeClass(playingCl);
-          jsav._animations = 0;
-          if ($.isFunction(callback)) {
-            callback();
-          }
-          clearInterval(timerid);
-        }
-      };
-      timerid = setInterval(timeouter, 50);
-    }
-
-    // function for clearing the playing flag
-    this._clearPlaying = function clearPlaying(callback) {
-      if (this.isAnimating()) {
-        clearPlayingTimeout(this, callback);
-      } else {
-        this.container.removeClass(playingCl);
-        if ($.isFunction(callback)) {
-          callback();
-        }
-      }
-    };
-    // reqister event handlers for the control buttons
-    var beginHandler = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      // if playing flag is set, don't respond
-      if (that.container.hasClass(playingCl)) { return; }
-      // set the playing flag, that is, a class on the controls
-      that.container.addClass(playingCl);
-      that.begin(); // go to beginning
-      that._clearPlaying(); // clear the flag
-      // log the event
-      logAnimEvent("jsav-begin");
-    };
-    var backwardHandler = function(e, filter) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopPropagation();
-      if (that.container.hasClass(playingCl)) { return; }
-      that.container.addClass(playingCl);
-      that.backward(filter);
-      // clear playing flag after a timeout for animations to end
-      that._clearPlaying();
-      // log the event
-      logAnimEvent("jsav-backward");
-    };
-    var forwardHandler = function(e, filter) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (that.container.hasClass(playingCl)) { return; }
-      that.container.addClass(playingCl);
-      that.forward(filter);
-      that._clearPlaying();
-      // log the event
-      logAnimEvent("jsav-forward");
-    };
-    var endHandler = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (that.container.hasClass(playingCl)) { return; }
-      that.container.addClass(playingCl);
-      that.end();
-      that._clearPlaying();
-      // log the event
-      logAnimEvent("jsav-end");
-    };
-    if ($controls.size() !== 0) {
-      $("<a class='jsavbegin' href='#' title='Begin'>Begin</a>").click(beginHandler).appendTo($controls);
-      $("<a class='jsavbackward' href='#' title='Backward'>Backward</a>").click(backwardHandler).appendTo($controls);
-      $("<a class='jsavforward' href='#' title='Forward'>Forward</a>").click(forwardHandler).appendTo($controls);
-      $("<a class='jsavend' href='#' title='End'>End</a>").click(endHandler).appendTo($controls);
-    }
-    // bind the handlers to events to enable control by triggering events
-    this.container.bind({ "jsav-forward": forwardHandler,
-                          "jsav-backward": backwardHandler,
-                          "jsav-begin": beginHandler,
-                          "jsav-end": endHandler });
-                          
-    // add slideshow counter if an element with class counter exists
-    var counter = $(".jsavcounter", this.container);
-    // register an event to be triggered on container to update the counter
-    if (counter.size() > 0) {
-      this.container.bind("jsav-updatecounter", function(evet, current, total) {
-        counter.text(current + " / " + total);
-      });
-    }
-    
-    // register a listener for the speed change event
-    $(document).bind("jsav-speed-change", function(e, args) {
-      that.SPEED = args;
-    });
   });
-  
-  // this function can be used to "decorate" effects to be applied when moving forward
-  // in the animation
-  function anim(effect, undo) {
-    // returns a function that can be used to provide function calls that are applied later
-    // when viewing the visualization
-    return function() {
-      var jsav = this; // this points to the objects whose function was decorated
-      var args = $.makeArray(arguments),
-          norecord = false;
-      if (args.length > 0 && args[args.length-1] && typeof args[args.length-1] === "object" &&
-              args[args.length-1].record === false) {
-        norecord = true;
-      }
-      if (!jsav.hasOwnProperty("_redo")) { jsav = this.jsav; }
-      if (jsav.options.animationMode === 'none' || norecord) { // if not recording, apply immediately
-        effect.apply(this, arguments);
-      } else {
-        var stackTop = jsav._undo[jsav._undo.length - 1];
-        if (!stackTop) {
-          stackTop = new AnimStep();
-          jsav._undo.push(stackTop);
-        }
-        // add to stack: [target object, effect function, arguments, undo function]
-        var oper = new AnimatableOperation({obj: this, effect: effect,
-          args: arguments, undo: undo});
-        stackTop.add(oper);
-        if (jsav._shouldAnimate()) {
-          jsav.container.addClass(playingCl);
-        }
-        oper.apply();
-        if (jsav._shouldAnimate()) {
-          jsav._clearPlaying();
-        }
-      }
-      return this;
-    };
-  }
-  function moveWrapper(func, filter) {
-    var origStep = this.currentStep(),
-      step = func.call(this);
-    if (!step) {
-      return false;
-    }
-    if (filter) {
-      if ($.isFunction(filter)) {
-        var filterMatch = filter(step),
-          matched = filterMatch;
-        while (!filterMatch && this.currentStep() < this.totalSteps()) {
-          step = func.call(this);
-          if (!step) { break; }
-          filterMatch = filter(step);
-          matched = matched || filterMatch;
-        }
-        if (!matched) {
-          this.jumpToStep(origStep);
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-  JSAV.anim = anim;
-  if (localStorage) {
 
-    JSAV.ext.SPEED = localStorage.getItem("jsav-speed") || DEFAULT_SPEED;
-  } else {
-    JSAV.ext.SPEED = DEFAULT_SPEED;
-  }
-  JSAV.ext.begin = begin;
-  JSAV.ext.end = end;
-  JSAV.ext.forward = function(filter) {
-    return moveWrapper.call(this, forward, filter);
-  };
-  JSAV.ext.backward = function(filter) {
-    return moveWrapper.call(this, backward, filter);
-  };
-  JSAV.ext.currentStep = function() {
-    return this._undo.length;
-  };
-  JSAV.ext.totalSteps = function() {
-    return this._undo.length + this._redo.length;
-  };
-  JSAV.ext.animInfo = function() {
-    // get some "size" info about the animation, namely the number of steps
-    // and the total number of effects (or operations) in the animation
-    var info = { steps: this.totalSteps()},
-      i,
-      effects = 0;
-    for (i = this._undo.length; i--; ) {
-      effects += this._undo[i].operations.length;
-    }
-    for (i = this._redo.length; i--; ) {
-      effects += this._redo[i].operations.length;
-    }
-    info.effects = effects;
-    return info;
-  };
-  JSAV.ext.step = function(options) {
-    this.container.trigger("jsav-updaterelative");
-    this._undo.push(new AnimStep(options)); // add new empty step to oper. stack
-    if (options && this.message && options.message) {
-      this.message(options.message);
-    }
-    return this;
-  };
-  JSAV.ext.clear = function(options) {
-    var opts = $.extend({undo: true, redo: true}, options);
-    if (opts.undo) {
-      this._undo = [];
-    }
-    if (opts.redo) {
-      this._redo = [];
-    }
-  };
-  JSAV.ext.displayInit = function() {
-    this.container.trigger("jsav-updaterelative");
-    this.clear({redo: false});
-    return this;
-  };
-  /** Jumps to step number step. */
-  JSAV.ext.jumpToStep = function(step) {
-    var stepCount = this.totalSteps(),
-        jsav = this,
-        stepFunction = function(stp) {
-          return jsav.currentStep() === step;
-        };
-    var oldFx = $.fx.off || false;
-    $.fx.off = true;
-    if (step >= stepCount) {
-      this.end();
-    } else if (step < 0) {
-      this.begin();
-    } else if (step < this.currentStep()) {
-      this.backward(stepFunction);
-    } else {
-      this.forward(stepFunction);
-    }
-    $.fx.off = oldFx;
-    return this;
-  };
-  JSAV.ext.stepOption = function(name, value) {
-    var step = this._undo[this._undo.length - 1];
-    if (value !== undefined) { // set named property
-      if (step) {
-        step.options[name] = value;
-      }
-    } else if (typeof name === "string") { // get named property
-      if (step) {
-        return step.options[name];
-      } else {
-        return undefined;
-      }
-    } else { // assume an object
-      for (var item in name) {
-        if (name.hasOwnProperty(item)) {
-          this.stepOption(item, name[item]);
-        }
-      }
-    }
-  };
-  JSAV.ext.recorded = function() {
-    // if there are more than one step, and the last step is empty, remove it
-    if (this._undo.length > 1 && this._undo[this._undo.length - 1].isEmpty()) {
-      this._undo.pop();
-    } else {
-      this.container.trigger("jsav-updaterelative");
-    }
-    this.begin();
-    this.RECORD = false;
-    $.fx.off = false;
-    this.logEvent({type: "jsav-recorded"});
-    return this;
-  };
-  JSAV.ext.isAnimating = function() {
-    // returns true if animation is playing, false otherwise
-    return !!this.container.find(":animated").size() || this._animations > 0;
-  };
-  JSAV.ext._shouldAnimate = function() {
-    return (!this.RECORD && !$.fx.off);
-  };
-}(jQuery));
-
-/** Override the borderWidth/Color CSS getters to return the
- info for border-top. */
-jQuery.cssHooks.borderColor = {
-	get: function(elem) {
-    return jQuery(elem).css("border-top-color");
-	}
-};
-jQuery.cssHooks.borderWidth = {
-	get: function(elem) {
-    return jQuery(elem).css("border-top-width");
-	}
-};/**
+}(jQuery));/**
 * Module that contains the message output implementations.
 * Depends on core.js, anim.js
 */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -1288,8 +1633,9 @@ jQuery.cssHooks.borderWidth = {
     }
   };
   MessageHandler.prototype.umsg = JSAV.anim(function(msg, options) {
-    if (!this.jsav.RECORD) { // trigger events only if not recording
-      this.jsav.container.trigger("jsav-message", [msg, options]);
+    if (options && options.fill && typeof options.fill === "object") {
+      // replace the labels in the string if the replacements are given in the options
+      msg = JSAV.utils.replaceLabels(msg, options.fill);
     }
     var opts = $.extend({color: "black", preserve: false}, options);
     if (this.output) {
@@ -1310,6 +1656,9 @@ jQuery.cssHooks.borderWidth = {
           this.output[0].scrollTop = this.output[0].scrollHeight;
         }
       }
+    }
+    if (!this.jsav.RECORD) { // trigger events only if not recording
+      this.jsav.container.trigger("jsav-message", [msg, options]);
     }
     return this;
   });
@@ -1344,6 +1693,7 @@ jQuery.cssHooks.borderWidth = {
 * Module that contains interaction helpers for JSAV.
 * Depends on core.js, anim.js
 */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
 
@@ -1390,6 +1740,10 @@ jQuery.cssHooks.borderWidth = {
           called = true;
           if (bound) { self.unbind($.support.transitionEnd, cb); }
 
+          self.each(function() {
+            // clear the transition properties of all elements
+            this.style[$.support.transition] = null;
+          });
           if (typeof opt.complete === 'function') { opt.complete.apply(self); }
           if (typeof nextCall === 'function') { nextCall(); }
         };
@@ -1473,25 +1827,47 @@ jQuery.cssHooks.borderWidth = {
     // get the HTML elements for the values, for arrays, use the index
     if (from.constructor === JSAV._types.ds.AVArray) {
       $fromValElem = from.element.find("li:eq(" + opts.args1[0] + ") .jsavvaluelabel");
+    } else if (from.element.hasClass("jsavlabel")) { // special treatment for labels
+      $fromValElem = from.element;
     } else {
       $fromValElem = from.element.find(".jsavvaluelabel");
     }
     if (to.constructor === JSAV._types.ds.AVArray) {
       $toValElem = to.element.find("li:eq(" + opts.args2[0] + ") .jsavvaluelabel");
+    } else if (to.element.hasClass("jsavlabel")) { // special treatment for labels
+      $toValElem = to.element;
     } else {
       $toValElem = to.element.find(".jsavvaluelabel");
     }
 
     if (this._shouldAnimate()) {  // only animate when playing, not when recording
+      var toValElemHeight = $toValElem.height(); // saved into a variable, because the computed value is zero after repositioning
+      var fromValElemHeight = $fromValElem.height(); // saved into a variable, because the computed value is zero after repositioning
       $toValElem.position({of: $fromValElem}); // let jqueryUI position it on top of the from element
       if (opts.mode === "swap") {
         toPos = $.extend({}, $toValElem.position());
-        $toValElem.css({left: 0, top: 0});
+        if (to.options.layout !== "bar") {
+          $toValElem.css({left: 0, top: 0});
+        } else {
+          $toValElem.css({left: 0, bottom: 0, top: ""});
+        }
         $fromValElem.position({of: $toValElem});
         $toValElem.css(toPos);
-        $fromValElem.transition({left: 0, top: 0}, this.SPEED, 'linear');
+        if (from.options.layout !== "bar") {
+          $fromValElem.transition({left: 0, top: 0}, this.SPEED, 'linear');
+        } else {
+          var bottom = $fromValElem.parent().height() - $fromValElem.position().top - fromValElemHeight;
+          $fromValElem.css({top: "", bottom: bottom});
+          $fromValElem.transition({left: 0, bottom: 0}, this.SPEED, 'linear'); // animate to final position
+        }
       }
-      $toValElem.transition({left: 0, top: 0}, this.SPEED, 'linear'); // animate to final position
+      if (to.options.layout !== "bar") {
+        $toValElem.transition({left: 0, top: 0}, this.SPEED, 'linear'); // animate to final position
+      } else {
+        var bottom = $toValElem.parent().height() - $toValElem.position().top - toValElemHeight;
+        $toValElem.css({top: "", bottom: bottom});
+        $toValElem.transition({left: 0, bottom: 0}, this.SPEED, 'linear'); // animate to final position
+      }
     }
 
     // return "reversed" parameters and the old value for undoing
@@ -1519,7 +1895,7 @@ jQuery.cssHooks.borderWidth = {
     transition: function($elems, cssProps, options) {
       this._animations += $elems.length;
       var that = this;
-      $elems.transition(cssProps, {duration: (options && options.duration) ||this.SPEED,
+      $elems.transition(cssProps, {duration: (options && options.duration) || this.SPEED,
                                     delay: (options && options.delay) || 0,
                                     complete: function() { that._animations--; }
       });
@@ -1565,9 +1941,11 @@ jQuery.cssHooks.borderWidth = {
       JSAV.anim(doValueEffect).call(this, params);
     },
     swap: function($str1, $str2, options) {
-      var opts = $.extend({translateY: true, arrow: true}, options),
+      var opts = $.extend({translateY: true, arrow: true, highlight: true, swapClasses: false}, options),
           $val1 = $str1.find("span.jsavvalue"),
           $val2 = $str2.find("span.jsavvalue"),
+          classes1 = $str1.attr("class"),
+          classes2 = $str2.attr("class"),
           posdiffX = JSAV.position($str1).left - JSAV.position($str2).left,
           posdiffY = opts.translateY?JSAV.position($str1).top - JSAV.position($str2).top:0,
           $both = $($str1).add($str2),
@@ -1580,6 +1958,12 @@ jQuery.cssHooks.borderWidth = {
           asibling = val1.nextSibling===val2 ? val1 : val1.nextSibling;
       val2.parentNode.insertBefore(val1, val2);
       aparent.insertBefore(val2, asibling);
+
+      // ... and swap classes...
+      if (opts.swapClasses) {
+        $str1.attr("class", classes2);
+        $str2.attr("class", classes1);
+      }
 
       // ..and finally animate..
       if (this._shouldAnimate()) {  // only animate when playing, not when recording
@@ -1613,20 +1997,31 @@ jQuery.cssHooks.borderWidth = {
         // .. then set the position so that the array appears unchanged..
         $val2.css({"x": -posdiffX, "y": -posdiffY, z: 1});
         $val1.css({"x": posdiffX, "y": posdiffY, z: 1});
+
+        // mark to JSAV that we're animating something more complex
+        this._animations += 1;
+        var jsav = this;
         // .. animate the color ..
-        $both.addClass("jsavswap", 3*speed);
+        if (opts.highlight) {
+          $both.addClass("jsavswap", 3*speed);
+        }
         // ..animate the translation to 0, so they'll be in their final positions..
         $val1.transition({"x": 0, y: 0, z: 0}, 7*speed, 'linear');
         $val2.transition({x: 0, y: 0, z: 0}, 7*speed, 'linear',
           function() {
             if (arr) { arr.remove(); } // ..remove the arrows if they exist
             // ..and finally animate to the original styles.
-            $both.removeClass("jsavswap", 3*speed);
+            if (opts.highlight) {
+              $both.removeClass("jsavswap", 3*speed);
+            }
+            // notify jsav that we're done with our animation
+            jsav._animations -= 1;
         });
       }
     }
   };
-}(jQuery));(function($) {
+}(jQuery));/*global JSAV, jQuery */
+(function($) {
   "use strict";
   // events to register as functions on tree
   var events = ["click", "dblclick", "mousedown", "mousemove", "mouseup",
@@ -1698,6 +2093,7 @@ jQuery.cssHooks.borderWidth = {
 * Module that contains the graphical primitive implementations.
 * Depends on core.js, anim.js, jQuery, Raphael
 */
+/*global JSAV, jQuery, Raphael */
 if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
   (function($, R) {
     "use strict";
@@ -1798,6 +2194,11 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       },
       id: JSAV._types.JSAVObject.id
     };
+    JSAVGraphical.prototype.addClass = JSAV.utils._helpers.addClass;
+    JSAVGraphical.prototype.removeClass = JSAV.utils._helpers.removeClass;
+    JSAVGraphical.prototype.hasClass = JSAV.utils._helpers.hasClass;
+    JSAVGraphical.prototype.toggleClass = JSAV.anim(JSAV.utils._helpers._toggleClass);
+
     var init = function(obj, jsav, props) {
       obj.jsav = jsav;
       obj.element = $(obj.rObj.node).data("svgelem", obj.rObj);
@@ -2100,7 +2501,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       isSVGElem: function(node) {
         return (node.nodeType == 1 && node.namespaceURI == 'http://www.w3.org/2000/svg');
       }
-    }
+    };
     /* Support adding class names to SVG nodes. */
     $.fn.addClass = function(origAddClass) {
       return function(classNames) {
@@ -2185,6 +2586,16 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     /*! End Keith Wood's utilities */
 
   }(jQuery, Raphael));
+
+} else { // end if Raphael !== "undefined"
+  // if raphael is not loaded, create dummy functions which warn when using primitives without Raphael
+  var error = function() {
+    console.error("You are trying to use graphical primitives but forgot to load Raphael.js.");
+  };
+  var g = {};
+  var names = ["circle", "rect", "line", "ellipse", "polyline", "polygon", "path", "set"];
+  for (var i = names.length; i--; ) { g[names[i]] = error; }
+  JSAV.ext.g = g;
 }
 
 (function($) {
@@ -2225,6 +2636,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       return this;
     }
   };
+  // add value(..) function as an alias for text
+  labelproto.value = labelproto.text;
   labelproto.state = function(newstate) {
     if (newstate) {
       $(this.element).html(newstate);
@@ -2247,6 +2660,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 * Module that contains the data structure implementations.
 * Depends on core.js, anim.js, utils.js, effects.js
 */
+/*global JSAV, jQuery, Raphael */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -2444,20 +2858,16 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     if (this._weight !== otherEdge._weight) { return false; }
 
     // compare styling of the edges
-    var cssprop, equal;
     if (options && 'css' in options) { // if comparing css properties
-      if ($.isArray(options.css)) { // array of property names
-        for (var i = 0; i < options.css.length; i++) {
-          cssprop = options.css[i];
-          equal = this.css(cssprop) === otherEdge.css(cssprop);
-          if (!equal) { return false; }
-        }
-      } else { // if not array, expect it to be a property name string
-        cssprop = options.css;
-        equal = this.css(cssprop) === otherEdge.css(cssprop);
-        if (!equal) { return false; }
-      }
+      var cssEquals = JSAV.utils._helpers.cssEquals(this, otherEdge, options.css);
+      if (!cssEquals) { return false; }
     }
+
+    if (options && 'class' in options) { // if comparing class attributes
+      var classEquals = JSAV.utils._helpers.classEquals(this, otherEdge, options["class"]);
+      if (!classEquals) { return false; }
+    }
+
     return true;
   };
 
@@ -2548,13 +2958,9 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
         // arbitrarily choose to use bottom-right border radius
         endRadius = parseInt(eElem.css("borderBottomRightRadius"), 10) || 0,
         toPoint;
-    if (endRadius < eElem.innerWidth()/2.0 || eWidth !== eHeight) { // position edge at bottom middle for non-circle nodes
-      toPoint = [1, toX, toY + eHeight];
-    } else { // for circle nodes, calculate position on the circle
-      toPoint = getNodeBorderAtAngle(1, this.endnode.element,
-          {width: eWidth, height: eHeight, x: toX, y: toY}, toAngle,
-          endRadius);
-    }
+    toPoint = getNodeBorderAtAngle(1, this.endnode.element,
+        {width: eWidth, height: eHeight, x: toX, y: toY}, toAngle,
+        endRadius);
     this.g.movePoints([fromPoint, toPoint], options);
 
     if ($.isFunction(this._labelPositionUpdate)) {
@@ -2637,10 +3043,10 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     return "<span class='jsavvaluelabel'>" + value + "</span>";
   };
   nodeproto.highlight = function(options) {
-    this.addClass("jsavhighlight");
+    return this.addClass("jsavhighlight");
   };
   nodeproto.unhighlight = function(options) {
-    this.removeClass("jsavhighlight");
+    return this.removeClass("jsavhighlight");
   };
   nodeproto.isHighlight = function() {
     return this.hasClass("jsavhighlight");
@@ -2658,6 +3064,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 * Module that contains the array data structure implementations.
 * Depends on core.js, anim.js, utils.js, effects.js, datastructures.js
 */
+/* global JSAV, jQuery */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -2681,7 +3088,8 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     this.jsav = container.jsav;
     this.container = container;
     this.index = index;
-    this.options = $.extend(true, {visible: true}, options);
+    // always have indices visible, visibility is controlled by the array
+    this.options = $.extend(true, {}, options, {visible: true});
     var indHtml = container.options.template
         .replace("{{value}}", value)
         .replace("{{index}}", index);
@@ -2692,7 +3100,6 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     }
     this.container.element.append(ind);
 
-    JSAV.utils._helpers.handleVisibility(this, this.options);
   };
   JSAV.utils.extend(ArrayIndex, JSAV._types.ds.Node);
   var indexproto = ArrayIndex.prototype;
@@ -2700,6 +3107,24 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     return this.container.value(this.index, newValue, options);
   };
   indexproto._setvalue = indexproto.value;
+  // show/hide of indices makes no sense, so replace them with noop functions
+  indexproto.show = function() {};
+  indexproto.hide = function() {};
+  indexproto.equals = function(otherIndex, options) {
+    if (!otherIndex || this.value() !== otherIndex.value() || !otherIndex instanceof ArrayIndex) {
+      return false;
+    }
+    if (options && 'css' in options) { // if comparing css properties
+      var cssEquals = JSAV.utils._helpers.cssEquals(this, otherIndex, options.css);
+      if (!cssEquals) { return false; }
+    }
+    if (options && 'class' in options) { // if comparing class attributes
+      var classEquals = JSAV.utils._helpers.classEquals(this, otherIndex, options["class"]);
+      if (!classEquals) { return false; }
+    }
+    return true; // values equal, nothing else to compare
+  };
+
 
   /* Array data structure for JSAV library. */
   var AVArray = function(jsav, element, options) {
@@ -2833,10 +3258,6 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     var $index = this.element.find("li:eq(" + index + ")");
     this._values[index] = newValue;
     $index.find(".jsavvaluelabel").html("" + newValue);
-    if (("" + newValue).length > ("" + oldval).length || newli) {
-      // if the new value is longer than old, or new elements were added to array, re-layout
-      this.layout();
-    }
     return [index, oldval];
   });
   arrproto.initialize = function(data) {
@@ -2902,7 +3323,6 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
   };
   arrproto.state = function(newstate) {
     if (newstate) {
-      console.log("setting array state");
       $(this.element).html(newstate.html);
       for (var i = newstate.values.length; i--; ) {
         this._values[i] = newstate.values[i];
@@ -2920,6 +3340,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       i, j,
       equal,
       cssprop,
+      clazzname,
       len;
     if ($.isArray(otherArray)) { // simple case of array values
       if (!options) { // if nothing in options is specified
@@ -2970,6 +3391,23 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
           }
         }
       }
+      if ('class' in opts) { // if comparing class attributes
+        if ($.isArray(opts["class"])) { // array of class names
+          for (i = 0; i < opts["class"].length; i++) {
+            clazzname = opts["class"][i];
+            for (j = 0; j < len; j++) {
+              equal = this.hasClass(j, clazzname) === otherArray.hasClass(j, clazzname);
+              if (!equal) { return false; }
+            }
+          }
+        } else { // if not array, expect it to be a class name string
+          clazzname = opts["class"];
+          for (i = 0; i < len; i++) {
+            equal = this.hasClass(i, clazzname) === otherArray.hasClass(i, clazzname);
+            if (!equal) { return false; }
+          }
+        }
+      }
       return true; // if tests passed, arrays are equal
     }
 
@@ -2983,7 +3421,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     } else {
       $elems.toggleClass(className);
     }
-    return [index, className];
+    return [index, className, options];
   });
   arrproto.addClass = function(index, className, options) {
     var indices = JSAV.utils._helpers.normalizeIndices($(this.element).find("li.jsavindex"), index, ":not(." + className + ")");
@@ -3053,10 +3491,9 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     return this;
   };
 
-  arrproto.toggleArrow = JSAV.anim(function(indices, options) {
-    var $elems = getIndices($(this.element).find("li"), indices);
-    this.jsav.effects._toggleClass($elems, "jsavarrow", options);
-  });
+  arrproto.toggleArrow = function(indices, options) {
+    this.toggleClass(indices, "jsavarrow", options);
+  };
   arrproto.toggleLine = JSAV.anim(function(index, options) {
       // Toggles a marker line above a given array index for bar layout
       // Options that can be passed:
@@ -3105,6 +3542,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 
 
   JSAV._types.ds.AVArray = AVArray;
+  JSAV._types.ds.ArrayIndex = ArrayIndex;
   // expose the data structures for the JSAV
   JSAV.ext.ds.array = function(element, options) {
     return new AVArray(this, element, options);
@@ -3180,7 +3618,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     var setBarHeight = JSAV.anim(function(elem, newHeight, options) {
       // the JSAV.anim wrapper will make sure this points to jsav instance
       var oldHeight = elem.height();
-      if (this._shouldAnimate()) {
+      if (this.jsav._shouldAnimate()) {
         this.jsav.effects.transition(elem, {height: newHeight}, options);
       } else {
         elem.css({height: newHeight});
@@ -3196,7 +3634,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
           newBarHeight = Math.round(valueBarHeight*(array.value(index) / maxValue));
       // only if height has changed should it be recorded
       if (newBarHeight !== $value.height()) {
-        setBarHeight.call(array.jsav, $value, newBarHeight);
+        setBarHeight.call(array, $value, newBarHeight);
       }
     });
     setArrayWidth(array, $items.last(), options);
@@ -3214,6 +3652,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 * Module that contains the tree data structure implementations.
 * Depends on core.js, datastructures.js, anim.js, utils.js
 */
+/*global JSAV, jQuery, console */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -3461,7 +3900,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     if (typeof node === "undefined") {
       return this.childnodes[pos];
     } else {
-      if (typeof node === "string" || typeof node === "number") {
+      if (node !== null && !(node instanceof TreeNode)) {
         node = this.container.newNode(node, this, options);
       }
       return setchildhelper(this, pos, node, options);
@@ -3496,24 +3935,19 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     if (!otherNode || this.value() !== otherNode.value()) {
       return false;
     }
-    var cssprop, equal;
     if (options && 'css' in options) { // if comparing css properties
-      if ($.isArray(options.css)) { // array of property names
-        for (var i = 0; i < options.css.length; i++) {
-          cssprop = options.css[i];
-          equal = (this.css(cssprop) === otherNode.css(cssprop));
-          if (!equal) { return false; }
-        }
-      } else { // if not array, expect it to be a property name string
-        cssprop = options.css;
-        equal = (this.css(cssprop) === otherNode.css(cssprop));
-        if (!equal) { return false; }
-      }
+      var cssEquals = JSAV.utils._helpers.cssEquals(this, otherNode, options.css);
+      if (!cssEquals) { return false; }
+    }
+    if (options && 'class' in options) { // if comparing class attributes
+      var classEquals = JSAV.utils._helpers.classEquals(this, otherNode, options["class"]);
+      if (!classEquals) { return false; }
     }
     // compare edge style
     if (this.edgeToParent()) {
-      equal = this.edgeToParent().equals(otherNode.edgeToParent(),
+      var edgeEquals = this.edgeToParent().equals(otherNode.edgeToParent(),
                                         $.extend({}, options, {dontCheckNodes: true}));
+      if (!edgeEquals) { return false; }
     }
     // compare children
     var ch = this.children(),
@@ -3712,7 +4146,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
   binnodeproto._setvalue = JSAV.anim(function(newValue) {
     var oldVal = this.value(),
         valtype = typeof(newValue);
-    if (typeof oldVal === "undefined") {oldVal = "";};
+    if (typeof oldVal === "undefined") {oldVal = "";}
     if (valtype === "object") { valtype = "string"; }
     this.element
         .removeClass("jsavnullnode")
@@ -3733,11 +4167,11 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
   dstypes.BinaryTree = BinaryTree;
   dstypes.BinaryTreeNode = BinaryTreeNode;
 
-  // add functions to jsav.ds to create tree, bintree, end edge
+  // add functions to jsav.ds to create tree, binarytree, end edge
   JSAV.ext.ds.tree = function(options) {
     return new Tree(this, $.extend(true, {visible: true, autoresize: true}, options));
   };
-  JSAV.ext.ds.bintree = function(options) {
+  JSAV.ext.ds.binarytree = function(options) {
     return new BinaryTree(this, $.extend(true, {visible: true, autoresize: true}, options));
   };
   JSAV.ext.ds.edge = function(options) {
@@ -3845,49 +4279,67 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     calculateLayout(root);
     translateNodes(root, 20, 10 + NODEGAP);
     propagateTranslations(root);
-    var maxX = Number.MIN_VALUE, maxY = Number.MIN_VALUE,
-        max = Math.max, previousLayout = tree._layoutDone;
+
+    // figure out mix and max positions of nodes
+    var maxX = -Number.MAX_VALUE, maxY = -Number.MAX_VALUE,
+        minX = Number.MAX_VALUE, minY = Number.MAX_VALUE,
+        max = Math.max,
+        min = Math.min;
     $.each(results, function(key, value) {
-      var oldPos = value.node.element.position();
-      if (!opts.boundsOnly) { // only change pos if we are not just calculating bounds
-        if (!previousLayout || (oldPos.left === 0 && oldPos.top === 0)) {
-          value.node.element.css({left: value.translation.width + "px", top: value.translation.height + "px"});
-        } else {
-          value.node.css({left: value.translation.width + "px", top: value.translation.height + "px"});
-        }
-      }
       maxX = max(maxX, value.translation.width + value.node.element.outerWidth());
       maxY = max(maxY, value.translation.height + value.node.element.outerHeight());
+      minX = min(minX, value.translation.width);
+      minY = min(minY, value.translation.height);
     });
-    
+    // change the position of nodes
+    if (!opts.boundsOnly) { // only change pos if we are not just calculating bounds
+      $.each(results, function(key, value) {
+        var oldPos = value.node.element.position();
+        // if node hasn't been positioned earlier, don't animate
+        if (!value.node._layoutDone && oldPos.left === 0 && oldPos.top === 0) {
+          value.node.element.css({left: (value.translation.width - minX) + "px",
+                                  top: (value.translation.height - minY) + "px"});
+          value.node._layoutDone = true;
+        } else { // otherwise animate to the new position
+          value.node.moveTo(value.translation.width - minX, value.translation.height - minY);
+        }
+      });
+    }
+
     // calculate left coordinate to center the tree inside its parent container
-    var centerTree = function() {
+    var centerTree = function(tree, width) {
       // if options center is not set to truthy value, center it
-      if (tree.options.hasOwnProperty("center") && !tree.options.center) {
-        return tree.position().left;
+      if (opts.hasOwnProperty("center") && !opts.center) {
+        return 0;
       }
       var containerWidth = $(tree.jsav.canvas).width();
-      return (containerWidth - maxX)/2;
+      return (containerWidth - width)/2 - tree.position().left;
     };
 
-    var treeDims = { width: maxX, height: maxY,
-                    left: centerTree(tree)};
+    var treeDims = { width: maxX - minX, height: maxY - minY },
+        left = centerTree(tree, maxX - minX);
 
     if (!opts.boundsOnly) { // only go through edges if we are not just calculating bounds
-      tree._layoutDone = true;
-      if (!previousLayout) {
+      if (!tree._layoutDone) {
+        tree._layoutDone = true;
         tree.element.css(treeDims);
+        if (left) {
+          tree.element.css("left", left);
+        }
       } else {
         tree.css(treeDims, opts);
+        if (left) {
+          tree.translateX(left);
+        }
       }
       $.each(results, function(key, value) {
         var node = value.node;
         if (node._edgetoparent) {
-          var start = {left: value.translation.width,
-                        top: value.translation.height},
+          var start = {left: value.translation.width - minX,
+                        top: value.translation.height - minY},
               endnode = results[node.parent().id()].translation,
-              end = {left: endnode.width,
-              top: endnode.height};
+              end = {left: endnode.width - minX,
+              top: endnode.height - minY};
           node._edgetoparent.layout($.extend({start: start, end: end}, opts));
         }
       });
@@ -4061,7 +4513,7 @@ TreeContours.prototype = {
 * Module that contains the linked list data structure implementations.
 * Depends on core.js, datastructures.js, anim.js, utils.js
 */
-/*global JSAV:true */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -4178,7 +4630,7 @@ TreeContours.prototype = {
     return new ListNode(this, value, $.extend({first: false}, this.options, options));
   };
   listproto.remove = function(index, options) {
-    // TODO: remove bounds checks -> use removefirst/last
+    var opts = $.extend({hide: true}, options);
     if (index === 0) {
       return this.removeFirst(options);
     } else if (index === this.size() - 1) {
@@ -4188,18 +4640,35 @@ TreeContours.prototype = {
         next = this.get(index + 1),
         oldNode = prev.next();
     prev.next(next, options);
+    if (opts.hide) {
+      oldNode.hide();
+      oldNode.edgeToNext().hide();
+    }
     return oldNode;
   };
   listproto.removeFirst = function(options) {
-    var oldFirst = this.first();
+    if (this.size() <= 0) { return; }
+    var opts = $.extend({hide: true}, options),
+        oldFirst = this.first();
     this._setfirst(oldFirst.next(), options);
-    oldFirst.hide();
+    if (opts.hide) {
+      oldFirst.hide();
+      if (oldFirst.edgeToNext()) {
+        oldFirst.edgeToNext().hide();
+      }
+    }
     return oldFirst;
   };
   listproto.removeLast = function(options) {
-    var newLast = this.get(this.size() - 2),
-      oldLast = this.last();
+    if (this.size() <= 1) { return this.removeFirst(); }
+    var opts = $.extend({hide: true}, options),
+        newLast = this.get(this.size() - 2),
+        oldLast = this.last();
     newLast.next(null, options);
+    if (opts.hide) {
+      oldLast.hide();
+      newLast.edgeToNext().hide();
+    }
     return oldLast;
   };
   listproto.layout = function(options) {
@@ -4220,6 +4689,15 @@ TreeContours.prototype = {
       curNode = curNode.next();
     }
     return size;
+  };
+  listproto.equals = function(otherList, options) {
+    if (!this.first() && !otherList.first()) { // empty lists
+      return true;
+    } else if (!this.first()) { // other list not empty, this list is
+      return false;
+    } else {
+      return this.first().equals(otherList.first(), options);
+    }
   };
   listproto.css = JSAV.utils._helpers.css;
   listproto._setcss = JSAV.anim(JSAV.utils._helpers._setcss);
@@ -4283,6 +4761,33 @@ TreeContours.prototype = {
   listnodeproto.state = function(newState) {
     // TODO: implement state
   };
+  listnodeproto.equals = function(otherNode, options) {
+    if (!otherNode || this.value() !== otherNode.value()) {
+      return false;
+    }
+    if (options && 'css' in options) { // if comparing css properties
+      var cssEquals = JSAV.utils._helpers.cssEquals(this, otherNode, options.css);
+      if (!cssEquals) { return false; }
+    }
+    if (options && 'class' in options) { // if comparing class attributes
+      var classEquals = JSAV.utils._helpers.classEquals(this, otherNode, options["class"]);
+      if (!classEquals) { return false; }
+    }
+    // compare edge style
+    if (this.edgeToNext()) {
+      var edgeEquals = this.edgeToNext().equals(otherNode.edgeToNext(),
+          $.extend({}, options, {dontCheckNodes: true}));
+      if (!edgeEquals) { return false; }
+    }
+    // compare next nodes
+    if (this.next()) { // both have next, return whether they match
+      return this.next().equals(otherNode.next(), options);
+    } else if (otherNode.next()) { // this node has no next, the other has
+      return false; // nodes are not equal
+    } else {
+      return true;
+    }
+  };
 
   // expose the list types
   var dstypes = JSAV._types.ds;
@@ -4293,11 +4798,11 @@ TreeContours.prototype = {
     // center the list inside its parent container
     if (list.options.hasOwnProperty("center") && !list.options.center) {
       // if options center is set to falsy value, return
-      return list.position().left;
+      return 0;
     }
     // width of list expected to be last items position + its width
     var containerWidth = $(list.jsav.canvas).width();
-    return (containerWidth - width)/2;
+    return (containerWidth - width)/2 - list.position().left;
   }
 
   var horizontalNodePosUpdate = function(node, prevNode, prevPos, opts) {
@@ -4381,12 +4886,15 @@ TreeContours.prototype = {
     left = centerList(list, width, opts);
     if (!opts.boundsOnly) {
       // ..update list size and position..
-      list.css({width: width, height: height, left: left});
+      list.css({width: width, height: height});
+      if (left) {
+        list.translateX(left);
+      }
       // .. and finally update the node and edge positions
       // doing the size first makes the animation look smoother by reducing some flicker
       for (var i = posData.length - 1; i >= 0; i--) {
         var posItem = posData[i];
-        posItem.node.css(posItem.nodePos);
+        posItem.node.moveTo(posItem.nodePos.left, posItem.nodePos.top);
         if (posItem.edge) {
           posItem.edge.g.movePoints(posItem.edgePos, opts);
         }
@@ -4418,6 +4926,7 @@ TreeContours.prototype = {
 * Module that contains the graph data structure implementations.
 * Depends on core.js, datastructures.js, anim.js, utils.js
 */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -4715,9 +5224,9 @@ TreeContours.prototype = {
     for (var i = 0, l = this.nodes.length; i < l; i++) {
       node = this.nodes[i];
       res = this.results[node.id()];
-      node.css({left: (res.layoutPosX - this.layoutMinX) * factorX + "px",
-               top: Math.max(0, (res.layoutPosY - this.layoutMinY) * factorY -
-                    node.element.outerHeight())+ "px"});
+      node.moveTo((res.layoutPosX - this.layoutMinX) * factorX,
+                  Math.max(0, (res.layoutPosY - this.layoutMinY) * factorY -
+                    node.element.outerHeight()));
     }
     for (i = 0, l = this.edges.length; i < l; i++) {
       edge = this.edges[i];
@@ -4958,19 +5467,13 @@ TreeContours.prototype = {
     }
 
     // compare css properties of the node
-    var cssprop, equal, i, j;
     if (options && 'css' in options) { // if comparing css properties
-      if ($.isArray(options.css)) { // array of property names
-        for (i = 0; i < options.css.length; i++) {
-          cssprop = options.css[i];
-          equal = (this.css(cssprop) === otherNode.css(cssprop));
-          if (!equal) { return false; }
-        }
-      } else { // if not array, expect it to be a property name string
-        cssprop = options.css;
-        equal = (this.css(cssprop) === otherNode.css(cssprop));
-        if (!equal) { return false; }
-      }
+      var cssEquals = JSAV.utils._helpers.cssEquals(this, otherNode, options.css);
+      if (!cssEquals) { return false; }
+    }
+    if (options && 'class' in options) { // if comparing class attributes
+      var classEquals = JSAV.utils._helpers.classEquals(this, otherNode, options["class"]);
+      if (!classEquals) { return false; }
     }
 
     var myNeighbors = this.neighbors().sort(Graph._nodeSortFunction),
@@ -4979,6 +5482,7 @@ TreeContours.prototype = {
     // different number of neighbors -> cannot be equal nodes
     if (myNeighbors.length !== otherNeighbors.length) { return false; }
 
+    var i;
     for (i = myNeighbors.length; i--; ) {
       myNeighbor = myNeighbors[i];
       otherNeighbor = otherNeighbors[i];
@@ -5008,6 +5512,7 @@ TreeContours.prototype = {
   };
 
 })(jQuery);
+/*global JSAV, jQuery, console */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -5211,7 +5716,7 @@ TreeContours.prototype = {
 * Module that contains support for program code constructs.
 * Depends on core.js, anim.js
 */
-/*global JSAV:true*/
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -5228,9 +5733,9 @@ TreeContours.prototype = {
     if (this.options.before) {
       this.element.insertBefore(this.options.before.element);
     } else if (this.options.after) {
-      this.element.insertAfter(this.options.before.element);
+      this.element.insertAfter(this.options.after.element);
     } else {
-      $(this.jsav.container).append(this.element);
+      $(this.jsav.canvas).append(this.element);
     }
     if (this.options.label) {
       this.element.find(".jsavvarlabel").html(this.options.label);
@@ -5281,36 +5786,17 @@ TreeContours.prototype = {
   varproto.hasClass = JSAV.utils._helpers.hasClass;
   varproto.toggleClass = JSAV.anim(JSAV.utils._helpers._toggleClass);
 
+  JSAV._types.Variable = Variable;
   JSAV.ext.variable = function(value, options) {
     return new Variable(this, value, options);
   };
 
 
-  // helper function to create the arrow for the pointer
-  var _createArrow = function(pointer, options) {
-    var arrowPoints = pointer._arrowPoints();
-    var arrow = pointer.jsav.g.line(arrowPoints[0][1], arrowPoints[0][2],
-                              arrowPoints[1][1], arrowPoints[1][2],
-                              {"arrow-end": "classic-wide",
-                               "arrow-start": "oval-medium-medium",
-                                "stroke-width": 2,
-                                "opacity": 0});
-    if (pointer.isVisible()) {
-      arrow.show();
-    }
-    // set up an event handler to update the arrow position whenever the target
-    // changes or the target moves
-    pointer.jsav.container.on("jsav-updaterelative", function() {
-      if (!pointer.isVisible()) { return; }
-      pointer.arrow.movePoints(pointer._arrowPoints(options), options);
-    });
-    return arrow;
-  };
-
   // A pointer object that can have a name and a target that it points to.
   var Pointer = function(jsav, name, options) {
     this.jsav = jsav;
     var defaultOptions = {visible: true, // visible by default
+                          follow: true,
                           // positioned 20px above the object pointed to
                           anchor: "left top",
                           myAnchor: "left bottom",
@@ -5322,25 +5808,120 @@ TreeContours.prototype = {
     if (this.options.before) {
       this.element.insertBefore(this.options.before.element);
     } else if (this.options.after) {
-      this.element.insertAfter(this.options.before.element);
+      this.element.insertAfter(this.options.after.element);
     } else if (this.options.container) {
       this.options.container.append(this.element);
     } else {
       $(this.jsav.canvas).append(this.element);
     }
+
+    // if we have relativeIndex or targetIndex in options, get the index and
+    // delete the options
     if (typeof(this.options.targetIndex) !== "undefined") {
-      this.options.relativeIndex = this.options.targetIndex;
+      this.options.relativeTo = this.options.relativeTo.index(this.options.targetIndex);
+      delete this.options.targetIndex;
+      delete this.options.relativeIndex;
+    } else if (typeof(this.options.relativeIndex) !== "undefined") {
+        this.options.relativeTo = this.options.relativeTo.index(this.options.relativeIndex);
+        delete this.options.relativeIndex;
     }
-    JSAV.utils._helpers.handlePosition(this);
+
+    if (!this.options.fixed) {
+      this.options.follow = true;
+      var pointer = this;
+      var arrowPointerListener = function(dleft, dtop) {
+        pointer._pointerLeftSum += dleft;
+        pointer._pointerTopSum += dtop;
+      };
+      this._arrowPointerCallback = arrowPointerListener;
+    }
+    JSAV.utils._helpers.setRelativePositioning(this, $.extend({}, this.options, {callback: this._arrowPointerCallback}));
+
     JSAV.utils._helpers.handleVisibility(this, this.options);
-    this._target = options.relativeTo;
+    this._target = this.options.relativeTo;
     if (this._target) {
-      this.arrow = _createArrow(this);
+      this._createArrow();
     }
   };
   // Extend the Label type
   JSAV.utils.extend(Pointer, JSAV._types.Label);
   var pointerproto = Pointer.prototype;
+
+  // Function to make the arrow end follow the target element of this pointer.
+  // The arrow will change in two ways: when pointer moves and when target moves.
+  // This function handles the latter case. This function also registers a handler
+  // for jsav-updaterelative event which will trigger the actual re-drawing of the
+  // arrow. Until that event fires, the change in position is tracked in fields
+  // _targetLeft/TopSum and _pointerLeft/TopSum.
+  //
+  // The movement of the pointer element is handled by a listener set in the
+  // constructor.
+  pointerproto._setArrowTargetFollower = function() {
+    this._targetLeftSum = 0;
+    this._targetTopSum = 0;
+    // store this in the closure for the handlers
+    var pointer = this;
+    if (!this._arrowUpdateRelativeListener) {
+      // A handler for jsav-updaterelative event. When the event fires, move
+      // the arrow based on the cumulative translations
+      var arrowUpdateRelativeListener = function() {
+        if (!pointer.isVisible()) { return; }
+        pointer._translateArrowPoints(pointer._pointerLeftSum, pointer._pointerTopSum,
+                                   pointer._targetLeftSum, pointer._targetTopSum);
+        pointer._targetLeftSum = 0;
+        pointer._targetTopSum = 0;
+        pointer._pointerLeftSum = 0;
+        pointer._pointerTopSum = 0;
+      };
+      // store the function to recognize later that it has been set
+      this._arrowUpdateRelativeListener = arrowUpdateRelativeListener;
+      // register the event listener
+      pointer.jsav.container.on("jsav-updaterelative", arrowUpdateRelativeListener);
+    }
+
+    // function called whenever the target moves.
+    var arrowTargetListener = function(dleft, dtop) {
+      pointer._targetLeftSum += dleft;
+      pointer._targetTopSum += dtop;
+    };
+    // set up an event handler to update the arrow position whenever the target moves
+    JSAV.utils._helpers._setRelativeFollowUpdater(this.arrow, this._target, {callback: arrowTargetListener,
+                                                        autotranslate: false});
+  };
+
+  // translate the start and end points of the arrow by the given amounts
+  pointerproto._translateArrowPoints = function(startDiffX, startDiffY, endDiffX, endDiffY) {
+    var curPoints = this.arrow.points();
+    curPoints[0][0] += startDiffX;
+    curPoints[0][1] += startDiffY;
+    curPoints[1][0] += endDiffX;
+    curPoints[1][1] += endDiffY;
+    // call the movePoints of the line (in the slightly strange format it has :))
+    this.arrow.movePoints([[0, curPoints[0][0], curPoints[0][1]],
+                           [1, curPoints[1][0], curPoints[1][1]]]);
+  };
+  // helper function to create the arrow for the pointer
+  pointerproto._createArrow = function(options) {
+    // calculate the points
+    var arrowPoints = this._arrowPoints();
+    // create the line graphical primitive for the arrow
+    var arrow = this.jsav.g.line(arrowPoints[0][1], arrowPoints[0][2],
+        arrowPoints[1][1], arrowPoints[1][2],
+        {"arrow-end": "classic-wide",
+          "arrow-start": "oval-medium-medium",
+          "stroke-width": 2,
+          "opacity": 0});
+    if (this.isVisible()) {
+      arrow.show();
+    }
+    this._pointerLeftSum = 0;
+    this._pointerTopSum = 0;
+    // store the arrow in the object
+    this.arrow = arrow;
+    // set the arrow to follow the target
+    this._setArrowTargetFollower();
+  };
+
   // Helper function to record the change of the pointer target.
   pointerproto._setTarget = JSAV.anim(
     function(newTarget, options) {
@@ -5354,68 +5935,120 @@ TreeContours.prototype = {
   // an array like [[0, startX, startY], [1, endX, endY]]
   // Note, that this assumes that both the pointer and the target are inside the
   // jsavcanvas HTML element.
-  pointerproto._arrowPoints = function(options) {
+  // Also not, that this uses _calculateArrowTargetPosition to calculate the end point.
+  pointerproto._arrowPoints = function(newLeft, newTop, options) {
+    if (typeof newLeft === "object") {
+      options = newLeft;
+      newLeft = null;
+      newTop = null;
+    }
     var opts = $.extend({}, this.options, options),
-        myBounds = this.bounds(),
-        targetElem;
+        myBounds = this.bounds();
 
-    // if targetting null, make the arrow 0 length
-    if (this._target === null) {
-      return [[0, myBounds.left + myBounds.width/2,
-                  myBounds.top + myBounds.height],
-              [1, myBounds.left + myBounds.width/2 + 5,
-                  myBounds.top + myBounds.height + 5]];
-    }
-    if (typeof(opts.targetIndex) !== "undefined") {
-      opts.relativeIndex = opts.targetIndex;
-    }
-    // If target is an array index, find the DOM element for that index
-    if (typeof(opts.relativeIndex) !== "undefined") {
-      targetElem = this._target.element.find(".jsavindex:eq(" + opts.relativeIndex + ") .jsavvalue");
-    } else {
-      targetElem = this._target.element;
-    }
-    var targetOffset = targetElem.offset(),
-        canvasOffset = this.jsav.canvas.offset(),
-        targetBounds = {width: targetElem.outerWidth(),
-                                 height: targetElem.outerHeight,
-                                 left: targetOffset.left - canvasOffset.left,
-                                 top: targetOffset.top - canvasOffset.top},
-        newPoints = [[0, myBounds.left + myBounds.width/2 + 1, //+1 to center the arrow start "ball"
-                        myBounds.top + myBounds.height - 5], // -5 to get to center of pointerarea
-                     [1, targetBounds.left + targetBounds.width/2,
-                        targetBounds.top]];
+    var targetPoint = this._calculateArrowTargetPosition(this._target, opts),
+        newPoints = [[0, (newLeft || myBounds.left) + myBounds.width/2 + 1, //+1 to center the arrow start "ball"
+                         (newTop || myBounds.top) + myBounds.height - 5], // -5 to get to center of pointerarea
+                     [1, targetPoint[0], targetPoint[1]]];
     return newPoints;
   };
+  // calculate the end point of the arrow based on the target element. Argument target
+  // should be a JSAV object.
+  pointerproto._calculateArrowTargetPosition = function(target, opts) {
+    var myBounds = this.bounds();
+    // if targetting null, make the arrow 0 length
+    if (this._target === null) {
+      return [myBounds.left + myBounds.width/2 + 5, myBounds.top + myBounds.height + 5];
+    }
+    // figure out where to target the arrow
+    // format of the arrowAnchor should be horz vert
+    // where horz is left, center, right, or a percentage
+    // and vert is top, center, bottom, or a percentage
+    var horzPercentMapping = {left: 0, center: 50, right: 100},
+        vertPercentMapping = {top: 0, center: 50, bottom: 100};
+    var arrowHorzAnchor = 50, // default to center
+        arrowVertAnchor = 0, // and top
+        arrowAnchor = opts.arrowAnchor || this.options.arrowAnchor;
+    if (arrowAnchor) {
+      var anchor = arrowAnchor.split(' ');
+      if (anchor.length === 1) {
+        arrowHorzAnchor = arrowVertAnchor = parseInt(anchor[0], 10);
+      } else {
+        arrowHorzAnchor = horzPercentMapping[anchor[0]];
+        if (typeof arrowHorzAnchor !== "number") {
+          arrowHorzAnchor = parseInt(anchor[0], 10);
+        }
+        arrowVertAnchor = vertPercentMapping[anchor[1]];
+        if (typeof arrowVertAnchor !== "number") {
+          arrowVertAnchor = parseInt(anchor[1], 10);
+        }
+      }
+    }
+    var targetElem = target.element,
+        targetOffset = targetElem.offset(),
+        canvasOffset = this.jsav.canvas.offset(),
+        targetBounds = {width: targetElem.outerWidth(),
+          height: targetElem.outerHeight(),
+          left: targetOffset.left - canvasOffset.left,
+          top: targetOffset.top - canvasOffset.top};
+    return [targetBounds.left + targetBounds.width*arrowHorzAnchor/100.0,
+            targetBounds.top + targetBounds.height*arrowVertAnchor/100.0];
+  };
+
   // Update the target of this pointer. Argument newTarget should be a JSAV object.
   // Options available are the same as when positioning elements relative to each other.
   pointerproto.target = function(newTarget, options) {
     if (typeof newTarget === "undefined") {
       return this._target;
     } else {
-      this._setTarget(newTarget, options);
+      var opts = $.extend({}, options);
+
+      // if relativeIndex or targetIndex are in options, get the index from the
+      // target and delete the options
+      if (typeof(opts.targetIndex) !== "undefined") {
+        newTarget = newTarget.index(opts.targetIndex);
+        delete opts.targetIndex;
+        delete opts.relativeIndex;
+      } else if (typeof(opts.relativeIndex) !== "undefined") {
+        newTarget = newTarget.index(opts.relativeIndex);
+        delete opts.relativeIndex;
+      }
+
+      // record the change of the target
+      this._setTarget(newTarget, opts);
+
       // if setting target to null, hide the arrow
       if (newTarget === null) {
         if (this.arrow) { this.arrow.hide(); }
         this.addClass("jsavnullpointer");
         return this;
+      } else {
+        this.removeClass("jsavnullpointer");
       }
-      this.removeClass("jsavnullpointer");
+      // if no arrow, create the arrow
       if (!this.arrow) {
-        this.arrow = _createArrow(this, options);
+        this._createArrow(opts);
       } else if (!this.arrow.isVisible()) {
         // if arrow is hidden, show it
         this.arrow.show();
       }
+
+      // reset the counters for pointer position change
+      this._pointerLeftSum = 0;
+      this._pointerTopSum = 0;
       // if position is not fixed, update relative position to match new target
       if (!this.options.fixed) {
-        JSAV.utils._helpers.setRelativePositioning(this, $.extend({}, this.options, options, {relativeTo: newTarget}));
-        var that = this;
-        this.jsav.container.on("jsav-updaterelative", function() {
-          if (!that.isVisible()) { return; }
-          that.arrow.movePoints(pointerproto._arrowPoints.call(that, options), options);
-        });
+        var newPos = JSAV.utils._helpers.setRelativePositioning(this, $.extend({}, this.options, opts,
+                                                              {relativeTo: newTarget,
+                                                               callback: this._arrowPointerCallback}));
       }
+      // set the arrow to follow the new target
+      this._setArrowTargetFollower();
+      // calculate the change in position for the arrow target
+      var newTargetArrowPoint = this._calculateArrowTargetPosition(newTarget, opts);
+      var currTargetPoint = this.arrow.points()[1];
+      this._targetLeftSum += newTargetArrowPoint[0] - currTargetPoint[0];
+      this._targetTopSum += newTargetArrowPoint[1] - currTargetPoint[1];
+      // return this for chaining
       return this;
     }
   };
@@ -5428,6 +6061,20 @@ TreeContours.prototype = {
   pointerproto.show = function(options) {
     this._origshow(options);
     if (this.arrow) { this.arrow.show(); }
+  };
+  pointerproto.equals = function(otherPointer, options) {
+    if (!otherPointer || !otherPointer instanceof Pointer) {
+      return false;
+    }
+    if (options && 'css' in options) { // if comparing css properties
+      var cssEquals = JSAV.utils._helpers.cssEquals(this, otherPointer, options.css);
+      if (!cssEquals) { return false; }
+    }
+    if (options && 'class' in options) { // if comparing class attributes
+      var classEquals = JSAV.utils._helpers.classEquals(this, otherPointer, options["class"]);
+      if (!classEquals) { return false; }
+    }
+    return this.target().equals(otherPointer.target(), options);
   };
   // Expose the Pointer as the .pointer(...) function on JSAV instances.
   JSAV.ext.pointer = function(name, target, options) {
@@ -5483,7 +6130,7 @@ TreeContours.prototype = {
     if (this.options.before) {
       this.element.insertBefore(this.options.before.element);
     } else if (this.options.after) {
-      this.element.insertAfter(this.options.before.element);
+      this.element.insertAfter(this.options.after.element);
     } else {
       $(this.jsav.canvas).append(this.element);
     }
@@ -5638,6 +6285,8 @@ TreeContours.prototype = {
       this.element.html(newState.html);
     }
   };
+  JSAV._types.Code = Code;
+
   JSAV.ext.code = function(codelines, options) {
     return new Code(this, codelines, options);
   };
@@ -5645,6 +6294,7 @@ TreeContours.prototype = {
 * Module that contains the configurable settings panel implementation
 * Depends on core.js, utils.js
 */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -5809,6 +6459,7 @@ TreeContours.prototype = {
 * Module that contains the message output implementations.
 * Depends on core.js, anim.js, utils.js
 */
+/*global JSAV, jQuery */
 (function($) {
   "use strict";
   var BLOCKED_ATTRIBUTES = ['correct', 'comment', 'points'];
@@ -5991,7 +6642,7 @@ TreeContours.prototype = {
       var logData = {
         type: "jsav-question-close",
         question: that.questionText
-      }
+      };
       if (that.options.id) { logData.questionId = that.options.id; }
       that.jsav.logEvent(logData);
     };
@@ -6071,7 +6722,7 @@ TreeContours.prototype = {
       var logData = {
         type: "jsav-question-closeiframe",
         question: that.questionText
-      }
+      };
       if (that.options.id) { logData.questionId = that.options.id; }
       that.jsav.logEvent(logData);
     };
@@ -6107,8 +6758,9 @@ TreeContours.prototype = {
   });
 }(jQuery));/**
 * Module that contains support for TRAKLA2-type exercises.
-* Depends on core.js, anim.js, utils.js
+* Depends on core.js, anim.js, utils.js, translate.js
 */
+/*global JSAV, jQuery, console */
 (function($) {
   "use strict";
   if (typeof JSAV === "undefined") { return; }
@@ -6119,7 +6771,12 @@ TreeContours.prototype = {
     this.jsav = jsav;
     this.options = jQuery.extend({reset: function() { }, controls: null, feedback: "atend",
                                   feedbackSelectable: false, fixmode: "undo",
-                                  fixmodeSelectable: false, grader: "default"},
+                                  fixmodeSelectable: false, grader: "default",
+                                  resetButtonTitle: this.jsav._translate("resetButtonTitle"),
+                                  undoButtonTitle: this.jsav._translate("undoButtonTitle"),
+                                  modelButtonTitle: this.jsav._translate("modelButtonTitle"),
+                                  gradeButtonTitle: this.jsav._translate("gradeButtonTitle")
+                                 },
                                   window.JSAV_EXERCISE_OPTIONS,
                                   options);
     // initialize controls
@@ -6129,12 +6786,12 @@ TreeContours.prototype = {
       cont = this.jsav.container.find(".jsavexercisecontrols");
     }
     if (cont.size()) {
-      var $reset = $('<input type="button" name="reset" value="Reset" />').click(
+      var $reset = $('<input type="button" name="reset" value="' + this.options.resetButtonTitle + '" />').click(
             function() {
               self.jsav.logEvent({type: "jsav-exercise-reset"});
               self.reset();
             }),
-          $model = $('<input type="button" name="answer" value="Model Answer" />').click(
+          $model = $('<input type="button" name="answer" value="' + this.options.modelButtonTitle + '" />').click(
             function() {
               cont.addClass("active");
               self.jsav.logEvent({type: "jsav-exercise-model-open"});
@@ -6144,14 +6801,14 @@ TreeContours.prototype = {
           $action = $('<span class="actionIndicator"></span>');
       // only add undo and grade button if not in continuous mode
       if (this.options.feedback !== "continuous") {
-        var $grade = $('<input type="button" name="grade" value="Grade" />').click(
+        var $grade = $('<input type="button" name="grade" value="' + this.options.gradeButtonTitle + '" />').click(
               function() {
                 cont.addClass("active");
                 self.showGrade();
                 cont.removeClass("active");
                 self.jsav.logEvent({type: "jsav-exercise-grade", score: $.extend({}, self.score)});
               }),
-            $undo = $('<input type="button" name="undo" value="Undo" />"').click(
+            $undo = $('<input type="button" name="undo" value="' + this.options.undoButtonTitle + '" />"').click(
               function() {
                 self.jsav.logEvent({type: "jsav-exercise-undo"});
                 self.undo();
@@ -6164,25 +6821,33 @@ TreeContours.prototype = {
     }
     // if feedbacktype can be selected, add settings for it
     if (this.options.feedbackSelectable) {
-      this.feedback = this.jsav.settings.add("feedback",
-              {"type": "select", "options": {"continuous": "Continuous", "atend": "At end"},
-              "label":"Grade Feedback: ", "value": this.options.feedback});
+      this.feedback = this.jsav.settings.add("feedback", {
+              "type": "select",
+              "options": {
+                  "continuous": this.jsav._translate("continuous"),
+                  "atend": this.jsav._translate("atend")},
+              "label":this.jsav._translate("feedbackLabel"),
+              "value": this.options.feedback});
     }
     // if fixmode can be selected, add settings for it
     if (this.options.fixmodeSelectable) {
-      this.fixmode = this.jsav.settings.add("fixmode",
-              {"type": "select", "options": {"undo": "Undo incorrect step", "fix": "Fix incorrect step"},
-              "label": "Continuous feedback behaviour", "value": this.options.fixmode});
+      this.fixmode = this.jsav.settings.add("fixmode", {
+              "type": "select",
+              "options": {
+                  "undo": this.jsav._translate("undo"),
+                  "fix": this.jsav._translate("fix")},
+              "label": this.jsav._translate("fixLabel"),
+              "value": this.options.fixmode});
     }
 
     // if jsavscore element is present and empty, add default structure
     var $jsavscore = this.jsav.container.find(".jsavscore");
     if ($jsavscore.size() === 1 && $jsavscore.children().size() === 0 &&
       this.options.feedback === "continuous") {
-      $jsavscore.html('Score: <span class="jsavcurrentscore"></span> / ' +
-          '<span class="jsavmaxscore" ></span>, <span class="jsavamidone">Points remaining: ' +
-          '<span class="jsavpointsleft"></span></span>, ' +
-          'Points lost: <span class="jsavpointslost" ></span>');
+      $jsavscore.html(this.jsav._translate("scoreLabel") + ' <span class="jsavcurrentscore"></span> / ' +
+          '<span class="jsavmaxscore" ></span>, <span class="jsavamidone">' + this.jsav._translate("remainingLabel") +
+          ' <span class="jsavpointsleft"></span></span>, ' +
+          this.jsav._translate("lostLabel") + ' <span class="jsavpointslost" ></span>');
       this._defaultscoretext = true;
     }
     
@@ -6190,7 +6855,14 @@ TreeContours.prototype = {
     if (this.options.showGrade && $.isFunction(this.options.showGrade)) {
       this.showGrade = this.options.showGrade;
     }
+
+    // add a gradeableStep function to the jsav instance
+    var exer = this;
+    jsav.gradeableStep = function() {
+      exer.gradeableStep.apply(exer, arguments);
+    };
   };
+  Exercise.GradeStepFilterFunction = gradeStepFilterFunction;
   var allEqual = function(initial, model, compare) {
     if ($.isArray(initial)) {
       for (var i = 0; i < initial.length; i++) {
@@ -6299,12 +6971,12 @@ TreeContours.prototype = {
           score = this.score;
       if (this._defaultscoretext) {
         container.find(".jsavamidone").html((score.total === score.correct)?
-            "DONE":"Points remaining: <span class='jsavpointsleft'></span>");
+            this.jsav._translate("doneLabel"):this.jsav._translate("remainingLabel") + " <span class='jsavpointsleft'></span>");
       }
       container.find(".jsavcurrentscore").text(score.correct);
       container.find(".jsavcurrentmaxscore").text(score.correct + score.fix);
       container.find(".jsavmaxscore").text(score.total);
-      container.find(".jsavpointsleft").text((score.total - score.correct  - score.fix) || "DONE");
+      container.find(".jsavpointsleft").text((score.total - score.correct  - score.fix) || this.jsav._translate("doneLabel"));
       container.find(".jsavpointslost").text(score.fix || 0);
     }
   };
@@ -6340,9 +7012,9 @@ TreeContours.prototype = {
     // shows an alert box of the grade
     this.grade();
     var grade = this.score,
-      msg = "Your score: " + (grade.correct) + " / " + grade.total;
+      msg = this.jsav._translate("yourScore") + " " + (grade.correct) + " / " + grade.total;
     if (grade.fix > 0) {
-      msg += "\nFixed incorrect steps: " + grade.fix;
+      msg += "\n" + this.jsav._translate("fixedSteps") + " " + grade.fix;
     }
     window.alert(msg);
   };
@@ -6353,7 +7025,9 @@ TreeContours.prototype = {
     var model = this.options.model,
         modelav,
         self = this,
-        modelOpts = $.extend({ "title": 'Model Answer', "closeOnClick": false, "modal": false,
+        modelOpts = $.extend({"title": this.jsav._translate("modelWindowTitle"),
+                              "closeOnClick": false,
+                              "modal": false,
                               "closeCallback": function() {
                                 self.jsav.logEvent({type: "jsav-exercise-model-close"});
                                 if (typeof returnToStep === "number") {
@@ -6374,6 +7048,13 @@ TreeContours.prototype = {
       // 1. create a new JSAV (and the HTML required for it)
       modelav = new JSAV($("<div><span class='jsavcounter'/><div class='jsavcontrols'/><p class='jsavoutput jsavline'></p></div>").addClass("jsavmodelanswer"),
               {logEvent: modelLogHandler });
+
+      // add a gradeableStep function to the modelanswer jsav instance
+      modelav.gradeableStep = function() {
+        this.stepOption("grade", true);
+        this.step();
+      };
+
       // 2. create a dialog for the model answer
       this.modelDialog = JSAV.utils.dialog(modelav.container, modelOpts );
       // 3. generate the model structures and the state sequence
@@ -6489,17 +7170,17 @@ TreeContours.prototype = {
             console.error("The fix function did not work as expected, the structures aren't equal");
           }
           that.jsav.logEvent({type: "jsav-exercise-step-fixed", score: $.extend({}, grade)});
-          window.alert("Your last step was incorrect. Your work has been replaced with the correct step so that you can continue on.");
+          window.alert(that.jsav._translate("fixedPopup"));
         } else if (fixmode === "fix") {
           that.score.undo++;
           that.jsav.logEvent({type: "jsav-exercise-step-undone", score: $.extend({}, grade)});
           moveModelBackward(that);
-          window.alert("Your last step was incorrect and I should fix your solution, but don't know how. So it was undone and you can try again.");
+          window.alert(that.jsav._translate("fixFailedPopup"));
         } else {
           that.score.undo++;
           that.jsav.logEvent({type: "jsav-exercise-step-undone", score: $.extend({}, grade)});
           moveModelBackward(that);
-          window.alert("Your last step was incorrect. Things are reset to the beginning of the step so that you can try again.");
+          window.alert(that.jsav._translate("undonePopup"));
         }
         that._updateScore();
       };
@@ -6569,7 +7250,7 @@ TreeContours.prototype = {
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v0.7.0-66-gda89ad6";
+  var theVERSION = "v0.7.0-150-g845add1";
 
   JSAV.version = function() {
     return theVERSION;

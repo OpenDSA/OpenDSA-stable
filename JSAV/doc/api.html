@@ -289,6 +289,8 @@ JSAV rather than by the developer.
       specified.</li>
   <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>. Only 
       has an effect if relativeTo is specified.</li>
+  <li>follow: A boolean indicating whether or not this structure should move when the relative element moves. Only
+    has an effect if relativeTo is specified.</li>
   <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative
       to an index in that array. Only has an effect if relativeTo is specified.</li>
 </ul>
@@ -403,7 +405,7 @@ the following would return 4:
 <pre>arr.size();</pre>
     
 <h3 class="apimethod">.swap(index1, index2, [options])</h3>
-<p>Swaps the contents (and graphics state) of the two array positions. Has one supported option <code>arrow</code>
+<p>Swaps the values of the two array positions. Has one supported option <code>arrow</code>
   which controls whether or not to show an arrow highlighting the elements being swapped. Note, the arrow is not
   shown if raphael.js is not loaded.</p>
     
@@ -448,7 +450,10 @@ Sets the value of the element at the given index to the given value.
 <h3 class="apimethod">.hasClass(index, className, [options])</h3>
 <p>Return true/false based on if the given index has the CSS class <code>className</code>. Parameter
   <code>index</code> should be a number.</p>
-
+<h3 class="apimethod">.index(index)</h3>
+<p>Returns an ArrayIndex object correcponding to the array index at the given position. The ArrayIndex object
+has all the functions JSAV node objects have, like <code>.css</code>, <code>.toggle/add/remove/hasClass</code>,
+and <code>.highlight</code>.</p>
 <h3 class="apitopic">Events</h3>
 <p>There are functions to attach event handlers for the array elements. The events that can be
   listened for are: click, dblclick, mousedown, mousemove, mouseup, mouseenter, and mouseleave. 
@@ -548,6 +553,8 @@ Currently, JSAV supports two types of trees: common tree and binary tree. The st
       specified.</li>
   <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>. Only 
       has an effect if relativeTo is specified.</li>
+  <li>follow: A boolean indicating whether or not this structure should move when the relative element moves. Only
+    has an effect if relativeTo is specified.</li>
   <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative
       to an index in that array. Only has an effect if relativeTo is specified.</li>
 </ul>
@@ -721,8 +728,11 @@ The additional <code>options</code> parameter works like for <code>.child(...)</
       specified.</li>
   <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>. Only 
       has an effect if relativeTo is specified.</li>
+  <li>follow: A boolean indicating whether or not this structure should move when the relative element moves. Only
+    has an effect if relativeTo is specified.</li>
   <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative
       to an index in that array. Only has an effect if relativeTo is specified.</li>
+
 </ul>
 <p>The returned list instance is controlled through a collection of methods explained next. In addition, the list has the common functions such as <code>.id()</code>, <code>.css(...)</code>, <code>.show()</code>, and <code>.hide()</code>.</p>
 
@@ -820,6 +830,8 @@ The additional <code>options</code> parameter works like for <code>.child(...)</
       specified.</li>
   <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>. Only 
       has an effect if relativeTo is specified.</li>
+  <li>follow: A boolean indicating whether or not this structure should move when the relative element moves. Only
+    has an effect if relativeTo is specified.</li>
   <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative
       to an index in that array. Only has an effect if relativeTo is specified.</li>
   <li>width: Width of the graph, in pixels. Defaults to 400.</li>
@@ -969,6 +981,8 @@ out, this method will return the current text of the label.
       specified.</li>
   <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>. Only 
       has an effect if relativeTo is specified.</li>
+  <li>follow: A boolean indicating whether or not this structure should move when the relative element moves. Only
+      has an effect if relativeTo is specified.</li>
   <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative
       to an index in that array. Only has an effect if relativeTo is specified.</li>
     </ul>
@@ -1064,6 +1078,7 @@ out, this method will return the current text of the label.
         applied if the <code>url</code> parameter is also provided.</li>
       <li> <code>{endBefore: &lt;string>}</code> Only the content before the first occurrence of the specified text will be included. Only
         applied if the <code>url</code> parameter is also provided.</li>
+      <li>left/top/right/bottom: Values to determine the absolute position of the codelines relative to its container.</li>
       <li>relativeTo: A JSAV data structure object or DOM element that this structure should be positioned relative to.
       If this option is specified, left and top options will change structure's position relative to the relativeTo
       element. Note, that the element pointed by relativeTo needs to be visible.</li>
@@ -1072,6 +1087,8 @@ out, this method will return the current text of the label.
       specified.</li>
       <li>myAnchor: Similar to anchor, but the position on this element. Defaults to <code>center center</code>. Only 
       has an effect if relativeTo is specified.</li>
+      <li>follow: A boolean indicating whether or not this structure should move when the relative element moves. Only
+        has an effect if relativeTo is specified.</li>
       <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative
       to an index in that array. Only has an effect if relativeTo is specified.</li>
     </ul>
@@ -1126,6 +1143,8 @@ out, this method will return the current text of the label.
       <li>relativeTo: A JSAV data structure object or DOM element that this structure should be positioned relative to. If this option is specified, left and top options will change structure's position relative to the relativeTo element. Note, that the element pointed by relativeTo needs to be visible.</li>
       <li>anchor: Defines which position on the element being positioned to align with the target element. Should be in format horizontal vertical. Possible horizontal values are "left", "center", "right" and vertical values "top", "center", "bottom". Defaults to center center. Only has an effect if relativeTo is specified.</li>
       <li>myAnchor: Similar to anchor, but the position on this element. Defaults to center center. Only has an effect if relativeTo is specified.</li>
+      <li>follow: A boolean indicating whether or not this structure should move when the relative element moves. Only
+        has an effect if relativeTo is specified.</li>
       <li>relativeIndex: If relativeTo points to a JSAV array, this option can be used to position this structure relative to an index in that array. Only has an effect if relativeTo is specified.</li>
       <li>style: The style of the array. Valid values are <code>plain</code>, <code>matrix</code>, and
         <code>table</code>. Defaults to table.</li>
@@ -1359,6 +1378,11 @@ q.show();</pre>
       the possible options, see the documentation for the JSAV.utils.dialog.</li>
     <li><code>{debug: &lt;boolean>}</code> If true, print out some debug information for exercise developers. 
       Mainly, the continuous feedback mode will log possible errors in the fix function.</li>
+
+    <li><code>{resetButtonTitle: &lt;string>}</code> Change the text on the reset button. Defaults to "Reset".</li>
+    <li><code>{undoButtonTitle: &lt;string>}</code> Change the text on the undo button. Defaults to "Undo".</li>
+    <li><code>{modelButtonTitle: &lt;string>}</code> Change the text on the model answer button. Defaults to "Model Answer".</li>
+    <li><code>{gradeButtonTitle: &lt;string>}</code> Change the text on the grade button. Defaults to "Grade".</li>
   </ul>
   <p>For example, assuming <code>modelSolution</code> and <code>reset</code> are functions, the following would initialize an exercise:</p>
   <pre>

@@ -4,7 +4,7 @@ rst_header = '''\
 
 .. raw:: html
 
-   <script>ODSA.SETTINGS.DISP_MOD_COMP = %(dispModComp)s;ODSA.SETTINGS.MODULE_NAME = "%(mod_name)s";ODSA.SETTINGS.MODULE_LONG_NAME = "%(long_name)s";ODSA.SETTINGS.MODULE_CHAPTER = "%(mod_chapter)s"; ODSA.SETTINGS.BUILD_DATE = "%(mod_date)s";</script>
+   <script>ODSA.SETTINGS.DISP_MOD_COMP = %(dispModComp)s;ODSA.SETTINGS.MODULE_NAME = "%(mod_name)s";ODSA.SETTINGS.MODULE_LONG_NAME = "%(long_name)s";ODSA.SETTINGS.MODULE_CHAPTER = "%(mod_chapter)s"; ODSA.SETTINGS.BUILD_DATE = "%(mod_date)s";%(mod_options)s</script>
 
 %(unicode_directive)s
 '''
@@ -41,6 +41,16 @@ index_header = '''\
 
 '''
 
+
+todo_rst_template = '''\
+.. index:: ! todo
+
+TODO List
+=========
+
+'''
+
+
 makefile_template = '''\
 # Makefile for Sphinx documentation
 #
@@ -73,11 +83,7 @@ min-searchtools:
 	@echo 'Minimizing $(HTMLDIR)_static/searchtools.js'
 	-@$(MINIMIZE) $(HTMLDIR)_static/searchtools.js -o $(HTMLDIR)_static/searchtools.js
 
-preprocessor:
-	python "%(odsa_dir)sRST/preprocessor.py" source/ $(HTMLDIR)
-
-html: preprocessor
-	%(remove_todo)s
+html:
 	$(SPHINXBUILD) -b html source $(HTMLDIR)
 	rm html/_static/jquery.js html/_static/websupport.js
 	cp "%(odsa_dir)slib/.htaccess" $(HTMLDIR)
@@ -86,8 +92,7 @@ html: preprocessor
 	@echo "Build finished. The HTML pages are in $(HTMLDIR)."
 	rm Makefile
 
-slides: preprocessor
-	%(remove_todo)s
+slides:
 	@SLIDES=yes \
 	$(SPHINXBUILD) -b slides source $(HTMLDIR)
 	rm html/_static/jquery.js html/_static/websupport.js
@@ -144,7 +149,8 @@ sys.path.append(os.path.abspath('%(odsa_dir)sRST/ODSAextensions/odsa/html5'))
 sys.path.append(os.path.abspath('%(odsa_dir)sRST/ODSAextensions/odsa/odsafig'))
 sys.path.append(os.path.abspath('%(odsa_dir)sRST/ODSAextensions/odsa/odsatable'))
 sys.path.append(os.path.abspath('%(odsa_dir)sRST/ODSAextensions/odsa/chapref'))
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'avembed', 'avmetadata', 'codeinclude', 'numref', 'chapnum', 'odsalink', 'odsascript', 'numfig', 'inlineav', 'html5', 'odsafig', 'odsatable', 'chapref']
+sys.path.append(os.path.abspath('%(odsa_dir)sRST/ODSAextensions/odsa/odsatoctree'))
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.ifconfig', 'avembed', 'avmetadata', 'codeinclude', 'numref', 'chapnum', 'odsalink', 'odsascript', 'numfig', 'inlineav', 'html5', 'odsafig', 'odsatable', 'chapref', 'odsatoctree']
 
 slides_lib = '%(slides_lib)s'
 
@@ -283,7 +289,7 @@ html_static_path = ['_static']
 # all the content that loaded before the CSS files
 # 'odsa_root_path' specifies the relative path from the HTML output directory to the ODSA root directory and is used
 # to properly link to Privacy.html
-# The code that appends these scripts can be found in RST/source/_themes/haiku/layout.html and basic/layout.html
+# The code that appends these scripts can be found in RST/_themes/haiku/layout.html and basic/layout.html
 html_context = {"script_files": [
                   '%(eb2root)slib/jquery.min.js',
                   'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML.js'

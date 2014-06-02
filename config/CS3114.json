@@ -1,11 +1,11 @@
 {
   "title": "CS3114 Spring 2014",
   "build_dir": "Books",
-  "code_dir": "SourceCode/Processing",
+  "code_dir": "SourceCode/",
+  "code_lang": "Processing",
   "module_origin": "http://algoviz.org",
   "backend_address": "https://opendsa.cc.vt.edu/",
   "build_JSAV": false,
-  "build_ODSA": true,
   "allow_anonymous_credit": true,
   "suppress_todo": true,
   "chapters": {
@@ -65,7 +65,7 @@
         "exercises": {}
       },
       "Background/Summations": {
-        "long_name": "Summations",
+        "long_name": "Summations and Recurrence Relations",
         "exercises": {}
       },
       "Background/Recursion": {
@@ -339,7 +339,7 @@
             "points": 1,
             "threshold": 3
           }
-	}
+        }
       },
       "List/Freelist": {
         "long_name": "Freelists",
@@ -651,26 +651,26 @@
       "Development/BinaryTreeTraversal": {
         "long_name": "Binary Tree Traversals",
         "exercises": {
-	  "BTLeafPROG": {
-            "long_name": "Node Count Function",
+          "BTLeafPROG": {
+            "long_name": "Node Count Programming Exercise",
             "required": true,
             "points": 1.0,
             "threshold": 1
           },
           "binarytree-inorder": {
-            "long_name": "Binary Tree Inorder Traversal",
+            "long_name": "Binary Tree Inorder Traversal Exercise",
             "required": true,
             "points": 1.0,
             "threshold": 0.90
           },
           "binarytree-preorder": {
-            "long_name": "Binary Tree Preorder Traversal",
+            "long_name": "Binary Tree Preorder Traversal Exercise",
             "required": true,
             "points": 1.0,
             "threshold": 0.90
           },
           "binarytree-postorder": {
-            "long_name": "Binary Tree Postorder Traversal",
+            "long_name": "Binary Tree Postorder Traversal Exercise",
             "required": true,
             "points": 1.0,
             "threshold": 0.90
@@ -689,12 +689,12 @@
         "long_name": "Full Binary Tree Node Space Requirements",
         "exercises": {
           "TreeOverheadSumm": {
-            "long_name": "Tree Overhead",
+            "long_name": "Tree Overhead Exercise",
             "required": true,
             "points": 2,
             "threshold": 5
           }
-	}
+        }
       },
       "Development/BST": {
         "long_name": "Binary Search Trees",
@@ -788,8 +788,26 @@
         "long_name": "Bintrees",
         "exercises": {}
       },
-      "Stubs/Huffman": {
-        "long_name": "Huffman Coding",
+      "Development/Huffman": {
+        "long_name": "Huffman Coding Trees",
+        "exercises": {
+          "huffmanCON1": {
+            "long_name": "Huffman Coding Tree Slideshow",
+            "required": true,
+            "points": 0.0,
+            "threshold": 1.0
+          },
+          "HuffmanCoding": {
+            "long_name": "Huffman Coding Tree Visualization",
+            "required": true,
+            "points": 0.0,
+            "showhide": "show",
+            "threshold": 1.0
+          }
+        }
+      },
+      "Development/HuffProof": {
+        "long_name": "Proof for Huffman Coding",
         "exercises": {}
       }
     },
@@ -943,7 +961,15 @@
       "Sorting/SortOpt": {
         "long_name": "Optimizing Sorts with Code Tuning",
         "dispModComp": false,
-        "exercises": {}
+        "exercises": {
+          "insertionSortWithoutSwapPRO": {
+            "long_name": "Insertion Sort Without Swap Proficiency Exercise",
+            "required": false,
+            "points": 1.0,
+      "remove": true,
+            "threshold": 5
+          }
+        }
       },
       "Sorting/Shellsort": {
         "long_name": "Shellsort",
@@ -1006,16 +1032,13 @@
             "points": 1.0,
             "threshold": 5
           },
-          "ShellsortProficiency": {
+          "shellsortPRO": {
             "long_name": "Shellsort Proficiency Exercise",
             "required": true,
             "points": 2.0,
-            "threshold": 0.90,
-	    "jsav_exer_options": {
-              "fixmode": "undo"
-             }
+            "threshold": 0.90
           },
-          "ShellsortPerformance": {
+          "shellsortPerf": {
             "long_name": "Shellsort Performance Activity",
             "required": true,
             "points": 2.0,
@@ -1045,13 +1068,13 @@
             "points": 0.0,
             "threshold": 1.0
           },
-          "MergesortPRO": {
+          "MergesortMergePRO": {
             "long_name": "Mergesort Merging Proficiency Exercise",
             "required": true,
             "points": 1.0,
             "threshold": 5
           },
-          "mergesortProficiency": {
+          "mergesortPRO": {
             "long_name": "Mergesort Proficiency Exercise",
             "required": true,
             "points": 2.0,
@@ -1110,7 +1133,7 @@
             "points": 1.0,
             "threshold": 5
           },
-          "quicksortProficiency": {
+          "quicksortPRO": {
             "long_name": "Quicksort Proficiency Exercise",
             "required": true,
             "points": 2.0,
@@ -1133,13 +1156,13 @@
             "points": 0.0,
             "threshold": 1.0
           },
-          "HeapsortPRO": {
+          "HeapsortStepPRO": {
             "long_name": "Heapsort RemoveMax Proficiency Exercise",
             "required": true,
             "points": 2.0,
             "threshold": 5
           },
-          "heapsortProficiency": {
+          "heapsortPRO": {
             "long_name": "Heapsort Proficiency Exercise",
             "required": true,
             "points": 2.0,
@@ -1616,7 +1639,7 @@
             "required": true,
             "points": 2.0,
             "threshold": 0.90
-	  }
+          }
         }
       }
     },
@@ -1737,6 +1760,10 @@
         "long_name": "Stubs Chapter",
         "exercises": {}
       },
+      "Stubs/SelfOrg": {
+        "long_name": "Self-organizing Lists",
+        "exercises": {}
+      },
       "Stubs/Kary": {
         "long_name": "K-ary Trees",
         "exercises": {}
@@ -1779,6 +1806,12 @@
       },
       "Stubs/LimComp": {
         "long_name": "Limits to Computing",
+        "exercises": {}
+      }
+    },
+    "Searching": {
+      "Stubs/SearchIntro": {
+        "long_name": "Searching",
         "exercises": {}
       }
     },

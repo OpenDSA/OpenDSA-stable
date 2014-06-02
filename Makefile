@@ -4,7 +4,7 @@ TARGET = build
 CSSLINTFLAGS = --quiet --errors=empty-rules,import,errors --warnings=duplicate-background-images,compatible-vendor-prefixes,display-property-grouping,fallback-colors,duplicate-properties,shorthand,gradients,font-sizes,floats,overqualified-elements,import,regex-selectors,rules-count,unqualified-attributes,vendor-prefix,zero-units
 MINIMIZE = java -jar tools/yuicompressor-2.4.7.jar --nomunge
 
-.PHONY: all clean lint csslint jshint min CS3114 CS3114AM CS3114PM CS150 OpenDSA allBooks nomin pull
+.PHONY: all clean lint csslint jshint min CS2114 CS223 CS3114 CS5114 CS3114AM CS3114PM CS150 OpenDSA allBooks nomin pull CSCI204 CSCI102
 
 all: lint
 
@@ -75,22 +75,42 @@ update: jsav
 	- $(RM) Doc/build
 	cd Doc; make
 
-min: lib/odsaUtils-min.js lib/site-min.css lib/odsaAV-min.js lib/odsaAV-min.css lib/khan-exercise-min.js lib/odsaMOD-min.js lib/odsaMOD-min.css lib/gradebook-min.js lib/gradebook-min.css
+min: nomin
+# lib/odsaUtils-min.js lib/site-min.css lib/odsaAV-min.js lib/odsaAV-min.css lib/khan-exercise-min.js lib/odsaMOD-min.js lib/odsaMOD-min.css lib/gradebook-min.js lib/gradebook-min.css
+
+nomin:
+	@cp JSAV/build/JSAV.js JSAV/build/JSAV-min.js
+	@cp lib/odsaUtils.js lib/odsaUtils-min.js
+	@cp lib/odsaMOD.js lib/odsaMOD-min.js
+	@cp lib/odsaAV.js lib/odsaAV-min.js
+	@cp lib/gradebook.js lib/gradebook-min.js
+	@cp ODSAkhan-exercises/khan-exercise.js lib/khan-exercise-min.js
+	@cp lib/registerbook.js lib/registerbook-min.js
+	@cp lib/site.css lib/site-min.css
+	@cp lib/odsaAV.css lib/odsaAV-min.css
+	@cp lib/odsaMOD.css lib/odsaMOD-min.css
+	@cp lib/gradebook.css lib/gradebook-min.css
 
 CS150: min
 	python $(CONFIG_SCRIPT) config/CS150.json
 
+CS2114: min
+	python $(CONFIG_SCRIPT) config/CS2114.json
+
+CS223: min
+	python $(CONFIG_SCRIPT) config/CS223.json
+
 CS3114: min
 	python $(CONFIG_SCRIPT) config/CS3114.json
 
+CS5114: min
+	python $(CONFIG_SCRIPT) config/CS5114.json
+
+CSCI102: min
+	python $(CONFIG_SCRIPT) config/CSCI102.json
+
 CSCI204: min
 	python $(CONFIG_SCRIPT) config/CSCI204.json
-
-CS3114AM: min
-	python $(CONFIG_SCRIPT) config/CS3114AM.json
-
-CS3114PM: min
-	python $(CONFIG_SCRIPT) config/CS3114PM.json
 
 OpenDSA: min
 	python $(CONFIG_SCRIPT) config/OpenDSA.json
@@ -107,7 +127,7 @@ Everything: min
 invalid: min
 	python $(CONFIG_SCRIPT) config/invalid.json
 
-allBooks: CS3114 CSCI204 OpenDSA Everything
+allBooks: CS150 CS2114 CS223 CS5114 CS3114 CSCI204 CSCI102 OpenDSA Everything
 
 lib/odsaUtils-min.js: lib/odsaUtils.js
 	@echo 'Minimizing lib/odsaUtils.js'

@@ -47,6 +47,12 @@ Written by Junyang Chen and Cliff Shaffer
     .jsavcanvas svg{
       height: 300px;
     }	
+    .jsavlist .jsavvalue { /* This will get the linked list cell values to center vertically */
+      height: 30px;
+    }
+    .jsavnode .jsavvalue { /* This will get the array cell values to center vertically */
+      height: 30px;
+    }
     .jsavnode {
       line-height: 30px !important;
       min-width: 30px !important;
@@ -490,6 +496,9 @@ Written by Junyang Chen and Cliff Shaffer
         <p>To move an element, click on it (to highlight it), then
           click on the element position in the node where you want it to
           go.
+          To set the "return" value, click on the element position in the  
+          node you want to return (to highlight it), then click on the
+          return value box to set it to the highlighted value.
           You can make a node's "next" pointer point to "null" by
           first clicking the pointer for the node and then
           clicking the "makenull" button.

@@ -18,7 +18,7 @@
 
   // Process About button: Pop up a message with an Alert
   function about() {
-    alert("Insertion Sort Algorithm Visualization\nWritten by Cliff Shaffer and Nayef Copty\nCreated as part of the OpenDSA hypertextbook project\nFor more information, see http://algoviz.org/OpenDSA\nSource and development history available at\nhttps://github.com/cashaffer/OpenDSA\nCompiled with JSAV library version " + JSAV.version());
+    alert("Insertion Sort Algorithm Visualization\nWritten by Cliff Shaffer and Nayef Copty\nCreated as part of the OpenDSA hypertextbook project\nFor more information, see http://algoviz.org/OpenDSA\nSource and development history available at\nhttps://github.com/OpenDSA/OpenDSA\nCompiled with JSAV library version " + JSAV.version());
   }
 
   function setProcessing(index) {
@@ -48,8 +48,8 @@
       for (j = i; (j > 0) && (arr.value(j) < arr.value(j - 1)); j--) {
         setProcessing(j);
         arr.swap(j, j - 1); // swap the two indices
-        arr.highlight(j).unhighlight(j-1); // set highlights correctly
-        setProcessing(j-1);
+        arr.highlight(j).unhighlight(j - 1); // set highlights correctly
+        setProcessing(j - 1);
         jsav.umsg("Swap");
         pseudo.setCurrentLine(3);
         jsav.step();
@@ -58,7 +58,6 @@
     }
     pseudo.setCurrentLine(4);
     jsav.umsg("Done sorting!");
-    jsav.step();
   }
 
   // Execute the "Run" button function
@@ -87,7 +86,7 @@
   // Connect action callbacks to the HTML entities
   $('#about').click(about);
   $('#run').click(runIt);
-  $('#ssperform').submit(function(evt) {
+  $('#ssperform').submit(function (evt) {
     evt.stopPropagation();
     evt.preventDefault();
     runIt();

@@ -1,5 +1,6 @@
 (function($) {
   "use strict";
+  /* global JSAV, jQuery */
   var compareFunction = function(a, b) {
     return a - b;
   };
@@ -77,7 +78,7 @@
     }
 
     if (options.tree) {
-      this._tree = jsav.ds.bintree(options);
+      this._tree = jsav.ds.binarytree(options);
       inittree(this);
       this._tree.layout();
     }
@@ -93,9 +94,7 @@
   };
   JSAV.utils.extend(BinaryHeap, JSAV._types.ds.AVArray);
   var bhproto = BinaryHeap.prototype;
-  //$.extend(bhproto, JSAV._types.ds.AVArray.prototype);
   bhproto.arrayswap = bhproto.swap;
-  bhproto.arraycss = bhproto.css;
   bhproto.arrayclear = bhproto.clear;
   bhproto.arrayvalue = bhproto.value;
   
@@ -110,6 +109,7 @@
     if (this.options.tree) {
       this._treenodes[index].value(newValue);
     }
+    return this;
   };
   
   bhproto.clear = function() {
@@ -121,7 +121,7 @@
 
   // create versions of some array functions that will also change
   // the treenodes
-  var funcs = ["css", "highlight", "unhighlight"];
+  var funcs = ["css", "highlight", "unhighlight", "addClass", "removeClass", "toggleClass"];
   var getDelegateFunction = function(name) {
     // return a "delegate" function bound to the array function with given name
     return function() {
@@ -136,12 +136,12 @@
       } else if (this.options.tree && $.isArray(arguments[0])) {
         for (var i = arguments[0].length; i--; ) {
           node = this._treenodes[arguments[0][i]];
-          node[name].apply(node, [].slice.call(arguments, 1))
+          node[name].apply(node, [].slice.call(arguments, 1));
         }
       }
       // finally return the value of the array function
       return val;
-    }
+    };
   };
   // go through the function names, store the array functions, and create
   // delegate functions to the heap prototype
@@ -237,4 +237,5 @@
                                                          'steps': true, 'tree': true,
                                                          'heapify': true, 'center': true}, options));
   };
+  JSAV._types.ds.BinaryHeap = BinaryHeap;
 }(jQuery));

@@ -1,5 +1,5 @@
 .jsavcanvas{
-	height: 500px;
+  height: 500px;
 }
 
 .jsavpointer{
@@ -27,6 +27,11 @@
   max-height: 30px;
   line-height: 30px;
 }
+
+.jsavnode .jsavvalue {
+  height: 30px;
+}
+
 #AStackVarCON {
   height: 480px;
 }
@@ -40,7 +45,7 @@
   height: 30px;
 }
 #AStackPushCON {
-  height: 220px;
+  height: 230px;
 }
 #AStackPushCON .jsavoutput.jsavline {
   height: 30px;
@@ -49,7 +54,7 @@
   border: 1px solid;
   border-color: white;
   position: relative;
-  top: 0px;
+  top: 0;
   left: 170px;
   width: 500px;
 }
@@ -67,41 +72,3 @@
   left: 170px;
   width: 500px;
 }
-#LStackDiagramCON {
-  height: 80px;
-}
-
-#LStackPushCON {
-  height: 230px;
-}
-#LStackPushCON .jsavoutput.jsavline {
-  height: 30px;
-}
-#LStackPushCON .jsavcode{
-  border: 1px solid;
-  border-color: white;  
-  position: relative;
-  top: 0px;
-  left: 190px;
-  width: 450px;
-}
-
-#LStackPopCON {
-  height: 280px;
-}
-#LStackPopCON .jsavoutput.jsavline {
-  height: 30px;
-}
-#LStackPopCON .jsavcode{
-  border: 1px solid;
-  border-color: white;  
-  position: relative;
-  top: -10px;
-  left: 190px;
-  width: 450px;
-}
-#LStackTwostacksCON {
-  height: 120px;
-}
-
-

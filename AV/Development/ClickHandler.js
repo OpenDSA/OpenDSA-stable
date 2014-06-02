@@ -1,6 +1,5 @@
-"use strict";
-
 (function ($) {
+	"use strict";
 
 	/*
 	 * JSAV click handler for handling moving and copying between different structures
@@ -15,16 +14,23 @@
 	var ClickHandler = function ClickHandler(jsav, exercise, options) {
 		var defaults = {
 			selectedClass: "jsavhighlight",
-			selectEmpty: false,			//don't allow selecting empty nodes
-			effect: "move",				//move, copy, swap, toss
-			removeNodes: true,			//remove nodes when they become empty
-			gradeable: true,			//tells click handler if action should be graded. Can be overridden with return value of onDrop
-			bgDeselect: true,			//allow deselecting by clicking on the background
-			select: "click",			//click, first, last
-			drop: "click",				//click, first, last
-			keep: false,				//don't allow selecting the last node
-			onSelect: function () {},	//called by structure when something is selected. If the function returns false, the selection is cancelled
-			onDrop: function () {}		//called by structure when value has been changed. The return value determins if the step is gradeable. If nothing is returned options.gradeable will be used.
+			inactiveClass: undefined,	// ignore all clicks on nodes with this class
+			selectEmpty: false,			// don't allow selecting empty nodes
+			effect: "move",				// move, copy, swap, toss
+			arraySwapOptions: {			// options for array swap
+				use: true,				// use array swap by default
+				arrow: false,			// turn array swap arrow off by default
+				highlight: false,		// do not use pink highlighting when swapping
+				swapClasses: true
+			},
+			removeNodes: true,			// remove nodes when they become empty
+			gradeable: true,			// tells click handler if action should be graded. Can be overridden with return value of onDrop
+			bgDeselect: true,			// allow deselecting by clicking on the background
+			select: "click",			// click, first, last
+			drop: "click",				// click, first, last
+			keep: false,				// don't allow selecting the last node
+			onSelect: function () {},	// called by structure when something is selected. If the function returns false, the selection is cancelled
+			onDrop: function () {}		// called by structure when value has been changed. The return value determins if the step is gradeable. If nothing is returned options.gradeable will be used.
 		};
 
 		this.jsav = jsav;
@@ -39,7 +45,7 @@
 			var ch = this;
 			this.jsav.container.click(function (event) {
 				var $target = $(event.target);
-				if ($target.is(ch.jsav.container) || 
+				if ($target.is(ch.jsav.container) ||
 					$target.is(ch.jsav.canvas) ||
 					$target.is("p")) {
 					ch.deselect();
@@ -50,17 +56,17 @@
 
 	ClickHandler.prototype = {
 		//get the index of a structure
-		getDsIndex: function getDsIndex(ds) {
+		getDsIndex: function (ds) {
 			return $.inArray(ds, this.ds);
 		},
 
 		//get a structure 
-		getDs: function getDs(index) {
+		getDs: function (index) {
 			return this.ds[index];
 		},
 
 		//returns an object containing selected structure, index and node (if they exist)
-		getSelected : function getSelected() {
+		getSelected : function () {
 			return {
 				struct: this.getDs(this.selStruct.value()),
 				index: this.selIndex.value(),
@@ -70,14 +76,14 @@
 
 		//reset the click handler, but keeps datastructures and settings
 		//should be done when initializing an exercise
-		reset: function reset() {
+		reset: function () {
 			this.selStruct.value(-1);
 			this.selIndex.value(-1);
 			this.selNode = null;
 		},
 
 		//remove structure from click handler
-		remove: function remove(ds) {
+		remove: function (ds) {
 			if (this.getDsIndex(ds) === -1) {
 				return false;
 			} else {
@@ -86,7 +92,7 @@
 			}
 		},
 
-		step: function step(grade) {
+		step: function (grade) {
 			if (grade) {
 				this.exercise.gradeableStep();
 			} else {
@@ -95,10 +101,11 @@
 		},
 
 		//tells click handler to select the given index in an array or the given node
-		select: function select(struct, indexOrNode) {
+		select: function (struct, indexOrNode) {
 			//don't do anything if click handler is unaware of structure
-			if (this.getDsIndex(struct) === -1)
+			if (this.getDsIndex(struct) === -1) {
 				return;
+			}
 			//deselect if something is selected
 			this.deselect();
 
@@ -116,7 +123,7 @@
 		},
 
 		//deselect the selected node
-		deselect: function deselect() {
+		deselect: function () {
 			if (this.selStruct.value() !== -1) {
 				if (this.selIndex.value() === -1) {
 					//deselect node
@@ -132,7 +139,7 @@
 		},
 
 		//add an array to the click handler
-		addArray: function addArray(array, options) {
+		addArray: function (array, options) {
 			//push array into ds
 			this.ds.push(array);
 
@@ -142,9 +149,14 @@
 
 			//add click handler
 			array.click(function (index) {
+				// ignore the click if the node has the inactive class
+				if (options.inactiveClass && array.hasClass(index, options.inactiveClass)) {
+					return;
+				}
 				//move the values from the JSAV variables into regulas js vars
 				var sStruct = ch.selStruct.value();
 				var sIndex = ch.selIndex.value();
+				var grade;
 
 				if (sStruct === -1) {
 					//select empty nodes only if the options allow it
@@ -173,8 +185,9 @@
 							toIndex: index,
 							effect: options.effect
 						});
+						array.layout();
 						//call onDrop function
-						var grade = options.onDrop.call(this, index);
+						grade = options.onDrop.call(this, index);
 						if (typeof grade === "undefined") {
 							//use default if nothing is returned
 							grade = options.gradeable;
@@ -197,14 +210,15 @@
 					}
 					//move value from node (sIndex === -1) or another array
 					valueEffect(ch, {
-						from: sIndex === -1? ch.selNode: ch.getDs(sStruct),
-						fromIndex: sIndex === -1? undefined: sIndex,
+						from: sIndex === -1 ? ch.selNode : ch.getDs(sStruct),
+						fromIndex: sIndex === -1 ? undefined : sIndex,
 						to: this,
 						toIndex: index,
 						effect: options.effect
 					});
+					array.layout();
 					//call onDrop function
-					var grade = options.onDrop.call(this, index);
+					grade = options.onDrop.call(this, index);
 					if (typeof grade === "undefined") {
 						//use default if nothing is returned
 						grade = options.gradeable;
@@ -221,7 +235,7 @@
 		},
 
 		//add a list to the click handler
-		addList: function addList(list, options) {
+		addList: function (list, options) {
 			//push array into ds
 			this.ds.push(list);
 
@@ -231,9 +245,14 @@
 
 			//add click handler
 			list.click(function () {
+				// ignore the click if the node has the inactive class
+				if (options.inactiveClass && this.hasClass(options.inactiveClass)) {
+					return;
+				}
 				//move the values from the JSAV variables into regulas js vars
 				var sStruct = ch.selStruct.value();
 				var sIndex = ch.selIndex.value();
+				var grade, to;
 
 				if (sStruct === -1) {
 					//select empty nodes only if the options allow it
@@ -265,7 +284,6 @@
 					//select
 					ch.select(list, sel);
 				} else if (sStruct === ch.getDsIndex(list)) {
-					var to;
 					switch (options.drop) {
 					case "first":
 						if (options.select === "first" || this === ch.selNode) {
@@ -293,7 +311,7 @@
 						});
 						list.layout();
 						//call onDrop function
-						var grade = options.onDrop.call(to);
+						grade = options.onDrop.call(to);
 						if (typeof grade === "undefined") {
 							//use default if nothing is returned
 							grade = options.gradeable;
@@ -310,7 +328,6 @@
 					}
 				} else {
 					//move/copy/swap from an another structure
-					var to;
 					switch (options.drop) {
 					case "first":
 						to = list.addFirst().first();
@@ -323,14 +340,14 @@
 					}
 					//move value from node (sIndex === -1) or an array
 					valueEffect(ch, {
-						from: sIndex === -1? ch.selNode: ch.getDs(sStruct),
-						fromIndex: sIndex === -1? undefined: sIndex,
+						from: sIndex === -1 ? ch.selNode : ch.getDs(sStruct),
+						fromIndex: sIndex === -1 ? undefined : sIndex,
 						to: to,
 						effect: options.effect
 					});
 					list.layout();
 					//call onDrop function
-					var grade = options.onDrop.call(to);
+					grade = options.onDrop.call(to);
 					if (typeof grade === "undefined") {
 						//use default if nothing is returned
 						grade = options.gradeable;
@@ -347,7 +364,7 @@
 		},
 
 		//add a (binary) tree to the click handler
-		addTree: function addTree(tree, options) {
+		addTree: function (tree, options) {
 			//push array into ds
 			this.ds.push(tree);
 
@@ -357,9 +374,14 @@
 
 			//add click handler
 			tree.click(function () {
+				// ignore the click if the node has the inactive class
+				if (options.inactiveClass && this.hasClass(options.inactiveClass)) {
+					return;
+				}
 				//move the values from the JSAV variables into regulas js vars
 				var sStruct = ch.selStruct.value();
 				var sIndex = ch.selIndex.value();
+				var grade;
 
 				if (sStruct === -1) {
 					//select empty nodes only if the options allow it
@@ -388,7 +410,7 @@
 						});
 						tree.layout();
 						//call onDrop function
-						var grade = options.onDrop.call(this);
+						grade = options.onDrop.call(this);
 						if (typeof grade === "undefined") {
 							//use default if nothing is returned
 							grade = options.gradeable;
@@ -406,14 +428,14 @@
 					//move/copy/swap from an another structure
 					//move value from node (sIndex === -1) or an array
 					valueEffect(ch, {
-						from: sIndex === -1? ch.selNode: ch.getDs(sStruct),
-						fromIndex: sIndex === -1? undefined: sIndex,
+						from: sIndex === -1 ? ch.selNode: ch.getDs(sStruct),
+						fromIndex: sIndex === -1 ? undefined: sIndex,
 						to: this,
 						effect: options.effect
 					});
 					tree.layout();
 					//call onDrop function
-					var grade = options.onDrop.call(this);
+					grade = options.onDrop.call(this);
 					if (typeof grade === "undefined") {
 						//use default if nothing is returned
 						grade = options.gradeable;
@@ -445,7 +467,17 @@
 			ch.jsav.effects.copyValue.apply(this, args);
 			break;
 		case "swap":
-			ch.jsav.effects.swapValues.apply(this, args);
+			if (options.from === options.to &&
+				options.to instanceof JSAV._types.ds.AVArray &&
+				ch.options.arraySwapOptions &&
+				ch.options.arraySwapOptions.use === true)
+			{
+				// remove selected class before swapping, in case the classes are swapped
+				options.from.removeClass(options.fromIndex, ch.options.selectedClass);
+				options.from.swap(options.fromIndex, options.toIndex, ch.options.arraySwapOptions);
+			} else {
+				ch.jsav.effects.swapValues.apply(this, args);
+			}
 			break;
 		case "toss":
 			//remove value from "from structure"
@@ -468,9 +500,6 @@
 				for (i = 0; i < list.size(); i++) {
 					if (list.get(i) === options.from) {
 						list.remove(i);
-						if (i !== 0) {
-							options.from.hide();
-						}
 						break;
 					}
 				}
