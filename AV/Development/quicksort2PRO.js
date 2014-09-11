@@ -1,8 +1,8 @@
 /*global ODSA, PARAMS, ClickHandler */
 (function ($) {
   "use strict";
-  var arraySize = 10,
-    pivotSelectionMethod = PARAMS.pivot || "last",     // use the last element in the bound as the pivot
+  var arraySize = PARAMS.size ? parseInt(PARAMS.size, 10): 10,
+    pivotSelectionMethod = PARAMS.pivot || "middle",     // use the last element in the bound as the pivot
     noPivotSize = PARAMS.nopivotsize ? parseInt(PARAMS.nopivotsize, 10): 1,
     swapOptions = {arrow: false, highlight: false, swapClasses: true},
     initialArray,
@@ -12,17 +12,25 @@
     pivotInBound,
     pseudo,
     clickHandler,
-    config = ODSA.AV.getConfig("quicksort2PRO.json"),
-    interpret = JSAV.utils.getInterpreter(config.language),
+    config = ODSA.UTILS.loadConfig({'av_container': 'jsavcontainer'}),
+    interpret = config.interpreter,
+    code = config.code,
     av = new JSAV($("#jsavcontainer"));
 
   var pivotFunction = {
     last: function (left, right) { return right; },
-    middle: function (left, right) { return Math.floor((right + left) / 2); }
+    middle: function (left, right) { return Math.floor((right + left) / 2); },
+    medianof3: function (left, right, arr) {
+      var mid = this.middle(left, right);
+      var median = [arr.value(left), arr.value(mid), arr.value(right)].sort(function (a, b) { return a - b; })[1];
+      if (arr.value(right) === median) {
+        return right;
+      } else if (arr.value(mid) === median) {
+        return mid;
+      }
+      return left;
+    }
   };
-
-  ODSA.AV.setTitleAndInstructions(av.container, config.language);
-
 
   av.recorded(); // we are not recording an AV with an algorithm
 
@@ -30,9 +38,9 @@
 
     exercise.jsav.container.find(".jsavcanvas").css({height: 350});
 
-    if (!pseudo && config.code) {
-      pseudo = av.code($.extend({after: {element: $(".instructions")}, visible: true}, config.code));
-      pseudo.hide(config.code.tags.comments_and_findpivot);
+    if (!pseudo && code) {
+      pseudo = av.code($.extend({after: {element: $(".instructions")}, visible: true}, code));
+      pseudo.hide("comments_and_findpivot");
     }
 
     //set up click handler
@@ -246,7 +254,10 @@
   }
 
   // create excercise
-  var exercise = av.exercise(modelSolution, initialize, {css: "background-color"}, {feedback: "atend"});
+  var exercise = av.exercise(modelSolution, initialize,
+                             { compare:  {css: "background-color"},
+                               feedback: "atend",
+                               modelDialog: {width: 750}});
   // edit reset function so that it calls highlightAndSwapPivot when done
   var origreset = exercise.reset;
   exercise.reset = function () {
@@ -325,13 +336,14 @@
   }
 
   function highlightAndSwapPivot(arr, first, last) {
-    var index = pivotFunction[pivotSelectionMethod](first, last);
-
-    arr.addClass(index, "pivot");
+    var index = pivotFunction[pivotSelectionMethod](first, last, arr);
 
     if (index !== last) {
       arr.swap(index, last, swapOptions);
     }
+
+    arr.addClass(last, "pivot");
+
     return index;
   }
 

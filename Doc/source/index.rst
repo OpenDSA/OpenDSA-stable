@@ -7,17 +7,22 @@ Table of Contents
 =================
 
 .. toctree::
+   :numbered:
    :maxdepth: 3
 
-   Overview
+   Introduction
+   InstructorTools
+   Configuration
    ModAuthor
    Style
-   Preprocessor
-   Extensions
+   AV
    Exercise 
-   BackendSpecs
-   Configuration
-   Client-sideFramework
    Client-sideDevelopment
+   Extensions
+   Preprocessor
+   Backend
+   BackendSpecs
+   AdminTools
+   Client-sideFramework
    QBankUserManual
    QBankDevManual

@@ -8,8 +8,6 @@
    :requires: mergesort
    :topic: Sorting
 
-.. odsalink:: AV/Sorting/mergeCON.css
-
 Implementing Mergesort
 ======================
 
@@ -73,12 +71,12 @@ indices, respectively, for the subarray being sorted.
 The initial call to ``mergesort`` would be
 ``mergesort(array, temparray, 0, n-1)``.
 
-.. codeinclude:: Sorting/Mergesort.pde
+.. codeinclude:: Sorting/Mergesort
    :tag: Mergesort
 
 Here is a visualization for the merge step.
 
-.. inlineav:: mergeImplCON1 ss
+.. inlineav:: mergeImplS1CON ss
    :output: show
 
 An optimized Mergesort implementation is shown below.
@@ -92,16 +90,17 @@ This version also has a second optimization:
 It uses Insertion Sort to sort small subarrays whenever the size of
 the array is smaller than a value defined by ``THRESHOLD``.
 
-.. codeinclude:: Sorting/MergesortOpt.pde
+.. codeinclude:: Sorting/MergesortOpt
    :tag: MergesortOpt
 
 Here is a visualization for the optimized merge step.
 
-.. inlineav:: mergeImplCON2 ss
+.. inlineav:: mergeImplS2CON ss
    :output: show
 
 Now here are some review questions.
 
 .. avembed:: Exercises/Sorting/MergesortSumm.html ka
 
-.. odsascript:: AV/Sorting/mergeImplCON.js
+.. odsascript:: AV/Sorting/mergeImplS1CON.js
+.. odsascript:: AV/Sorting/mergeImplS2CON.js

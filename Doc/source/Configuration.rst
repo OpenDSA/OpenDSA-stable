@@ -1,12 +1,45 @@
-﻿.. _Configuration:
+.. _Configuration:
 
-================================
-The OpenDSA Configuration System
-================================
+==========================================================
+Compiling Book Instances: the OpenDSA Configuration System
+==========================================================
 
-----------
-Motivation
-----------
+--------
+Overview
+--------
+
+A given OpenDSA eTextbook is called a "book instance".
+The contents of a book instance is defined by a configuration file,
+the detailed syntax for which is defined in this section.
+But in practice, its easiest to start by copying an existing
+configuration file, and then changing it to fit your needs.
+Configuration files are JSON files, normally stored in OpenDSA/config.
+From the top level of an OpenDSA repository, you can compile a book
+instance (given the existance of a configuration file named
+``config/myconfig.json``) by issuing this command:
+
+``python tools/configure.py config/myconfig.json``
+
+A set of ``make`` targets are available within the OpenDSA Makefile.
+If you want to compile one of the existing book instances in the
+Makefile, you can just type:
+
+``make <bookname>``
+
+
+**Note:** If you are responsible for setting up the book instance to
+be used in a specific course, then you will probably want to manage
+the corresponding class instance set up at the OpenDSA backend
+server.
+This involves registering the various exercises with the backend
+database.
+See  "Registering a Book Instance" in the
+:ref:`Instructor's Tools  <InstructorTools>` section.
+
+
+---------------------------------------
+Motivation for the Configuration System
+---------------------------------------
 
 * Allows content to be environment-independent
 
@@ -37,8 +70,16 @@ Please see the comment at the beginning of configure.py for more information abo
 Module and Exercise Removal
 ===========================
 
-* Only the modules listed in the configuration file will be included.  To remove a module from the book, simply remove the module object from the configuration file.
-* To remove an exercise from a module, set the "remove" attribute to true.  Exercises that do not appear in the configuration file will still be included in the book using the default configuration options.  During configuration, a list will be printed of any exercises which were encountered in the modules but not present in the configuration file.
+* Only the modules listed in the configuration file will be included.
+  To remove a module from the book, simply remove the module object
+  from the configuration file.
+
+* To remove an exercise from a module, set the "remove" attribute to
+  true.  Exercises that do not appear in the configuration file will
+  still be included in the book using the default configuration
+  options.  During compilation, a list will be printed of any
+  exercises which were encountered in the modules but not present in
+  the configuration file.
 
 
 Future Features
@@ -72,9 +113,8 @@ Format
 
   * The name of the configuration file will be used to uniquely identify this instance of OpenDSA in the backend database
 
-
-Settings (all are required unless otherwise specified)
-======================================================
+Here are the settings definitions.
+All are required unless otherwise specified.
 
 * **title** - the title of the OpenDSA textbook
 
@@ -87,13 +127,18 @@ Settings (all are required unless otherwise specified)
   * The compiled textbook will appear in ``[build_dir]/[book name]/html``
   * This directory must be web accessible
 
-* **code_dir** - specifies the directory which contains another directory whose name matches ``code_lang`` (see below) which contains the source code used in examples
+* **code_dir** (optional) - specifies the directory which contains another directory whose name matches ``code_lang`` (see below) which contains the source code used in examples, defaults to ``SourceCode`` if omitted
 
   * Ex: If ``{"code_dir": "SourceCode/", "code_lang": "python"}`` then the book would look for example Python source code in ``~OpenDSA/SourceCode/python``
 
 * **lang** (optional) - specifies the native language of the book using the official ISO 639-1 or 639-2 standard abbreviation, defaults to ``en`` if omitted
 
-* **code_lang** - specifies the programming language used for examples and exercises throughout the book
+* **code_lang** - a dictionary where each key is the name of a programming language (supported by Pygments and matching a directory name in ``code_dir``) and each value is a list of file extensions.  The order in which the languages and extensions are provided determines their precedence.
+
+  * Ex: ``"code_lang": {"C++": ["cpp", "h"], "Java": ["java"], "Processing": ["pde"]}``
+  * In this example, the system would search for ``.cpp`` files, followed by ``.h`` files, ``.java`` files, and finally ``.pde`` files
+
+* **tabbed_codeinc** (optional) - a boolean that controls whether or not code is displayed in a tabbed interface.  If true, it will display the specified code in each of the languages specified in ``code_lang`` (if the code exists) in a tabbed container.  If false, it will display the code in a single language (the first language for which the code exists with the order of precedence determined by the order specified in ``code_lang``).  Defaults to true if omitted
 
 * **module_origin** - the protocol and domain where the module files are hosted
 
@@ -142,6 +187,8 @@ Settings (all are required unless otherwise specified)
   * This value should be set to false for development
   * Instructors may wish to set this to true for production environments when configuration is run infrequently and JSAV is likely to have changed since the last time configuration occurred
 
+* **build_cmap** - (optional) a boolean controlling wether or not the glossary terms concept map should be diplayed. Defaults to ``false``.
+
 * **allow_anonymous_credit** - (optional) a boolean controlling whether credit for exercises completed anonymously (without logging in) will be transferred to the next user to log in, defaults to ``true`` if omitted
 
 * **req_full_ss** - (optional) a boolean controlling whether students must view every step of a slideshow in order to obtain credit, defaults to ``true`` if omitted
@@ -171,9 +218,14 @@ Settings (all are required unless otherwise specified)
 
     * **mod_options** - (optional) overrides ``glob_mod_options``, allows modules to be configured independently from one another.  Can be used to override the options set using ``glob_mod_options``. Options that should be stored in ``JSAV_OPTIONS`` should be prepended with ``JOP-`` and options that should be stored in ``JSAV_EXERCISE_OPTIONS`` should be prepended with ``JXOP-`` (can be used to override the defaults set in ``odsaUtils.js``).  All other options will be made directly available to modules in the form of a parameters object created automatically by the client-side framework (specifically whn ``parseURLParams()`` is called in ``odsaUtils.js``)
 
+    * **sections** - (optional) a collection of section objects that provide additional information for sections created using the ``showhidecontent`` directive. The ``sections`` object should contain keys that match the ``section_id`` used by the ``showhidecontent`` directive, which in turn map to a dictionary of options for that section.
+
+      * If a section is omitted, the content will appear in the module without a button to control whether it is shown or hidden (removal must be explicit)
+      * To remove the section completely, provide the option ``remove`` and set it to ``true``
+      * All options provided within a section object (with the exception of ``remove``) are appended to the directive, please see the :ref:`Extensions <ODSAExtensions>` section for a list of supported arguments
+
     * **exercises** - a collection of exercise objects representing the exercises found in the module's RST file
 
-      * Omitting an exercise from the module's "exercises" object will cause the exercise to be removed from the configured module
       * Each exercise object contains required information about that exercise including:
 
         * **exer_options** - (optional) an object containing exercise-specific configuration options for JSAV.  Can be used to override the options set using ``glob_exer_options``. Options that should be stored in ``JSAV_OPTIONS`` should be prepended with ``JOP-`` and options that should be stored in ``JSAV_EXERCISE_OPTIONS`` should be prepended with ``JXOP-`` (can be used to override the defaults set in ``odsaUtils.js``).  All other options will be made directly available to exercises in the form of a parameters object created automatically by the client-side framework (specifically whn ``parseURLParams()`` is called in ``odsaUtils.js``)
@@ -195,3 +247,65 @@ Settings (all are required unless otherwise specified)
         * **threshold** - (optional) the percentage a user needs to score on the exercise to obtain proficiency, defaults to 100% (1 on a 0-1 scale) if omitted
 
       * JSAV-based diagrams do not need to be listed
+
+    * **codeinclude** (optional) - an object that maps the path from a codeinclude to a language which should be used for the code.
+
+      * The following example would set C++ as the language for the codeinclude "Sorting/Mergesort"
+      * Ex: "codeinclude": {"Sorting/Mergesort": "C++"}
+
+---------------------
+Configuring Exercises
+---------------------
+
+The most important concern when configuring proficiency exercises is
+the scoring option to be used.
+JSAV-based proficiency exercises have a number of possible grading
+methods:
+
+* ``atend``: Scores are only shown at the end of the exercise.
+* ``continuous:undo``: Mistakes are undone, the student will lose that
+  point but have to repeat the step.
+* ``continuous:fix``: On a mistake, the step is corrected, the student
+  loses that point, and then is ready to attempt the next step. This
+  mode requires that the exercise have the capability to fix the
+  step. If it does not, this grading mode will default to
+  ``continuous:undo``.
+
+All proficiency exercises can be controlled through URL
+parameters. What the configuration file actualy does by setting
+``exer_options`` is specify what should be in those URL parameters
+that are sent to the exercise by the OpenDSA module page.
+Here is an example for configuring an exercise::
+
+          "shellsortPRO": {
+            "long_name": "Shellsort Proficiency Exercise",
+            "required": true,
+            "points": 2.0,
+            "threshold": 0.9,
+            "exer_options": {
+              "JXOP-feedback": "continuous",
+              "JXOP-fixmode": "fix"
+            }
+          },
+
+This configuration will affect the configuration of an entity called
+``shellsortPRO`` (presumeably defined by an ``..avembed`` directive in
+the corresponding OpenDSA module).
+It is scored (as defined by the ``required`` field being ``true``),
+and is worth 2.0 points of credit once he/she reaches "proficiency".
+To reach "proficiency" requires correctly achieving 90% of the
+possible steps on some attempt at the exercise (as defined by
+``threshold``).
+The exercise is instructed to use the ``continuous:fix`` mode of
+scoring.
+
+In addition to the standard ``JXOP-feedback`` and ``JXOP-fixmode``
+parameters, a given AV or exercise might have ad hoc parameter
+settings that it can accept via URL parameter.
+Examples might be algorithm variations or initial data input values.
+Those would have to be defined by the exercise itself.
+These (along with the standard grading options) can also have defaults
+defined in the ``.json`` file associated with the AV or exercise,
+which might help to document the available options.
+Any such ad hoc parameter defaults can be over-ridden in the
+``exer_options`` setting in the configuration file.

@@ -64,8 +64,9 @@ whether they are equal or not.
 That is enough to enable a sequential search through a database of
 records and find one that matches a given key.
 However, we typically would like for the keys to define a
-:term:`total order` (see Module :ref:`Set Definitions <SetDef>`), which means
-that we can always tell which of two keys is greater than the other.
+:ref:`total order <total order> <SetDef>`,
+which means that we can always tell which of two keys is greater than
+the other.
 Using key types with total orderings gives the database
 implementor the opportunity to organize a collection of records in
 a way that makes searching more efficient.
@@ -121,7 +122,7 @@ write a key extraction method.
 In that case, a comparator will not work. [#]_
 
 One good general-purpose solution is to explicitly store
-:index:`key-record pairs` in the data structure.
+:term:`key-value pairs <key-value pair>` in the data structure.
 For example, if we want to sort a bunch of records, we can store them
 in an array where every array entry contains both a key value for the
 record and a pointer to the record itself.
@@ -131,12 +132,12 @@ another field as the key for another purpose.
 The records themselves do not need to be duplicated.
 A simple class for representing key-value pairs is shown here.
 
-.. codeinclude:: Utils/KVPair.pde
-   :tag: KVpair
+.. codeinclude:: Utils/KVPair
+   :tag: KVPair
 
 The main places where we will need to be concerned with comparing
-records and extracting keys is for various dictionary implementations
-and sorting algorithms.
+records and extracting keys is for various :term:`dictionary`
+implementations and sorting algorithms.
 To keep them clear and simple, OpenDSA will usually show sorting
 algorithms as operating on integer values stored in an array.
 But to be generally useful, a real sorting algorithm typically has to
@@ -144,14 +145,15 @@ deal with the fact that it is sorting a collection of records.
 A general-purpose sorting routine meant to operate on multiple record
 types would have to be written in a way to deal with the generic
 comparison problem.
-To illustrate, here is an example of Insertion Sort implemented to
+To illustrate, here is an example of
+:ref:`Insertion Sort <Insertion Sort> <InsertionSort>` implemented to
 work on an array that stores records that support the ``Comparable``
 interface.
 Note that since ``KVPair`` is implemented to implement the
 ``Comparable`` interface, an array of ``KVPair`` could be used by this
 sort function.
 
-.. codeinclude:: Sorting/Insertionsort.pde
+.. codeinclude:: Sorting/Insertionsort
    :tag: Insertionsort
 
 Here are some review questions to test your knowledge from this module.

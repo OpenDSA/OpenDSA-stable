@@ -19,6 +19,8 @@ as not being set manually (i.e., by the module author) within the ReST
 file. You just leave those options out when you create your module,
 and specify them instead in your configuration file.
 
+.. _avembed:
+
 avembed
 -------
 NAME
@@ -132,8 +134,8 @@ SYNOPSIS::
 DESCRIPTION
     ``.. codeinclude:: {relative_path}``
 
-      Include the contents of the file located at
-      ``{relative_path}``.
+      Include the contents of the file located at ``{relative_path}``.  If the path is relative to ``code_dir``, that specific file will be loaded.
+      However, if the path is relative to a code language directory in ``code_dir``, the directive will attempt to load the file in all the languages (specified in ``code_lang``) in a tabbed display if ``tabbed_codeinc`` is ``True`` and only the language with highest precedence if ``tabbed_codeinc`` is ``False``.  Convention dictates that the file extension be omitted when using the second option, however, the directive will automatically strip the file extension if one is provided.
 
     ``:tag: {my_tag}``
 
@@ -154,6 +156,10 @@ DESCRIPTION
          /* *** ODSATag: my_tag *** */
          /* *** ODSAendTag: my_tag *** */
 
+    ``:lang: {code_language}``
+
+      Specifies the language of the code to be loaded (overrides multiple language loading).
+
 NOTES
     The ``codeinclude`` directive closely matches the standard ReST
     directive ``literalinclude``.::
@@ -166,6 +172,8 @@ NOTES
         .. literalinclude:: <relative_path>
            :start-after: /* *** ODSATag: my_tag *** */
            :end-before: /* *** ODSAendTag: my_tag *** */
+
+.. _inlineav:
 
 inlineav
 -----------
@@ -289,6 +297,31 @@ DESCRIPTION
     The name of the chapter. It should be identical (case sensitive)
     to the one specified in the json configuration file.
 
+showhidecontent
+---------------
+NAME
+    showhidecontent - creates a section of text that can be hidden or displayed.
+
+SYNOPSIS::
+
+    .. showhidecontent:: {section_id}
+       [:long_name: {string}]
+       [:showhide: show|hide|none]
+
+DESCRIPTION
+    ``.. showhidecontent:: {section_id}``
+      ``{section_id}`` is a string used to identify the section in the configuration file. Ideally, it should be descriptive and in camel-case, because if ``long_name`` is omitted, ``section_id`` will be converted to a space-delimited string and used in its place
+
+    ``:long_name: {string}``
+
+      The display name for the section that will appear on the showhide button (if applicable). If omitted, the ``section_id`` will be converted from camel-case to a space-delimited string and used in its place
+      **Added automatically by the configuration process, do NOT add manually.**
+
+    ``:showhide: show|hide|none``
+      If ``show`` then display a button to show or hide the section and make the section visible on page load.
+      If ``hide`` then display the button, but hide the section on page load.
+      If ``none`` or if the option is omitted then the section will be displayed with no button
+      **Added automatically by the configuration process, do NOT add manually.**
 
 TODO
 ----
@@ -331,6 +364,8 @@ NOTES
     part of the table of contents for the eBook.
 
 
+.. _odsalink:
+
 odsalink
 --------
 NAME
@@ -366,6 +401,8 @@ NOTES
 
     in the HTML output file.
 
+
+.. _odsascript:
 
 odsascript
 ----------
@@ -459,15 +496,55 @@ It is used when a chapter has the optional ``hidden`` field to ``true``.
 The Modules in the chapter will not be visible in the table of content.
 **It is added automatically by the configuration process, do NOT add manually.**
 
+
+ref
+---
+
+We have modified the  Sphinx ``ref`` directive to better support the
+fact that eBook instances can vary with respect to whether given
+modules are included or not.
+
+NAME
+   ref - Creates a hyperlink to a module, label, or a glossary term.
+
+SYNOPSIS::
+
+   :ref:`my anchor text <label>`
+   :ref:`my anchor text <glossary term> <label>`
+
+DESCRIPTION
+   ``my anchor text``
+
+      The anchor text for the hyperlink.
+
+   ``<label>``
+
+      Module name or some label within a module.
+      If it is a module name, then ``ref`` links to the module.
+      If it is a label (such as for an Example), then the directive
+      links to that point in the module.
+      If  ``<label>`` does not exist, then the directive shows only the
+      anchor text (in normal font, as though no reference were being made).
+
+   ``<glossary term>``
+
+      If ``<label>`` does not exist and the ``<glossary term>`` is given,
+      then the hyperlink directs to the ``<glossary term>`` entry in the
+      glossary.
+
 topic (special case)
 --------------------
 
-The syntax of the  ``topic`` is not changed in OpenDSA. We are using the directive to display
+The syntax of the ``topic`` directive is not changed in OpenDSA.
+We use this directive to display
 ``examples, tables, and theorems``.
-To insert an example in your module, just use the keyword ``Example`` as topic title.
-To insert a theorem in your module, just use the keyword ``Theorem`` as topic title.
-The example/table/theorem can be referenced using standard Sphinx mechanism, for numbered reference,
-use the ``:num:`` directive.
+To insert an example in your module, use the keyword ``Example`` as
+the topic title.
+To insert a theorem in your module, use the keyword ``Theorem`` as
+the topic title.
+The example/table/theorem can be referenced using the standard Sphinx
+mechanism.
+For a numbered reference, use the ``:num:`` directive.
 
 EXAMPLE::
 

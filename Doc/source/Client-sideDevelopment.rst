@@ -1,4 +1,4 @@
-﻿.. _Client-sideDevelopment:
+.. _Client-sideDevelopment:
 
 =======================
 Client-side Development
@@ -41,6 +41,118 @@ The OpenDSA client-side framework automatically handles as much logging as possi
 
   * As a developer, if you feel something is important to log (whether its the state of the exercise, some sort of interaction or simply a comment) you can use either ``ODSA.UTILS.logUserAction()`` or ``ODSA.UTILS.logEvent()``.  Refer to the function documentation in ``odsaUtils.js`` for more information on how to use these functions.
   * Allows developers to describe what is happening at a given step to make it easier when analyzing problem steps to identify what step the students are missing
+
+
+----------------------------
+Internationalization Support
+----------------------------
+
+OpenDSA supports a sophisticated internationalization framework that
+attempts to make it as easy as possible to support compiling textbook
+instances in various (natural) languages.
+The configuration system allows a book compiler to specify the
+language of choice, and the system will take module versions in the
+target language whenever available (the fallback language is
+English).
+
+Like every other aspect of internationalization, we define the
+language using the two-letter
+`ISO 639-1 <http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`_
+language codes.
+
+Someone creating a new book instance would use the 'lang' variable
+in the configuration file to define their book language.
+But if you want to add support to the OpenDSA system to support a new
+language, then you will need to provide the necessary strings in the
+target language.
+Here is a guide to how you would provide that information.
+
+It helps to understand that the Sphinx compiler itself has its own
+translation support, which affects some of the strings that appear on
+an OpenDSA page.
+Just telling Sphinx what language that you want to use will cause
+those strings that Sphinx controls to be translated.
+This is done by the configuration system when the configuration file
+tells it to use a particular language.
+A list of languages supported by sphinx can be found at
+http://sphinx-doc.org/config.html#confval-language.
+
+Translation is controlled by the file ``tools/language_msg.json``.
+Each language is represented by its code in language_msg.json.
+Make sure that a translation is available in language_msg.json file
+before asking the configuration system to create a book in that
+language.
+
+The terms for each language are grouped in two categories within
+``language_msg.json``:
+
+* ``jinja`` for the terms that will be added inside the configuration
+    file. They will be passed by Sphinx to the templating system
+    (jinja + haiku).
+* ``js`` for the terms processed by the ``odsaMOD.js`` library, and
+    injected while the page is loading.
+
+Here is the structure for language_msg.json::
+
+   {
+     "en"{
+       "jinja": {
+         "term1": "en_term1",
+         ...
+       },
+       "js": {
+         "term2": "en_term2",
+         ...
+       }
+     },
+     "fi"{
+       "jinja": {
+         "term1": "fi_term1",
+         ...
+       },
+       "js": {
+         "term2": "fi_term2",
+         ...
+       }
+     }
+   }
+
+The gradebook text strings are taken from ``RST/<lang>/Gradebook.rst``.
+
+The book configuration  program will read the language variable.
+If a translation for the entered language is not available, the
+default language English is used.
+
+Individual AVs and exercises support internationalization through the
+use of an associated ``.json`` file that provides the various
+translation text for all strings that appear in the AV.
+JSAV provides translations to many languages for its infrastructure
+strings.
+
+
+-------------------------------
+Glossary Concept Map Definition
+-------------------------------
+
+OpenDSA supports displaying glossary terms as a **concept map**.
+The relationship between terms are specified in the ``Glossary.rst``
+file, and consist of the following elements added below the term we are defining:
+
+* ``:to-term:`` followed by the related term. Ideally, the related term should be also
+    defined in the glossary file, but is is not mandatory.
+* ``:label:`` followed by the linking phrase decribing the relationship between the two terms.
+
+Here is an example of a relationship definition between the terms ``graph`` and ``vertices``::
+
+  graph
+      :to-term: vertices :label: contains
+
+      A :term:`graph` :math:`\mathbf{G} = (\mathbf{V}, \mathbf{E})` consists
+      of a set of :term:`vertices` :math:`\mathbf{V}` and a set of
+      :term:`edges` :math:`\mathbf{E}`,
+      such that each edge in :math:`\mathbf{E}` is a connection between a
+      pair of vertices in :math:`\mathbf{V}`.
+
 
 
 ---------------
@@ -131,21 +243,24 @@ referencing elements or functions through the ``contentDocument`` or
 or ``window.top``.
 
 
+.. _Encapsulation:
+
 Encapsulation
 =============
 
 You should always wrap your JavaScript code in an anonymous function
 to prevent the DOM from getting cluttered and to prevent outside
-access to specific data or functions.  All functions and global
-variables defined within an anonymous function are visible to each
-other and can be used normally.  However, sometimes you will need to
-define a publically accessible function that interacts with functions
-you wish to keep private.  The simplest way to do this is to write
-your JavaScript as normal within an anonymous function and then assign
-specific "public" functions to be properties of the ``window`` object.
-Please refer to the example below::
+access to specific data or functions.
+All functions and global variables defined within an anonymous
+function are visible to each other and can be used normally.
+However, sometimes you will need to define a publically accessible
+function that interacts with functions you wish to keep private.
+The simplest way to do this is to write your JavaScript as normal
+within an anonymous function and then assign specific "public"
+functions to be properties of the ``window`` object.
+For example::
 
-  (function() {
+  $(document).ready(function () {
     var privateData = 0;
 
     function privFunct() {
@@ -156,40 +271,42 @@ Please refer to the example below::
       privFunct();
     }
 
-    var ODSA = {};
-    ODSA.publicFunct = publicFunct;
-    window.ODSA = ODSA;
-  }(jQuery));
+    var AV = {};
+    AV.publicFunct = publicFunct;
+    window.AV = AV;
+  });
 
 Another alternative is::
 
-  (function() {
-    var ODSA = {};
+  $(document).ready(function () {
+    var AV = {};
 
     function privFunct() {
       alert('ODSA private function');
-      ODSA.publicFunct();
+      AV.publicFunct();
     }
 
-    ODSA.publicFunct = function() {
+    AV.publicFunct = function() {
       alert('ODSA publicFunct');
     }
 
-    ODSA.callPrivFunct = function() {
+    AV.callPrivFunct = function() {
       privFunct();
     }
 
-    window.ODSA = ODSA;
-  }(jQuery));
+    window.AV = AV;
+  });
 
-In both of these example, ``publicFunct()`` can be referenced outside
-the anonymous function using ``ODSA.publicFunct()`` (or
-``window.ODSA.publicFunct()``).  We prefer the first method because it
-looks more like a standard JavaScript file, internal function
-references are simpler and its easy to add all the public functions in
-one place, giving the developer greater control over what they make
-public.
+In both of these examples, ``publicFunct()`` can be referenced outside
+the anonymous function using ``AV.publicFunct()``
+(or ``window.AV.publicFunct()``).
+We prefer the first method because it looks more like a standard
+JavaScript file, internal function references are simpler, and its
+easy to add all the public functions in one place, giving the
+developer greater control over what they make public.
 
+Be sure not to overwrite any existing namespaces (such as window.ODSA
+which is used by the OpenDSA framework)!
 
 ---------------
 Troubleshooting

@@ -24,10 +24,10 @@ sorts that are commonly known.
 It is not particularly intutitive --
 nobody is going to come naturally to Bubble Sort as a way to sort
 their Bridge hand or their pile of bills like they might with
-Insertion Sort or Selection Sort.
-However, Bubble Sort can serve as the inspiration for a better sorting
-algorithm that will be presented in
-Module :numref:`Selection Sort <SelectionSort>`.
+:ref:`Insertion Sort <insertion sort> <InsertionSort>` or
+:ref:`Selection Sort <selection sort> <SelectionSort>`.
+However, Bubble Sort can viewed as a close relative of
+Selection Sort.
 
 Like Insertion Sort, Bubble Sort consists of a simple double ``for``
 loop.
@@ -47,19 +47,19 @@ records, looking at one less record toward the end than did the
 preceding pass.
 Here is an implementation.
 
-.. codeinclude:: Sorting/Bubblesort.pde 
+.. codeinclude:: Sorting/Bubblesort 
    :tag: Bubblesort        
 
 Consider the following array.
 
-.. inlineav:: BubsortCON1 ss
+.. inlineav:: bubblesortS1CON ss
    :output: show
 
 Now we continue with the second pass. However, since the largest
 record has "bubbled" to the very right, we will not need to look at
 it again.
 
-.. inlineav:: BubsortCON2 ss
+.. inlineav:: bubblesortS2CON ss
    :output: show
 
 Bubble Sort continues in this way until the entire array is sorted.
@@ -71,26 +71,32 @@ Now try for yourself to see if you understand how Bubble Sort works.
 
 .. avembed:: Exercises/Sorting/BubsortPRO.html ka
 
-Determining number of comparisons done by Bubble Sort is easy.
-Regardless of the arrangement of the values in the array, the number
-of comparisons made by the inner ``for`` loop on the :math:`i`'th
-iteration is always :math:`n-i`, leading to a total cost of
+.. showhidecontent:: BubbleSortAnalysis
 
-.. math::
-   \sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} \approx n^2/2 = \Theta(n^2).
+   Determining number of comparisons done by Bubble Sort is easy.
+   Regardless of the arrangement of the values in the array, the number
+   of comparisons made by the inner ``for`` loop on the :math:`i`'th
+   iteration is always :math:`n-i`, leading to a total cost of
 
-Thus, Bubble Sort's running time is roughly the same
-in the best, average, and worst cases.
+   .. math::
+      \sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} \approx n^2/2 = \Theta(n^2).
 
-The number of swaps required depends on how often a
-record's value is less than that of the record immediately preceding
-it in the array.
-We can expect this to occur for about half the comparisons in the
-average case, leading to :math:`\Theta(n^2)` for the
-expected number of swaps.
-The actual number of swaps performed by Bubble Sort will be identical
-to that performed by Insertion Sort.
+   Thus, Bubble Sort's running time is roughly the same
+   in the best, average, and worst cases.
 
+   The number of swaps required depends on how often a
+   record's value is less than that of the record immediately preceding
+   it in the array.
+   We can expect this to occur for about half the comparisons in the
+   average case, leading to :math:`\Theta(n^2)` for the
+   expected number of swaps.
+   The actual number of swaps performed by Bubble Sort will be identical
+   to that performed by Insertion Sort.
+
+Here are some review questions to check your understanding of
+Insertion Sort. 
+ 
 .. avembed:: Exercises/Sorting/BubsortSumm.html ka
 
-.. odsascript:: AV/Sorting/bubblesortCON.js
+.. odsascript:: AV/Sorting/bubblesortS1CON.js
+.. odsascript:: AV/Sorting/bubblesortS2CON.js

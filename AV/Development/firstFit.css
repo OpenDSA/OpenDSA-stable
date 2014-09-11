@@ -3,19 +3,19 @@ label {
 }
 
 #container {
-  width: 800px;
-  height: 575px;
+  width: 855px;
+  height: 600px;
 }
 
 .jsavcanvas > svg { 
-  width: 900px;
+  width: 855px;
   height: 550px;
 }
 
 #bottom {
 padding-left: 5px;
   height: 90px;
-  width: 805px;
+  width: 860px;
   border: 1px solid black;
   background-color: #ddd;
   overflow: hidden;
@@ -30,8 +30,8 @@ padding-left: 5px;
   margin-top: 0;
 }
 
-.jsavnode {
-  line-height: 30px;
+.jsavcontainer svg {
+  pointer-events: all;
 }
 
 .jsavscroll {

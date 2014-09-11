@@ -19,8 +19,9 @@ We can model a road network as a directed graph whose edges are
 labeled with real numbers.
 These numbers represent the distance (or other cost metric, such as
 travel time) between two vertices.
-These labels may be called :term:`weights`, :term:`costs`, or
-:term:`distances`, depending on the application.
+These labels may be called :term:`weights <weight>`,
+:term:`costs <cost>`, or :term:`distances <distance>`,
+depending on the application.
 Given such a graph, a typical problem is to find the total
 length of the shortest path between two specified vertices.
 This is not a trivial problem, because the shortest path may not be
@@ -64,7 +65,7 @@ Single-Source Shortest Paths
 ----------------------------
 
 We will now present an algorithm to solve the
-:term:`single-source shortest-paths` problem.
+:term:`single-source shortest paths problem`.
 Given Vertex :math:`S` in Graph :math:`\mathbf{G}`,
 find a shortest path from :math:`S` to every other vertex in
 :math:`\mathbf{G}`.
@@ -147,7 +148,7 @@ Here is an implementation for Dijkstra's
 algorithm.
 At the end, array ``D`` will contain the shortest distance values.
 
-.. codeinclude:: Graphs/Dijkstra.pde 
+.. codeinclude:: Graphs/Dijkstra 
    :tag: GraphDijk1
 
 .. avembed:: AV/Development/DijkstraAV.html ss
@@ -159,7 +160,7 @@ The first method is simply to scan through the list of
 :math:`|\mathbf{V}|` vertices searching for the minimum value, as
 follows:
 
-.. codeinclude:: Graphs/Dijkstra.pde 
+.. codeinclude:: Graphs/Dijkstra 
    :tag: MinVertex
 
 .. TODO::
@@ -210,7 +211,7 @@ We use the ``KVPair`` class to store key-value pairs in the heap, with
 the edge weight as the key and the target vertex as the value.
 here is the implementation for Dijkstra's algorithm using a heap.
 
-.. codeinclude:: Graphs/DijkstraPQ.pde 
+.. codeinclude:: Graphs/DijkstraPQ 
    :tag: DijkstraPQ
 
 .. TODO::

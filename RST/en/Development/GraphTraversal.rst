@@ -13,8 +13,8 @@ Graph Traversals
 
 Many graph applications need to visit the vertices of a graph in some
 specific order based on the graph's topology.
-This is known as a :term:`graph traversal` and is similar in concept
-to a tree traversal.
+This is known as a graph :term:`traversal` and is similar in concept
+to a :ref:`tree traversal <BinaryTreeTraversal>`.
 Recall that tree traversals visit every node exactly once, in some
 specified order such as preorder, inorder, or postorder.
 Multiple tree traversals exist because various applications require
@@ -64,7 +64,7 @@ directed or undirected.
 To ensure visiting all vertices, ``graphTraverse`` could be called
 as follows on a graph :math:`\mathbf{G}`:
 
-.. codeinclude:: Graphs/GraphTrav.pde 
+.. codeinclude:: Graphs/GraphTrav 
    :tag: GraphTrav
 
 Function ``doTraversal`` might be implemented by using
@@ -97,7 +97,7 @@ DFS can be applied to directed or undirected graphs.
 
 Here is an implementation for the DFS algorithm.
 
-.. codeinclude:: Graphs/DFS.pde 
+.. codeinclude:: Graphs/DFS 
    :tag: DFS
 
 This implementation contains calls to functions ``PreVisit`` and
@@ -110,8 +110,8 @@ before ones further along in the DFS.
 Alternatively, some applications require activity *after* the
 remaining vertices are processed; hence the call to function
 ``PostVisit``.
-This would be a natural opportunity to make use of the visitor design
-pattern described in Module :numref:`<DesignPatterns>`.
+This would be a natural opportunity to make use of the
+:ref:`visitor design pattern <visitor design pattern> <DesignPatterns>`.
 
 This visualization shows a graph and the result of performing a DFS on
 it, resulting in a depth-first search tree.
@@ -149,7 +149,7 @@ bottom.
 
 Here is an implementation for BFS.
 
-.. codeinclude:: Graphs/BFS.pde 
+.. codeinclude:: Graphs/BFS 
    :tag: BFS
 
 Here is an AV for you to try it on other graphs.

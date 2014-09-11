@@ -11,16 +11,13 @@
     pseudo,
     interpret,
     clickHandler,
-    config = ODSA.AV.getConfig("insertionSortWithoutSwapPRO.json"),
+    config = ODSA.UTILS.loadConfig({'av_container': 'jsavcontainer'}),
     av = new JSAV($("#jsavcontainer"));
 
   av.recorded(); // we are not recording an AV with an algorithm
 
-  // set title and instructions in the chosen language
-  ODSA.AV.setTitleAndInstructions(av.container, config.language);
-
   // create interpreter function
-  interpret = JSAV.utils.getInterpreter(config.language);
+  interpret = config.interpreter;
 
   function initialize() {
 
@@ -48,25 +45,28 @@
       clickHandler.remove(tempArray);
       tempArray.clear();
     }
+    if ($tempLabel) {
+      $tempLabel.remove();
+    }
+    if ($arrayLabel) {
+      $arrayLabel.remove();
+    }
 
     // initialize the bar array
-    initialArray = [];
-    for (var i = 0; i < arraySize; i++) {
-      initialArray[i] = Math.floor(Math.random() * 100) + 10;
-    }
+    initialArray = JSAV.utils.rand.numKeys(10, 100, arraySize);
     barArray = av.ds.array(initialArray, {indexed: true, layout: "bar"});
     clickHandler.addArray(barArray);
 
     // initialize temp variable
     initialTempArray = [];
-    initialTempArray[0] = Math.floor(Math.random() * 100) + 10;
+    initialTempArray[0] = Math.floor(JSAV.utils.rand.random() * 100) + 10;
     tempArray = av.ds.array(initialTempArray, {indexed: false});
     clickHandler.addArray(tempArray);
 
     // create labels
-    $tempLabel = $("<p>" + interpret("temp_label") + "</p>")
+    $tempLabel = $("<p>" + interpret("av_temp_label") + "</p>")
       .insertBefore(tempArray.element);
-    $arrayLabel = $("<p>" + interpret("array_label") + "</p>")
+    $arrayLabel = $("<p>" + interpret("av_array_label") + "</p>")
       .insertBefore(barArray.element);
 
     $tempLabel.add($arrayLabel)
@@ -94,12 +94,12 @@
     }
 
     jsav.displayInit();
-    
+
     var j = 0;
     for (var i = 1; i < arraySize; i++) {
       jsavI.value(i);
       jsav.effects.copyValue(modelArray, i, modelTempArray, 0);
-      jsav.umsg(interpret("ms_copy"), {fill: {arr_at_i: modelArray.value(i)}});
+      jsav.umsg(interpret("av_ms_copy"), {fill: {arr_at_i: modelArray.value(i)}});
       if (config.code) {
         msCode.setCurrentLine(config.code.tags.copy_to_tmp);
       }
@@ -110,7 +110,7 @@
       while (j > 0 && modelArray.value(j - 1) > modelTempArray.value(0)) {
         jsav.effects.copyValue(modelArray, j - 1, modelArray, j);
         modelArray.layout();
-        jsav.umsg(interpret("ms_shift"), {fill: {temp: modelTempArray.value(0), i: i}});
+        jsav.umsg(interpret("av_ms_shift"), {fill: {temp: modelTempArray.value(0), i: i}});
         if (config.code) {
           msCode.setCurrentLine(config.code.tags.shift);
         }
@@ -121,7 +121,7 @@
       }
       jsav.effects.copyValue(modelTempArray, 0, modelArray, j);
       modelArray.layout();
-      jsav.umsg(interpret("ms_copy_back"), {fill: {temp: modelTempArray.value(0), i: i}});
+      jsav.umsg(interpret("av_ms_copy_back"), {fill: {temp: modelTempArray.value(0), i: i}});
       if (config.code) {
         msCode.setCurrentLine(config.code.tags.copy_back);
       }
@@ -132,7 +132,7 @@
     return [modelArray, modelTempArray];
   }
 
-  var exercise = av.exercise(modelSolution, initialize, {}, {feedback: "atend"});
+  var exercise = av.exercise(modelSolution, initialize, {feedback: "atend"});
   exercise.reset();
 
 }(jQuery));

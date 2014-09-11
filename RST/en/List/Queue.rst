@@ -9,7 +9,7 @@
    :satisfies: queue
    :topic: Lists
 
-.. odsalink:: AV/List/listQueueCON.css   
+.. odsalink:: AV/List/aqueueCON.css   
    
 Queues
 ======
@@ -37,7 +37,7 @@ Here is a sample queue ADT.
 This section presents two implementations for queues:
 the array-based queue and the linked queue.
 
-.. codeinclude:: Lists/Queue.pde
+.. codeinclude:: Lists/Queue
    :tag: Queue
 
 Array-Based Queues
@@ -47,19 +47,19 @@ The array-based queue is somewhat tricky to implement effectively.
 A simple conversion of the array-based list implementation is not
 efficient.
 
-.. inlineav:: AQueueFirstNposCON ss
+.. inlineav:: aqueueFirstCON ss
    :output: show
 
-.. inlineav:: AQueueDriftposCON ss
+.. inlineav:: aqueueDriftCON ss
    :output: show
    
-.. inlineav:: AQueueBadCON ss
+.. inlineav:: aqueueBadCON ss
    :output: show 
    
-.. inlineav:: AQueueCircularCON ss
+.. inlineav:: aqueueCircularCON ss
    :output: show 
    
-.. inlineav:: AQueueEmptyFullCON ss
+.. inlineav:: aqueueEmptyCON ss
    :output: show 
    
 If the value of ``front`` is fixed, then :math:`n+1` different
@@ -87,10 +87,11 @@ Our choice here is to use an array of size :math:`n+1`.
 
 Here is an array-based queue implementation.
 
-.. codeinclude:: Lists/AQueue.pde
+.. codeinclude:: Lists/AQueue
    :tag: AQueue1,AQueue2
 
-.. inlineav:: AQueueVarCON ss
+.. inlineav:: aqueueVarCON ss
+   
    :output: show 
    
 In this implementation, the front of the queue is defined to be toward
@@ -101,45 +102,14 @@ Thus, ``enqueue`` increments the rear pointer (modulus ``maxSize``),
 and ``dequeue`` increments the front pointer.
 Implementation of all member functions is straightforward.
 
-.. avembed:: Exercises/List/listAQueueEnqueue.html ka
+.. avembed:: Exercises/List/aqueueEnqueuePRO.html ka
 
-.. avembed:: Exercises/List/listAQueueDequeue.html ka
+.. avembed:: Exercises/List/aqueueDequeuePRO.html ka
 
-Linked Queues
--------------
-
-The linked queue implementation is a straightforward adaptation
-of the linked list.
-Here is the linked queue class declaration.
-
-.. codeinclude:: Lists/LQueue.pde
-   :tag: LQueue1,LQueue2
-
-.. inlineav:: LQueueIntroCON ss
-   :output: show    
-   
-.. inlineav:: LQueueEnqueueCON ss
-   :output: show   
-   
-.. inlineav:: LQueueDequeueCON ss
-   :output: show 
-   
-.. avembed:: Exercises/List/listLQueueEnqueue.html ka
-
-.. avembed:: Exercises/List/listLQueueDequeue.html ka
-
-.. avembed:: Exercises/List/StckQSumm.html ka
-
-
-Comparison of Array-Based and Linked Queues
--------------------------------------------
-
-All member functions for both the array-based and linked queue
-implementations require constant time.
-The space comparison issues are the same as for the equivalent stack
-implementations.
-Unlike the array-based stack implementation, there is no convenient
-way to store two queues in the same array,
-unless items are always transferred directly from one queue to the other.
-
-.. odsascript:: AV/List/listQueueCON.js
+.. odsascript:: AV/List/aqueueCON.js
+.. odsascript:: AV/List/aqueueFirstCON.js
+.. odsascript:: AV/List/aqueueDriftCON.js
+.. odsascript:: AV/List/aqueueBadCON.js
+.. odsascript:: AV/List/aqueueCircularCON.js
+.. odsascript:: AV/List/aqueueEmptyCON.js
+.. odsascript:: AV/List/aqueueVarCON.js

@@ -1,6 +1,6 @@
 #container {
   width: 785px;
-  height: 675px;
+  height: 610px;
 }
 
 .jsavarray {
@@ -13,4 +13,8 @@
 
 .jsavcontainer {
   overflow: visible;
+}
+
+.jsavhighlight {
+  font-size: 110%;
 }

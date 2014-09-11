@@ -28,6 +28,7 @@ import sys
 import os
 import datetime
 import re
+import codecs
 from string import whitespace as ws
 from config_templates import *
 
@@ -96,6 +97,29 @@ def parse_directive_args(line, line_num, expected_num_args = -1, console_msg_pre
 
   return args
 
+#parses the glossary terms relationships. prints error message if the format is not correct
+#format    :to-term: term1 :lable: label :alt-text: alternate text in case the to-term is not a glossary term
+def parse_term_relationship(line, term, line_num, cmap_dict, console_msg_prefix = ''):
+  if line.strip().startswith(':to-term:') and ':label:' in line.lower():
+    args = re.split(':to-term:|:label:', line)
+    term = term.strip().rstrip('\n')
+    cmap_dict['concepts'][term] = ''
+
+    if (args[1] not in cmap_dict['concepts']):
+      if len(args) == 3:
+        args[1] = args[1].strip().rstrip('\n')
+        cmap_dict['concepts'][args[1]] = ''
+    if args[2].replace(" ", "") not in cmap_dict['linking_phrase']:
+      #size_lp = len(cmap_dict['linking_phrase'])
+      #cmap_dict['linking_phrase']['lp-' + str(size_lp + 1)] = args[2]
+      cmap_dict['linking_phrase'][args[2].replace(" ", "").strip().rstrip('\n')] = args[2]
+    size_c = len(cmap_dict['connections'])
+    #cmap_dict['linking_phrase']['lp-' + str(size_lp + 1)] = args[2]
+    cmap_dict['connections']['con-' + str(size_c + 1)] = {'from': term, 'to': args[2].replace(" ", "").strip().rstrip('\n')}
+    cmap_dict['connections']['con-' + str(size_c + 2)] = {'from': args[2].replace(" ", "").strip().rstrip('\n'), 'to': args[1]}
+  else:
+    print_err("%sWARNING: Glossary terms relationship declaration on line %d" % (console_msg_prefix, line_num))
+
 
 def isExample(topic):
   if 'example' in topic.lower() and topic.startswith('.. topic::'):
@@ -161,6 +185,41 @@ def update_counters(label_line, dir_type, mod_num, num_ref_map, counters):
   return (num_ref_map, counters)
 
 
+def process_ref_chap(extension, line, book_objects, start_space, last):
+  """
+    method responsible of converting :ref: and :chap: to :term: when
+    reference / chapter is missing.
+  """
+  #lower case modules names
+  lower_listed_modules = [x.lower() for x in book_objects]
+  line_t = line.strip()
+  separator = '%s|`' % extension
+  rel_tokens = re.split(separator, line_t)
+  if len(rel_tokens) == 4:
+    rel_labels = rel_tokens[2]
+    rel_tags = re.split('<|>', rel_labels)
+    #We encountered the alternate :ref:/:chap: syntax
+    if len(rel_tags) == 3:
+      if not rel_tags[1].strip().lower() in lower_listed_modules:
+        #just output anchor text
+        line_t = line_t.replace(extension,'')
+        line_t = line_t.replace('`' + rel_labels + '`', rel_tags[0])
+    if len(rel_tags) == 5:
+      if rel_tags[3].strip().lower() in lower_listed_modules:
+        #module is present swith to standard :rel: syntax
+        newDir = '%s <%s>' %(rel_tags[0], rel_tags[3])
+        if extension == ':chap:':
+          newDir = '%s' %(rel_tags[3])
+        line_t = line_t.replace(rel_labels, newDir)
+      else:
+        #module absent swith to :term:
+        line_t = line_t.replace(extension,':term:')
+        newDir = '%s <%s>' %(rel_tags[0], rel_tags[1])
+        line_t = line_t.replace(rel_labels, newDir)
+    line_t = ' ' * start_space + line_t + last
+  return line_t
+
+
 class ODSA_RST_Module:
 
   def __init__(self, config, mod_path, mod_attrib = {'exercises': {} }, satisfied_requirements = [], chap = '', depth = 0, current_section_numbers = []):
@@ -176,9 +235,15 @@ class ODSA_RST_Module:
 
     images = []
     missing_exercises = []
+    processed_sections = []
     requirements_satisfied = []
     todo_list = []
     num_ref_map = {}
+    #concept map dictionary for glossary
+    cmap_dict = {}
+    cmap_dict['concepts'] = {}
+    cmap_dict['linking_phrase'] = {}
+    cmap_dict['connections'] = {}
     # Initialize counters
     counters = {'figure': 1, 'anon_fig': 0, 'table': 1, 'example': 1, 'theorem': 1, 'equation': 1}
 
@@ -196,14 +261,8 @@ class ODSA_RST_Module:
       print_err('ERROR: Module does not exist: %s' % mod_path)
     else:
       # Read the contents of the module file from the RST source directory
-      with open(filename,'r') as mod_file:
+      with codecs.open(filename,'r', encoding='utf-8') as mod_file:
         mod_data = mod_file.readlines()
-
-      if 'JOP-lang' not in config.glob_mod_options:
-        config.glob_mod_options['JOP-lang'] = config.lang
-
-      if 'JOP-lang' not in config.glob_exer_options:
-        config.glob_exer_options['JOP-lang'] = config.lang
 
       # Merge global module options with local modules options, if applicable, so that local options override the global options
       if 'mod_options' in mod_attrib:
@@ -219,6 +278,7 @@ class ODSA_RST_Module:
       header_data['mod_chapter'] = chap
       header_data['mod_date'] = str(datetime.datetime.now()).split('.')[0]
       header_data['mod_options'] = format_mod_options(mod_options)
+      header_data['build_cmap'] = str(config.build_cmap).lower()
       # Include an empty unicode directive when building slides
       header_data['unicode_directive'] = rst_header_unicode if os.environ.get('SLIDES', None) == "no" else ''
       # Prepend the header data to the exisiting module data
@@ -229,7 +289,14 @@ class ODSA_RST_Module:
       # Alter the contents of the module based on the config file
       i = 0
       while i < len(mod_data):
-        line = mod_data[i].strip().lower()
+        start_space = 0
+        for s in mod_data[i]:
+          if s.isspace():
+            start_space += 1
+          else:
+             break
+
+        line = mod_data[i].strip()
 
         # Determine the type of directive
         dir_type = get_directive_type(line)
@@ -237,6 +304,23 @@ class ODSA_RST_Module:
         # Update figure, equation, theorem, table counters
         if dir_type in ['table', 'example', 'theorem', 'figure']:
           (num_ref_map, counters) = update_counters(mod_data[i - 2], dir_type, mod_num, num_ref_map, counters)
+
+        if ':ref:' in line:
+          if mod_data[i].endswith('\n'):
+             last = '\n'
+          else:
+             last = ' '
+          mod_data[i] = process_ref_chap(':ref:', line, config.listed_modules, start_space, last)
+          line = mod_data[i].strip().lower()
+
+        if ':chap:' in line:
+          if mod_data[i].endswith('\n'):
+             last = '\n'
+          else:
+             last = ' '
+          mod_data[i] = process_ref_chap(':chap:', line, config.listed_chapters, start_space, last)
+          line = mod_data[i].strip().lower()
+
 
         if ':requires:' in mod_data[i]:
           # Parse the list of prerequisite topics from the module
@@ -255,7 +339,30 @@ class ODSA_RST_Module:
 
           image_path = args[-1]
           images.append(os.path.basename(image_path))
-        elif line.startswith('.. todo::'):
+
+        elif line.startswith(':to-term:'):
+          #process concept map relationships
+          term = mod_data[i-1]
+          term_rel = line
+          line_num = i
+          # Remove concept map config from the RST file
+          mod_data[i] = ''
+          i += 1
+          #We allow alt-text to span multiple lines
+          while (i < len(mod_data) and ( mod_data[i].strip() != '' or mod_data[i] not in ['\n', '\r\n'])):
+            if mod_data[i].strip().startswith(':to-term:'):
+              parse_term_relationship(term_rel, term, line_num, cmap_dict, console_msg_prefix = '')
+              term_rel = mod_data[i]
+              line_num = i
+            else:
+              term_rel += mod_data[i]
+            mod_data[i] = ''
+            i += 1
+
+          parse_term_relationship(term_rel, term, line_num, cmap_dict, console_msg_prefix = '')
+          i-= 1
+
+        elif line.lower().startswith('.. todo::'):
           if config.suppress_todo:
             # Remove TODO directives from the RST file
             mod_data[i] = ''
@@ -332,7 +439,7 @@ class ODSA_RST_Module:
                 i += 1
             else:
               # Append module name to embedded exercise
-              mod_data[i] += '   :module: %s\n' % mod_name
+              mod_data[i] += ' '*start_space + '   :module: %s\n' % mod_name
 
               if av_name not in exercises:
                 # Add the name to a list of missing exercises
@@ -342,9 +449,9 @@ class ODSA_RST_Module:
                 exer_conf = exercises[av_name]
 
                 # List of valid options for avembed directive
-                options = ['long_name', 'points', 'required', 'showhide', 'threshold']
+                options = ['long_name', 'points', 'required', 'showhide', 'threshold', 'oembed_url']
 
-                rst_options = ['   :%s: %s\n' % (option, str(exer_conf[option])) for option in options if option in exer_conf]
+                rst_options = [' '*start_space + '   :%s: %s\n' % (option, str(exer_conf[option])) for option in options if option in exer_conf]
 
                 # JSAV grading options are not applicable to Khan Academy exercises or slideshows and will be ignored
                 #if av_type not in ['ka', 'ss']:
@@ -356,9 +463,43 @@ class ODSA_RST_Module:
 
                 # Convert python booleans to JavaScript booleans, URL-encode the string and append it to the RST options
                 xop_str = '&amp;'.join(['%s=%s' % (option, value) if str(value) not in ['True', 'False'] else '%s=%s' % (option, str(value).lower()) for option, value in xops.iteritems()])
-                rst_options.append('   :exer_opts: %s\n' % xop_str)
+                rst_options.append(' '*start_space +'   :exer_opts: %s\n' % xop_str)
 
                 mod_data[i] += ''.join(rst_options)
+        elif line.startswith('.. showhidecontent::'):
+          # Parse the arguments from the directive
+          args = parse_directive_args(mod_data[i], i, 1, console_msg_prefix)
+          section_id = args[0]
+
+          processed_sections.append(section_id)
+
+          if 'sections' in mod_attrib and section_id in mod_attrib['sections']:
+            section_data = mod_attrib['sections'][section_id]
+
+            if 'remove' in section_data and section_data['remove']:
+              print '%sRemoving section: %s' % (console_msg_prefix, section_id)
+
+              # Config file states section should be removed, remove it from the RST file
+              mod_data[i] = ''
+              i += 1
+
+              while (i < len(mod_data) and (mod_data[i].startswith('   ') or mod_data[i].rstrip() == '')):
+                mod_data[i] = ''
+                i += 1
+
+              # Back up one line so that when 'i' is incremented at the end of the loop it will point to the next directive
+              i -= 1
+            else:
+              # Append all options provided in the section configuration unless they are on the ignore list
+              ignore_opts = ['remove']
+              rst_options = ['   :%s: %s\n' % (option, value) for option, value in section_data.items() if option not in ignore_opts]
+              mod_data[i] += ''.join(rst_options)
+        elif line.startswith('.. codeinclude::'):
+          code_name = mod_data[i].split(' ')[2].strip()
+
+          # If the config file specifies a lang argument for this codeinclude, append it to the directive
+          if 'codeinclude' in mod_attrib and code_name in mod_attrib['codeinclude']:
+            mod_data[i] += '   :lang: %s\n' % mod_attrib['codeinclude'][code_name]
         elif line.startswith('.. avmetadata::'):
           avmetadata_found = True
         elif line.startswith('.. math::') and (i + 1) < len(mod_data) and ':label:' in mod_data[i + 1]:
@@ -379,8 +520,19 @@ class ODSA_RST_Module:
       if not avmetadata_found:
         print_err("%sWARNING: %s does not contain an ..avmetadata:: directive" % (console_msg_prefix, mod_name))
 
+      mod_sections = mod_attrib['sections'].keys() if 'sections' in mod_attrib else []
+
+      # Print a list of sections that appear in the config file but not the module
+      missing_sections = list(set(mod_sections) - set(processed_sections))
+
+      for section in missing_sections:
+        print_err('%sWARNING: Section "%s" not found in module' % (console_msg_prefix, section))
+
+      # TODO: Should we print the missing exercises with each module or at the end like we do now?
+
+
       # Write the contents of the module file to the output src directory
-      with open(''.join([config.book_src_dir, mod_name, '.rst']),'w') as mod_file:
+      with codecs.open(''.join([config.book_src_dir, mod_name, '.rst']),'w', 'utf-8') as mod_file:
         mod_file.writelines(mod_data)
 
     # Make public fields accessible
@@ -389,3 +541,4 @@ class ODSA_RST_Module:
     self.requirements_satisfied = requirements_satisfied
     self.todo_list = todo_list
     self.num_ref_map = num_ref_map
+    self.cmap_dict = cmap_dict

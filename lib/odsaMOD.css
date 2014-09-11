@@ -5,8 +5,38 @@
   background-color: #FFC0CB;
 }
 .jsavcontainer {
+  background-color: #eed;
+  margin: 0 auto;
+  border: 0;
+  width: 850px;
   position: relative;
 }
+
+.jsavcontainer ul li {
+  background-image: none;
+}
+
+.jsavcontrols {
+  margin-top: -35px;
+  margin-left: 35px; /* Center on screen, despite setting button */
+
+}
+
+.jsavoutput.jsavline{
+  margin-top: -5px;
+  height: 55px;
+  width: 800px;
+}
+
+.ssAV {
+  font-size: 15px;
+}
+
+/* Center inlineav diagrams */
+.divdgm {
+  width: 100% !important;
+}
+
 /* Hide flagged chapters fom the TOC */
 .hide-from-toc {
   display: none;
@@ -30,6 +60,13 @@ form.signin p, form.signin span {
 /* All showHide buttons default to red */
 .showHideLink {
   background-color: #FF0000;
+  color: #fff;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  padding: 3px 5px;
+}
+.showHideLink:hover {
+  box-shadow: 0 24px 0 0 rgba(0,0,0, 0.2) inset;
 }
 /* Message that appears next to a showHide button */
 .shb_msg {
@@ -48,8 +85,8 @@ form.signin p, form.signin span {
 /* Style for mini-slideshow checkmark proficiency indicator */
 .prof_check_mark {
   position: absolute;
-  bottom: 45px; /* top: 65px; */
-  right: 10px;
+  top: 10px;
+  left: 35px;
   display: none;
 }
 /* Saving message for checkmark proficiency indicator */
@@ -111,6 +148,12 @@ iframe {
   margin: 0;
   overflow: hidden;
 }
-.light {
-  color: rgb(215, 215, 215);
+
+svg {
+  stroke-width: 1;
+}
+
+.jsavcanvas {
+ margin-left: auto;
+ margin-right: auto;
 }

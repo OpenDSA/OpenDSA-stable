@@ -37,7 +37,11 @@
   margin-right: auto;
 }
 
-.jsavhighlight, .jsavarray.jsavbararray .jsavindex.jsavhighlight .jsavvalue{
+.jsavarray, .jsavlabel, .jsavcode, .jsavlist, .jsavtree, .jsavgraph, .jsavmatrix {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.jsavhighlight, .jsavarray.jsavbararray .jsavindex.jsavhighlight .jsavvalue, .jsavvariable.jsavhighlight .jsavvalue {
   background-color: yellow !important;
   color: black !important;
 }
@@ -76,9 +80,6 @@
 }
 .jsavarray * {
   -webkit-transform-style: preserve-3d;
-}
-.jsavarray.jsavindexed {
-  margin-bottom: 0;
 }
 .jsavarray:after {
   content: "";
@@ -180,9 +181,6 @@
   height: 100%;
   top: 0;
   background-color: #fff;
-}
-.jsavbararray.jsavindexed {
-  margin-bottom: 25px;
 }
 .jsavbararray .jsavindexlabel {
   font-size: 90%;
@@ -464,7 +462,30 @@ a.jsavdialogclose {
 .jsavexercisecontrols.active .actionIndicator {
   background-image: url(images/spinner.gif);
 }
-
+/* Customized buttons */
+.jsavexercisecontrols input[type="button"] {
+  background-color: #eee;
+  background: linear-gradient(#fff, #ccc);
+  border: 1px solid #777;
+  margin: 0;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.jsavexercisecontrols input[type="button"]:hover {
+  background-color: #ddd;
+  background: linear-gradient(#fff, #bbb);
+}
+.jsavexercisecontrols input[type="button"]:last-of-type {
+  border-top-right-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+.jsavexercisecontrols input[type="button"]:first-of-type {
+  border-top-left-radius: 7px;
+  border-bottom-left-radius: 7px;
+}
+.jsavexercisecontrols input[type="button"]:not(:last-of-type) {
+  border-right: none;
+}
 /********* TREE / GRAPH DATA STRUCTURE *******/
 
 .jsavtree, .jsavgraph, .jsavlist {
@@ -490,6 +511,7 @@ a.jsavdialogclose {
   z-index: 700;
   position: absolute;
   display: inline-block;
+  margin: 0;
 }
 
 /******** LINKED LIST STRUCTURE ******/
@@ -524,6 +546,15 @@ a.jsavdialogclose {
 }
 .jsavlistnode {
   position: absolute;
+  border-radius: 3px;
+}
+.jsavverticallist .jsavlistnode .jsavpointerarea {
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.jsavhorizontallist .jsavlistnode .jsavpointerarea {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 .jsavlist .jsavedge {
   stroke-width: 2;
@@ -582,6 +613,10 @@ ul.jsavcode {
   -moz-transform-origin: right top;
   transform: rotate(-45deg);
   transform-origin: right top;
+}
+.jsavpointer .jsavlabel {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 /******** MATRIX DATA STRUCTURE ****/
@@ -648,4 +683,8 @@ ul.jsavcode {
 .jsavswap, .jsavswap .jsavvalue {
   background-color: pink !important;
   color: red !important;
+}
+
+.jsavdisabled {
+  pointer-events: none;
 }

@@ -6,6 +6,7 @@
 import sys
 import os
 import re
+import codecs
 import json
 
 __author__ = 'breakid'
@@ -90,6 +91,15 @@ def update_mod_html(file_path, data, prefix):
         new_link_text = '%s.' % data[link_mod][1] + link_text
         html[line_num] = line.replace(link_text, new_link_text)
 
+    if '&lt;anchor-text&gt;' in line:
+      line_args = re.split('&lt;anchor-text&gt;|&lt;/anchor-text&gt;', line)
+      texts = re.split(':', line_args[1])
+      if len(texts) == 2:
+        html[line_num] = line.replace(texts[1] + '</em>', texts[0] + '</em>')
+      html[line_num] = html[line_num].replace(line_args[1], '')
+      html[line_num] = html[line_num].replace('&lt;anchor-text&gt;', '')
+      html[line_num] = html[line_num].replace('&lt;/anchor-text&gt;', '') 
+
     if mod_name in data and mod_name not in ignore_mods:
       (chap_title, chap_num) = data[mod_name]
 
@@ -127,6 +137,31 @@ def update_TOC(source_dir, dest_dir, data = None):
   for file in html_files:
     update_mod_html(dest_dir + file, data, prefix)
 
+
+def update_TermDef(glossary_file, terms_dict):
+  with codecs.open(glossary_file, 'r', 'utf-8') as html_glossary:
+    mod_data = html_glossary.readlines()
+  i = 0
+  while i < len(mod_data):
+    line = mod_data[i].strip()
+    if line.startswith('<dt'):
+      tokens = re.split('</dt>', line)
+      token = re.split('>', tokens[0])
+      term = token[len(token) -1]
+      if term in terms_dict:
+        term_def = ''
+        i += 1
+        endofdef = False
+        while (i < len(mod_data) and not endofdef):
+          if '</dd>' in  mod_data[i]:  
+            term_def += mod_data[i].split('</dd>')[0] + '</dd>'
+            endofdef = True
+          else:
+            term_def += mod_data[i]
+          i += 1
+        terms_dict[term] = str(term_def)
+        i-= 1
+    i += 1
 
 def main(argv):
   if len(argv) != 3:

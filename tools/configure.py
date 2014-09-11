@@ -38,13 +38,14 @@ import json
 import collections
 import re
 import subprocess
+import codecs
 import datetime
 from collections import Iterable
 from optparse import OptionParser
 from config_templates import *
 from ODSA_RST_Module import ODSA_RST_Module
 from ODSA_Config import ODSA_Config
-from postprocessor import update_TOC
+from postprocessor import update_TOC, update_TermDef
 
 # List of exercises encountered in RST files that do not appear in the configuration file
 missing_exercises = []
@@ -135,6 +136,8 @@ def process_module(config, index_rst, mod_path, mod_attrib={'exercises':{}}, dep
   global satisfied_requirements
   global module_chap_map
   global num_ref_map
+  global cmap_map
+
 
   # Parse the name of the module from mod_path and remove the file extension if it exists
   mod_name = os.path.splitext(os.path.basename(mod_path))[0]
@@ -163,6 +166,8 @@ def process_module(config, index_rst, mod_path, mod_attrib={'exercises':{}}, dep
   missing_exercises += module.missing_exercises
   satisfied_requirements += module.requirements_satisfied
   num_ref_map = dict(num_ref_map.items() + module.num_ref_map.items())
+  if len(module.cmap_dict['concepts']) > 0:
+    cmap_map =  module.cmap_dict
 
   # Maps the chapter name and number to each module, used for correcting the numbers during postprocessing
   # Have to ignore the last number because that is the module number (which is already provided by Sphinx)
@@ -189,10 +194,11 @@ def generate_index_rst(config, slides = False):
   header_data['mod_chapter'] = ''
   header_data['mod_date'] = str(datetime.datetime.now()).split('.')[0]
   header_data['mod_options'] = ''
+  header_data['build_cmap'] = str(config.build_cmap).lower()
   header_data['unicode_directive'] = rst_header_unicode if not slides else ''
 
   # Generate the index.rst file
-  with open(config.book_src_dir + 'index.rst', 'w+') as index_rst:
+  with codecs.open(config.book_src_dir + 'index.rst', 'w+', "utf-8") as index_rst:
     index_rst.write(index_header.format(config.start_chap_num))
     index_rst.write(rst_header % header_data)
 
@@ -231,6 +237,7 @@ def generate_todo_rst(config, slides = False):
     header_data['mod_chapter'] = ''
     header_data['mod_date'] = str(datetime.datetime.now()).split('.')[0]
     header_data['mod_options'] = ''
+    header_data['build_cmap'] = str(config.build_cmap).lower()
     header_data['unicode_directive'] = rst_header_unicode if not slides else ''
     todo_file.write(rst_header % header_data)
     todo_file.write(todo_rst_template)
@@ -265,6 +272,9 @@ def initialize_output_directory(config):
   # Copy config file to _static directory
   distutils.file_util.copy_file(config.config_file_path, config.book_src_dir + '_static/')
 
+  #Copy translation file to _static directory
+  distutils.file_util.copy_file(config.lang_file, config.book_src_dir + '_static/')
+
   # Create source/_static/config.js in the output directory
   # Used to set global settings for the client-side framework
   with open(config.book_src_dir + '_static/config.js','w') as config_js:
@@ -281,14 +291,23 @@ def initialize_conf_py_options(config, slides):
   options = {}
   options['title'] = config.title
   options['book_name'] = config.book_name
-  options['backend_address'] = config.backend_address
+  options['exercise_server'] = config.exercise_server
+  options['logging_server'] = config.logging_server
+  options['score_server'] = config.score_server
   options['module_origin'] = config.module_origin
   options['theme_dir'] = config.theme_dir
   options['theme'] = config.theme
   options['odsa_dir'] = config.odsa_dir
   options['book_dir'] = config.book_dir
   options['code_dir'] = config.code_dir
-  options['code_lang'] = config.code_lang
+  options['tabbed_code'] = config.tabbed_codeinc
+  options['code_lang'] = json.dumps(config.code_lang)
+  options['text_lang'] = json.dumps(config.lang)
+  #convert the translation text into unicode sstrings
+  tmpSTR = ''
+  for k,v in config.text_translated.iteritems():
+    tmpSTR = tmpSTR + '"%s":u"%s",' %(k,v)
+  options['text_translated'] = tmpSTR
   options['av_root_dir'] = config.av_root_dir
   options['exercises_root_dir'] = config.exercises_root_dir
   # The relative path between the ebook output directory (where the HTML files are generated) and the root ODSA directory
@@ -299,14 +318,22 @@ def initialize_conf_py_options(config, slides):
   return options
 
 
-def configure(config_file_path, slides = False):
+def configure(config_file_path, options):
   """Configure an OpenDSA textbook based on a validated configuration file"""
   global satisfied_requirements
 
-  print "Configuring OpenDSA, using " + config_file_path# + '\n'
+  slides = options.slides
 
-  # Load the configuration
+  print "Configuring OpenDSA, using " + config_file_path
+
+  # Load and validate the configuration
   config = ODSA_Config(config_file_path)
+
+  # Delete everything in the book's HTML directory, otherwise the post-processor can sometimes append chapter numbers to the existing HTML files, making the numbering incorrect
+  html_dir = config.book_dir + config.rel_book_output_path
+  if os.path.isdir(html_dir):
+    print "Clearing HTML directory"
+    shutil.rmtree(html_dir)
 
   # Add the list of topics the book assumes students know to the list of fulfilled prereqs
   if config.assumes:
@@ -341,6 +368,10 @@ def configure(config_file_path, slides = False):
     # Print an extra line to separate this section from any additional errors
     print_err('')
 
+  # Stop if we are just running a dry-run
+  if options.dry_run:
+    return
+
   # Entries are only added to todo_list if config.suppress_todo is False
   if len(todo_list) > 0:
     generate_todo_rst(config, slides)
@@ -359,16 +390,17 @@ def configure(config_file_path, slides = False):
   options = initialize_conf_py_options(config, slides)
 
   # Create a Makefile in the output directory
-  with open(config.book_dir + 'Makefile','w') as makefile:
+  with open(config.book_dir + 'Makefile', 'w') as makefile:
     makefile.writelines(makefile_template % options)
 
   # Create conf.py file in output source directory
-  with open(config.book_src_dir + 'conf.py','w') as conf_py:
+  with codecs.open(config.book_src_dir + 'conf.py', 'w', "utf-8") as conf_py:
     conf_py.writelines(conf % options)
 
   # Copy only the images used by the book from RST/Images/ to the book source directory
   for image in images:
     distutils.file_util.copy_file('%sRST/Images/%s' % (config.odsa_dir, image), config.book_src_dir + 'Images/')
+
 
   # Run make on the output directory
   print '\nBuilding textbook...'
@@ -380,13 +412,20 @@ def configure(config_file_path, slides = False):
   for line in iter(proc.stdout.readline,''):
     print line.rstrip()
 
-  # Calls the postprocessor to update chapter, section, and module numbers
+  # Calls the postprocessor to update chapter, section, and module numbers, and glossary terms definition
   update_TOC(config.book_src_dir, config.book_dir + config.rel_book_output_path, module_chap_map)
+  if 'Glossary' in processed_modules:
+    update_TermDef(config.book_dir + config.rel_book_output_path + 'Glossary.html', cmap_map['concepts'])
+
+    # Create the concept map definition file in _static html directory
+    with codecs.open(config.book_dir + 'html/_static/GraphDefs.json', 'w', 'utf-8') as graph_defs_file:
+      json.dump(cmap_map, graph_defs_file)
 
 # Code to execute when run as a standalone program
 if __name__ == "__main__":
   parser = OptionParser()
-  parser.add_option("-s", "--slides", help="Causes configure.py to create slides", dest="slides", action="store_true")
+  parser.add_option("-s", "--slides", help="Causes configure.py to create slides", dest="slides", action="store_true", default=False)
+  parser.add_option("--dry-run", help="Causes configure.py to configure the book but stop before compiling it", dest="dry_run", action="store_true", default=False)
   (options, args) = parser.parse_args()
 
   if options.slides:
@@ -395,9 +434,8 @@ if __name__ == "__main__":
     os.environ['SLIDES'] = 'no'
 
   # Process script arguments
-  if len(sys.argv) > 3:
-    print_err("Invalid config filename")
-    print_err("Usage: " + sys.argv[0] + " [-s] config_file_path")
+  if len(args) != 1:
+    print_err("Usage: " + sys.argv[0] + " [-s] [--dry-run] config_file_path")
     sys.exit(1)
 
-  configure(args[0], options.slides)
+  configure(args[0], options)

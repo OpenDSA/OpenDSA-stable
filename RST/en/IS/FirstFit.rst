@@ -21,8 +21,8 @@ units of space.
 Because this approach selects the first block with enough space, it is
 called :term:`first fit`.
 
-.. avembed:: AV/Development/firstFit.html pe
+.. avembed:: AV/Development/firstFit.html ss
 
 Now try it for yourself with the following exercise.
 
-.. avembed:: Exercises/Development/FirstFitPRO.html ka
+.. avembed:: AV/Development/firstFitPRO.html pe

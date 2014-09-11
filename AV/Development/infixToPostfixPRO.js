@@ -1,3 +1,4 @@
+/* global ODSA, ClickHandler */
 (function ($) {
   "use strict";
 
@@ -11,8 +12,9 @@
     $infixLabel,
     $stackLabel,
     $postfixLabel,
-    interpret,
-    config = ODSA.AV.getConfig("infixToPostfixPRO.json"),
+    config = ODSA.UTILS.loadConfig({'av_container': 'jsavcontainer'}),
+    interpret = config.interpreter,
+    code = config.code,
     av = new JSAV($("#jsavcontainer")),
     clickHandler;
 
@@ -20,16 +22,9 @@
 
   function initialize() {
 
-    // get interpreter function for the selected language
-    if (typeof interpret !== "function") {
-      interpret = JSAV.utils.getInterpreter(config.language);
-      // change the title and the instructions on the page
-      ODSA.AV.setTitleAndInstructions(av.container, config.language);
-    }
-
     // show the code and highlight the row where mid is calculated
-    if (!pseudo && config.code) {
-      pseudo = av.code( config.code, {after: {element: $(".instructions")}} );
+    if (!pseudo && code) {
+      pseudo = av.code(code, {after: {element: $(".instructions")}});
       pseudo.show();
       pseudo.element.css({width: "auto"});
       pseudo.css(true, {whiteSpace: "normal"});
@@ -67,7 +62,7 @@
       keep: true,
       select: "first",
       drop: "first",
-      onDrop: function (){ restoreInfix(infixArray).call(this) }
+      onDrop: function () { restoreInfix(infixArray).call(this); }
     });
 
     // create empty array for the result
@@ -83,9 +78,9 @@
 
     // create the bit bucket
     if (typeof bitBucket === "undefined") {
-      bitBucket = av.ds.array([interpret("bit_bucket")], {indexed: false, center: false});
-      bitBucket.element.css({top: 115, left: 60 , position: "absolute", width: "auto"});
-      bitBucket.css(0, {padding: 5} );
+      bitBucket = av.ds.array([interpret("av_bit_bucket")], {indexed: false, center: false});
+      bitBucket.element.css({top: 115, left: 60, position: "absolute", width: "auto"});
+      bitBucket.css(0, {padding: 5});
       clickHandler.addArray(bitBucket, {
         onSelect: function () { return false; },
         onDrop: restoreInfix(infixArray),
@@ -97,9 +92,9 @@
     av.container.find(".exerciseLabel").remove();
 
     // create new labels
-    $infixLabel = $("<p class='exerciseLabel'>" + interpret("infix_expression") + "</p>");
-    $stackLabel = $("<p class='exerciseLabel'>" + interpret("stack") + "</p>");
-    $postfixLabel = $("<p class='exerciseLabel'>" + interpret("postfix_expression") + "</p>");
+    $infixLabel = $("<p class='exerciseLabel'>" + interpret("av_infix_expression") + "</p>");
+    $stackLabel = $("<p class='exerciseLabel'>" + interpret("av_stack") + "</p>");
+    $postfixLabel = $("<p class='exerciseLabel'>" + interpret("av_postfix_expression") + "</p>");
 
     // style the labels
     $infixLabel.add($stackLabel).add($postfixLabel)
@@ -130,9 +125,9 @@
       left: (jsav.canvas.outerWidth() - modelResultArray.element.outerWidth()) / 2,
       "position": "absolute"});
     // initialize bit bucket
-    var modelBitBucket = jsav.ds.array([interpret("bit_bucket")], {indexed: false, center: false});
-    modelBitBucket.element.css({top: 75, left: 60 , position: "absolute", width: "auto"});
-    modelBitBucket.css(0, {padding: 5} );
+    var modelBitBucket = jsav.ds.array([interpret("av_bit_bucket")], {indexed: false, center: false});
+    modelBitBucket.element.css({top: 75, left: 60, position: "absolute", width: "auto"});
+    modelBitBucket.css(0, {padding: 5});
 
     jsav.canvas.css({height: 250});
 
@@ -140,6 +135,8 @@
 
     // postfix index
     var postfixInd = 0;
+    
+    var node;
 
     for (var i = 0; i < arraySize; i++) {
       var newChar = initialInfix[i];
@@ -151,100 +148,100 @@
       }
 
       switch (type) {
-        case "operand":
-          // move operand into the expression
-          jsav.effects.moveValue(modelArray, i, modelResultArray, postfixInd++);
-          restoreInfix(modelArray).call(this);
-          jsav.umsg(interpret("ms_com_operand"));
-          jsav.stepOption("grade", true);
-          jsav.step();
-          break;
-        case "(":
-          // push the left parenthesis to the stack
-          modelStack.addFirst();
-          jsav.effects.moveValue(modelArray, i, modelStack.first());
-          restoreInfix(modelArray).call(this);
-          modelStack.layout();
-          jsav.umsg(interpret("ms_com_leftpar"));
-          jsav.stepOption("grade", true);
-          jsav.step();
-          break;
-        case ")":
-          // throw the right parenthesis into the bit bucket and pop operators into the expression
-          modelArray.value(i, "");
-          restoreInfix(modelArray).call(this);
-          jsav.umsg(interpret("ms_com_rightpar"));
-          //  jsav.stepOption("grade", true);
-          jsav.step();
-          var node = modelStack.first();
-          while (node.value() !== "(") {
-            jsav.effects.moveValue(node, modelResultArray, postfixInd++);
-            modelStack.removeFirst();
-            modelStack.layout();
-            jsav.stepOption("grade", true);
-            jsav.step();
-            node = modelStack.first();
-          }
-          // pop the left parenthesis into the bit bucket
+      case "operand":
+        // move operand into the expression
+        jsav.effects.moveValue(modelArray, i, modelResultArray, postfixInd++);
+        restoreInfix(modelArray).call(this);
+        jsav.umsg(interpret("av_ms_com_operand"));
+        jsav.stepOption("grade", true);
+        jsav.step();
+        break;
+      case "(":
+        // push the left parenthesis to the stack
+        modelStack.addFirst();
+        jsav.effects.moveValue(modelArray, i, modelStack.first());
+        restoreInfix(modelArray).call(this);
+        modelStack.layout();
+        jsav.umsg(interpret("av_ms_com_leftpar"));
+        jsav.stepOption("grade", true);
+        jsav.step();
+        break;
+      case ")":
+        // throw the right parenthesis into the bit bucket and pop operators into the expression
+        modelArray.value(i, "");
+        restoreInfix(modelArray).call(this);
+        jsav.umsg(interpret("av_ms_com_rightpar"));
+        //  jsav.stepOption("grade", true);
+        jsav.step();
+        node = modelStack.first();
+        while (node.value() !== "(") {
+          jsav.effects.moveValue(node, modelResultArray, postfixInd++);
           modelStack.removeFirst();
           modelStack.layout();
           jsav.stepOption("grade", true);
           jsav.step();
-          break;
-        case "*":
-          // pop possible * from the stack into the expression
-          var node = modelStack.first();
-          while (node.value() === "*") {
-            jsav.effects.moveValue(node, modelResultArray, postfixInd++);
-            modelStack.removeFirst();
-            modelStack.layout();
-            jsav.umsg(interpret("ms_com_mul"));
-            jsav.stepOption("grade", true);
-            jsav.step();
-            node = modelStack.first();
-          }
-          // push the * into the stack
-          modelStack.addFirst();
-          jsav.effects.moveValue(modelArray, i, modelStack.first());
-          restoreInfix(modelArray).call(this);
+          node = modelStack.first();
+        }
+        // pop the left parenthesis into the bit bucket
+        modelStack.removeFirst();
+        modelStack.layout();
+        jsav.stepOption("grade", true);
+        jsav.step();
+        break;
+      case "*":
+        // pop possible * from the stack into the expression
+        node = modelStack.first();
+        while (node.value() === "*") {
+          jsav.effects.moveValue(node, modelResultArray, postfixInd++);
+          modelStack.removeFirst();
           modelStack.layout();
-          jsav.umsg(interpret("ms_com_mulpush"));
+          jsav.umsg(interpret("av_ms_com_mul"));
           jsav.stepOption("grade", true);
           jsav.step();
-          break;
-        case "+":
-          // pop possible * and + from the stack into the expression
-          var node = modelStack.first();
-          while (node.value() === "*" || node.value() === "+") {
-            jsav.umsg(interpret("ms_com_ge_prec"), { fill: {
-              operator: node.value()
-            } });
-            jsav.effects.moveValue(node, modelResultArray, postfixInd++);
-            modelStack.removeFirst();
-            modelStack.layout();
-            jsav.stepOption("grade", true);
-            jsav.step();
-            node = modelStack.first();
-          }
-          // push the + into the stack
-          modelStack.addFirst();
-          jsav.effects.moveValue(modelArray, i, modelStack.first());
-          restoreInfix(modelArray).call(this);
+          node = modelStack.first();
+        }
+        // push the * into the stack
+        modelStack.addFirst();
+        jsav.effects.moveValue(modelArray, i, modelStack.first());
+        restoreInfix(modelArray).call(this);
+        modelStack.layout();
+        jsav.umsg(interpret("av_ms_com_mulpush"));
+        jsav.stepOption("grade", true);
+        jsav.step();
+        break;
+      case "+":
+        // pop possible * and + from the stack into the expression
+        node = modelStack.first();
+        while (node.value() === "*" || node.value() === "+") {
+          jsav.umsg(interpret("av_ms_com_ge_prec"), { fill: {
+            operator: node.value()
+          } });
+          jsav.effects.moveValue(node, modelResultArray, postfixInd++);
+          modelStack.removeFirst();
           modelStack.layout();
-          jsav.umsg(interpret("ms_com_pluspush"));
           jsav.stepOption("grade", true);
           jsav.step();
-          break;
+          node = modelStack.first();
+        }
+        // push the + into the stack
+        modelStack.addFirst();
+        jsav.effects.moveValue(modelArray, i, modelStack.first());
+        restoreInfix(modelArray).call(this);
+        modelStack.layout();
+        jsav.umsg(interpret("av_ms_com_pluspush"));
+        jsav.stepOption("grade", true);
+        jsav.step();
+        break;
       }
     }
 
     // empty the stack into the expression
-    var node = modelStack.first();
+    node = modelStack.first();
     while (node.value() !== "") {
       jsav.effects.moveValue(node, modelResultArray, postfixInd++);
       modelStack.removeFirst();
       modelStack.layout();
-      jsav.umsg(interpret("ms_com_rest"));
+      jsav.umsg(interpret("av_ms_com_rest"));
       jsav.stepOption("grade", true);
       jsav.step();
       node = modelStack.first();
@@ -253,44 +250,46 @@
     return modelResultArray;
   }
 
-  var exercise = av.exercise(modelSolution, initialize, {}, {feedback: "atend", modelDialog: {width: 780}});
+  var exercise = av.exercise(modelSolution, initialize, {feedback: "atend", modelDialog: {width: 780}});
   exercise.reset();
 
   // generates a random infix expression
   // only made to work with the exercise
   // initial call should be made with odd length
   function generateRandomInfix(length, parentheses, endWithOperator) {
-    if (length === 0)
+    var operand;
+    if (length === 0) {
       return [];
+    }
     if (length === 1) {
       if (endWithOperator) {
-        return Math.random() < 0.5? ["+"]: ["*"];
+        return JSAV.utils.rand.random() < 0.5 ? ["+"] : ["*"];
       } else {
-        var operand = Math.ceil(Math.random() * 15).toString(16);
+        operand = Math.ceil(JSAV.utils.rand.random() * 15).toString(16);
         return [operand];
       }
     }
 
-    var minLengthForParentheses = parentheses * 5 + parentheses - 1 + (endWithOperator && parentheses?1:0);
+    var minLengthForParentheses = parentheses * 5 + parentheses - 1 + (endWithOperator && parentheses ? 1 : 0);
 
-    if (Math.random() < minLengthForParentheses / length) {
+    if (JSAV.utils.rand.random() < minLengthForParentheses / length) {
       // return array with parentheses
-      if (    parentheses - 1 > 0 &&
-          length >= 11 + (endWithOperator?1:0) &&
-          Math.random() < 0.5) {
+      if (parentheses - 1 > 0 &&
+          length >= 11 + (endWithOperator ? 1 : 0) &&
+          JSAV.utils.rand.random() < 0.5) {
         // parentheses inside parentheses
         if (length <= 12) {
           return ["("].concat(generateRandomInfix(9, 1, false),
                     [")"],
-                    generateRandomInfix(length - 11,parentheses - 2, endWithOperator));
+                    generateRandomInfix(length - 11, parentheses - 2, endWithOperator));
         } else {
           return ["("].concat(generateRandomInfix(9, 1, false),
                     [")"],
                     generateRandomInfix(1, 0, true),
-                    generateRandomInfix(length - 12,parentheses - 2, endWithOperator));
+                    generateRandomInfix(length - 12, parentheses - 2, endWithOperator));
         }
       }
-      var parInside = Math.min(Math.random() < 0.5? 3: 5, length - 2);
+      var parInside = Math.min(JSAV.utils.rand.random() < 0.5 ? 3 : 5, length - 2);
       if (length <= parInside + 3) {
         return ["("].concat(generateRandomInfix(parInside, 0, false),
                   [")"],
@@ -306,7 +305,7 @@
 
     // no parentheses
     // return operand + operator
-    var operand = Math.ceil(Math.random() * 15).toString(16);
+    operand = Math.ceil(JSAV.utils.rand.random() * 15).toString(16);
     return [operand].concat(generateRandomInfix(1, 0, true),
                 generateRandomInfix(length - 2, parentheses, endWithOperator));
 
@@ -317,7 +316,7 @@
   // away from the expression
   // paints the restored index grey to mark that it has been used
   function restoreInfix(array) {
-    return function() {
+    return function () {
       for (var i = 0; i < arraySize; i++) {
         if (array.value(i) === "") {
           array.value(i, initialInfix[i]);
@@ -326,6 +325,6 @@
         }
       }
       return true;
-    }
+    };
   }
 }(jQuery));

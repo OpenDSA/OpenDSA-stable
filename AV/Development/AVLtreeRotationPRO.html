@@ -30,8 +30,7 @@
         <script src="../../JSAV/lib/jquery.transit.js"></script>
         <script src="../../JSAV/lib/raphael.js"></script>
         <script src="../../JSAV/build/JSAV.js"></script>
-        <script src="../../JSAV/extras/AVLextension.js"></script>
-
+        <script src="../../DataStructures/AVLextension.js"></script>
         <script>
 
         var initialArray = [],
@@ -536,7 +535,7 @@
 
         av.recorded(); // we are not recording an AV with an algorithm
 
-        var exercise = av.exercise(modelSolution, initialize, {}, {feedback: "atend"});
+        var exercise = av.exercise(modelSolution, initialize, {feedback: "atend"});
         exercise.reset();
 
         av.container.find(".jsavexercisecontrols input[name='undo']").click(function () {

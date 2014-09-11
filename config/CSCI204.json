@@ -2,9 +2,11 @@
   "title": "CSCI204 Spring 2014",
   "build_dir": "Books",
   "code_dir": "SourceCode/",
-  "code_lang": "Processing",
+  "code_lang": {"Processing": ["pde"]},
   "module_origin": "http://algoviz.org",
-  "backend_address": "https://opendsa.cc.vt.edu/",
+  "exercise_server": "https://opendsa.cc.vt.edu/",
+  "logging_server": "https://opendsa.cc.vt.edu/",
+  "score_server": "https://opendsa.cc.vt.edu/",
   "build_JSAV": false,
   "allow_anonymous_credit": true,
   "suppress_todo": true,
@@ -889,7 +891,7 @@
             "points": 0.0,
             "threshold": 1.0
           },
-          "insertionsortAV": {
+          "InsertionSortAV": {
             "long_name": "Insertion Sort Visualization",
             "required": false,
             "points": 0,
@@ -1565,7 +1567,7 @@
             "points": 0.0,
             "threshold": 1.0
           },
-          "HashingDeleteProficiency": {
+          "HashingDelPRO": {
             "long_name": "Hash Deletion Proficiency Exercise",
             "required": true,
             "points": 2.0,

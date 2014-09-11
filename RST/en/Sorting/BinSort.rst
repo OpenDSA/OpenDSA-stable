@@ -25,16 +25,16 @@ the electric bills into another pile, and so on.
 Once this initial assignment of bills to piles is done (in one pass),
 you can then sort each pile by date relatively quickly, because each
 pile is fairly small.
-This is the basic idea behind a Binsort.
+This is the basic idea behind a :term:`Binsort`.
 
 Let's start with an especially easy situation.
 Consider the following code fragment to sort a permutation of the
 numbers 0 through :math:`n-1`.
 
-.. codeinclude:: Sorting/Binsort.pde 
+.. codeinclude:: Sorting/Binsort 
    :tag: simplebinsort
 
-.. inlineav:: BinsortCON1 ss
+.. inlineav:: binsortS1CON ss
    :output: show
 
 Here the key value is used to determine the
@@ -71,40 +71,42 @@ We assume that we know that the range of possible keys is between
 0 and ``MaxKeyValue``.
 Here is the extended Binsort algorithm.
 
-.. codeinclude:: Sorting/Binsort.pde
+.. codeinclude:: Sorting/Binsort
    :tag: Binsort
 
 This version of Binsort can sort any collection of records whose key
 values fall in the range from 0 to ``MaxKeyValue``.
 
-.. inlineav:: BinsortCON2 ss
+.. inlineav:: binsortS2CON ss
    :output: show
 
-The total work required is simply that needed to place each record
-into the appropriate bin and then take all of the records out of the
-bins.
-Thus, we need to process each record twice, for :math:`\Theta(n)`
-work.
+.. showhidecontent:: BinSortAnalysis   
 
-Does that cost analysis really make sense?
-Actually, that last statement is **wrong**,
-because it neglects a crucial observation.
-Taking all of the records out of the bins requires Binsort to look at
-every bin to see if it contains a record.
-Thus, the algorithm must process ``MaxKeyValue`` bins,
-regardless of how many of them actually hold records.
-If ``MaxKeyValue``
-is small compared to :math:`n`, then this is not a great expense.
-Suppose that ``MaxKeyValue`` :math:`= n^2`.
-In this case, the total amount of work done will be
-:math:`\Theta(n + n^2) = \Theta(n^2)`.
-This results in a poor sorting algorithm.
-And the algorithm becomes even worse as the disparity between
-:math:`n` and ``MaxKeyValue`` increases.
-In addition, a large key range requires an unacceptably large array
-``B``.
-Thus, even the extended Binsort is useful only for a limited key
-range.
+   The total work required is simply that needed to place each record
+   into the appropriate bin and then take all of the records out of the
+   bins.
+   Thus, we need to process each record twice, for :math:`\Theta(n)`
+   work.
+
+   Does that cost analysis really make sense?
+   Actually, that last statement is **wrong**,
+   because it neglects a crucial observation.
+   Taking all of the records out of the bins requires Binsort to look at
+   every bin to see if it contains a record.
+   Thus, the algorithm must process ``MaxKeyValue`` bins,
+   regardless of how many of them actually hold records.
+   If ``MaxKeyValue``
+   is small compared to :math:`n`, then this is not a great expense.
+   Suppose that ``MaxKeyValue`` :math:`= n^2`.
+   In this case, the total amount of work done will be
+   :math:`\Theta(n + n^2) = \Theta(n^2)`.
+   This results in a poor sorting algorithm.
+   And the algorithm becomes even worse as the disparity between
+   :math:`n` and ``MaxKeyValue`` increases.
+   In addition, a large key range requires an unacceptably large array
+   ``B``.
+   Thus, even the extended Binsort is useful only for a limited key
+   range.
 
 A further generalization to Binsort would yield a :term:`bucket sort`.
 Here, each bin (now called a bucket) is associated with not just one
@@ -117,4 +119,5 @@ only a small number of records into each bucket, and that a
 This is similar in spirit to the Radix Sort, which extends the
 concept of the Binsort in a practical way.
 
-.. odsascript:: AV/Sorting/binsortCON.js
+.. odsascript:: AV/Sorting/binsortS1CON.js
+.. odsascript:: AV/Sorting/binsortS2CON.js

@@ -32,7 +32,6 @@
 	}
 	arr = av.ds.array(arr_values, {"left":60, "top":0,"indexed":false});
 	av.step();
-	
 	av.umsg("Splitting the array into two halves requires 8 units of work");
 	arr.highlight();
 	av.step();
@@ -225,7 +224,9 @@
 	.addClass("rotated");
 	av.step();
 	av.umsg("Therefore, the total running time of merge sort is $\\theta(n\\log{n})$");
-	
+	av.step();
+
+        av.umsg("This cost is unaffected by the relative order of the values being sorted, thus this analysis holds for the best, average, and worst cases.");
 	av.recorded();
   }
   function merge(a1, a2, return_into){
