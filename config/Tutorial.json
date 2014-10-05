@@ -30,6 +30,18 @@
       "Tutorials/parameters": {
         "long_name": "Parsing Command Line Parameters",
         "exercises": {}
+      },
+      "Tutorials/eclipseparameters": {
+        "long_name": "Using parameters in Eclipse",
+        "exercises": {}
+      },
+      "Tutorials/debug": {
+        "long_name": "Debugging in Eclipse",
+        "exercises": {}
+      },
+      "Tutorials/scanning": {
+        "long_name": "Reading In Input",
+        "exercises": {}
       }
     }
   }

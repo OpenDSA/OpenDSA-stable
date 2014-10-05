@@ -1,6 +1,6 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v0.7.0-233-ga8719e5
+ * Version v0.7.0-239-g60dfc56
  * Copyright (c) 2011-2013 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
@@ -1781,12 +1781,13 @@ mixkey(math.random(), pool);
   // For example:
   // treenode.toggleClass = JSAV.anim(JSAV.utils._helpers._toggleClass);
   _helpers._toggleClass = function(className, options) {
-    if (this.jsav._shouldAnimate()) {
+    var opts = $.extend({animate: true}, options);
+    if (this.jsav._shouldAnimate() && opts.animate) {
       this.jsav.effects._toggleClass(this.element, className, options);
     } else {
       this.element.toggleClass(className);
     }
-    return [className];
+    return [className, options];
   };
   // A helper function to attach to JSAV objects to animate and record
   // addition of a CSS class. This should not be wrapped with JSAV.anim(..).
@@ -7547,12 +7548,35 @@ TreeContours.prototype = {
       return new Question(this, qtype, questionText, $.extend({}, options));
     }
   };
+  // Resets the flags of whether pop-up quetions questions have been asked already.
+  // As a side effect, this rewinds the animation to the beginning
+  JSAV.ext.resetQuestionAnswers = function() {
+    // rewind the animation
+    this.begin();
+    // go through all the animations steps..
+    for (var i = 0; i < this._redo.length; i++) {
+      // ..and all the operations in all the steps
+      var stepOperations = this._redo[i].operations;
+      for (var j = 0; j < stepOperations.length; j++) {
+        // if the target object of the operation is a question
+        var obj = stepOperations[j].obj;
+        if (obj && obj instanceof Question) {
+          // set the question as not asked
+          obj.asked = false;
+        }
+      }
+    }
+  };
   JSAV.init(function() {
     // default to true for showing questions
     if (typeof this.options.showQuestions === "undefined") {
       this.options.showQuestions = true;
     }
-  });
+    // bind the jsav-question-reset event of the container to reset the questions
+    this.container.bind({"jsav-question-reset": function() {
+        this.resetQuestionAnswers();
+      }.bind(this)});
+    });
 }(jQuery));/**
 * Module that contains support for TRAKLA2-type exercises.
 * Depends on core.js, anim.js, utils.js, translate.js
@@ -8106,7 +8130,7 @@ TreeContours.prototype = {
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v0.7.0-233-ga8719e5";
+  var theVERSION = "v0.7.0-239-g60dfc56";
 
   JSAV.version = function() {
     return theVERSION;

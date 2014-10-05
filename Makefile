@@ -54,6 +54,8 @@ jsav:
 update: jsav
 	$(RM) AV
 	cp -r dev/OpenDSA/AV AV
+	$(RM) DataStructures
+	cp -r dev/OpenDSA/DataStructures DataStructures
 	$(RM) config
 	cp -r dev/OpenDSA/config config
 	$(RM) Doc
@@ -63,7 +65,6 @@ update: jsav
 	$(RM) lib
 	mkdir lib
 	-cp dev/OpenDSA/lib/* lib
-	cp dev/OpenDSA/lib/.htaccess lib
 	$(RM) lib/*-min.*
 	$(RM) tools
 	cp -r dev/OpenDSA/tools tools

@@ -71,12 +71,11 @@ def get_mod_name(mod_config):
 def get_odsa_dir():
   """Calculate the path to the OpenDSA root directory based on the location of this file"""
 
-  # Auto-detect ODSA directory
-  (odsa_dir, script) = os.path.split(os.path.abspath(__file__))
-
-  # Convert to Unix-style path and move up a directory
-  # (assumes configure.py is one level below root OpenDSA directory)
-  return os.path.abspath(odsa_dir.replace("\\", "/") + '/..') + '/'
+  # Auto-detect ODSA root directory by getting the directory where this
+  # file is located and getting its parent directory (assumes
+  # ODSA_Config.py is one level below root OpenDSA directory)
+  # Convert to Unix-style path
+  return os.path.dirname(os.path.dirname(os.path.abspath(__file__))).replace("\\", "/") + '/'
 
 
 # Error message handling based on validate_json.py (https://gist.github.com/byrongibson/1921038)
@@ -306,10 +305,10 @@ def set_defaults(conf_data):
 
   odsa_dir = get_odsa_dir()
 
-  if 'code_dir' in conf_data:
-    conf_data['code_dir'] = process_path(conf_data['code_dir'], odsa_dir)
-  else:
+  if 'code_dir' not in conf_data:
     conf_data['code_dir'] = 'SourceCode/'
+
+  conf_data['code_dir'] = process_path(conf_data['code_dir'], odsa_dir)
 
   # Allow anonymous credit by default
   if 'allow_anonymous_credit' not in conf_data:
@@ -413,11 +412,11 @@ def get_translated_text(lang_):
         # Force python to maintain original order of JSON objects (or else the chapters and modules will appear out of order)
         lang_text_json = json.load(msg_trans)
         if lang_ in lang_text_json:
-           lang_text = lang_text_json[lang_]["jinja"]
+          lang_text = lang_text_json[lang_]["jinja"]
         else:
-           print_err('WARNING: Translation for "' + lang_ + '" not found, the language has been switched to english')
-           lang_text = lang_text_json["en"]["jinja"]
-           final_lang = "en"
+          print_err('WARNING: Translation for "' + lang_ + '" not found, the language has been switched to english')
+          lang_text = lang_text_json["en"]["jinja"]
+          final_lang = "en"
    except ValueError, err:
       # Error message handling based on validate_json.py (https://gist.github.com/byrongibson/1921038)
       msg = err.message
@@ -541,7 +540,8 @@ class ODSA_Config:
     self.rel_book_output_path = 'html/'
 
     # The Unix-style relative path between the build directory and the OpenDSA root directory
-    self.rel_build_to_odsa_path = os.path.relpath(self.odsa_dir, self.book_dir + 'html/').replace("\\", "/") + '/'
+    self.rel_build_to_odsa_path = os.path.relpath(self.odsa_dir, self.book_dir + self.rel_book_output_path).replace("\\", "/") + '/'
+
 
 
 # Code to execute when run as a standalone program
