@@ -40,12 +40,27 @@
         "long_name": "Array Implementation for Complete Trees",
         "exercises": {}
       },
+      "IS/BinaryTreeTraversal": {
+        "long_name": "Binary Tree Traversals",
+        "exercises": {
+          "BSTinordertraversalCON": {
+            "long_name": "BST Inorder Traversal",
+            "required": false,
+            "points": 0.0,
+            "threshold": 1.0
+          }
+        }
+      },
       "IS/AVL": {
         "long_name": "The AVL Tree",
         "exercises": {}
       },
       "IS/GenTreeIntro": {
         "long_name": "General Trees",
+        "exercises": {}
+      },
+      "IS/SequentialRep": {
+        "long_name": "Sequential Tree Representations",
         "exercises": {}
       },
       "IS/TwoThreeTree_Test": {

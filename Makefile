@@ -51,7 +51,9 @@ jsav:
 	$(RM) JSAV/examples
 	cp -r dev/OpenDSA/JSAV/examples JSAV/examples
 
-update: jsav
+update: jsav docopy min
+
+docopy:
 	$(RM) AV
 	cp -r dev/OpenDSA/AV AV
 	$(RM) DataStructures

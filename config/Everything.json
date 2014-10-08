@@ -13,7 +13,8 @@
   "allow_anonymous_credit": true,
   "suppress_todo": false,
   "glob_exer_options": {
-    "JXOP-debug": "true"
+    "JXOP-debug": "true",
+    "JXOP-code": "none"
   },
   "chapters": {
     "Preface": {
@@ -168,7 +169,6 @@
           },
           "binarySearchPRO": {
             "long_name": "Binary Search Proficiency Exercise",
-            "exer_options": { "JXOP-code": "none" },
             "required": true,
             "points": 1.0,
             "threshold": 1.0
