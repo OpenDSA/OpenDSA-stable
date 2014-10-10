@@ -1,6 +1,6 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v0.7.0-239-g60dfc56
+ * Version v0.7.0-245-g6d40c3a
  * Copyright (c) 2011-2013 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
@@ -546,17 +546,17 @@
     };
     if ($controls.size() !== 0) {
       var tmpTranslation = this._translate("beginButtonTitle");
-      $("<a class='jsavbegin' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</a>").click(beginHandler).appendTo($controls);
+      $("<span class='jsavbegin' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</span>").click(beginHandler).appendTo($controls);
       tmpTranslation = this._translate("backwardButtonTitle");
-      $("<a class='jsavbackward' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</a>").click(backwardHandler).appendTo($controls);
+      $("<span class='jsavbackward' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</span>").click(backwardHandler).appendTo($controls);
       tmpTranslation = this._translate("forwardButtonTitle");
-      $("<a class='jsavforward' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</a>").click(forwardHandler).appendTo($controls);
+      $("<span class='jsavforward' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</span>").click(forwardHandler).appendTo($controls);
       tmpTranslation = this._translate("endButtonTitle");
-      $("<a class='jsavend' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</a>").click(endHandler).appendTo($controls);
+      $("<span class='jsavend' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</span>").click(endHandler).appendTo($controls);
       this._controlsContainer = $controls;
     }
     // bind the handlers to events to enable control by triggering events
@@ -3295,6 +3295,9 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 
   function getNodeBorderAtAngle(dim, targetNodeCenter, angle, radius) {
     // dim: x, y coords of center and *half* of width and height
+    // make sure they have non-zero values
+    dim.width = Math.max(dim.width, 1);
+    dim.height = Math.max(dim.height, 1);
     var x, y, pi = Math.PI,
         urCornerA = Math.atan2(dim.height*2.0, dim.width*2.0),
         ulCornerA = pi - urCornerA,
@@ -7398,9 +7401,20 @@ TreeContours.prototype = {
         i;
     // add feedback element
     $elems = $elems.add($('<div class="jsavfeedback" > </div>'));
-    // add the answer choices
+    // add the answer choices, randomize order
+    var order = [];
+    for (i=this.choices.length; i--; ) {
+      order.push(i);
+    }
+    for (i=5*order.length; i--; ) {
+      var rand1 = JSAV.utils.rand.numKey(0, order.length + 1),
+          rand2 = JSAV.utils.rand.numKey(0, order.length + 1),
+          tmp = order[rand1];
+      order[rand1] = order[rand2];
+      order[rand1] = tmp;
+    }
     for (i=0; i < this.choices.length; i++) {
-      $elems = $elems.add(this.choices[i].elem());
+      $elems = $elems.add(this.choices[order[i]].elem());
     }
     // ... and close button
     var close = $('<input type="button" value="' + this.jsav._translate('questionClose') + '" />').click(
@@ -8130,7 +8144,7 @@ TreeContours.prototype = {
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v0.7.0-239-g60dfc56";
+  var theVERSION = "v0.7.0-245-g6d40c3a";
 
   JSAV.version = function() {
     return theVERSION;
