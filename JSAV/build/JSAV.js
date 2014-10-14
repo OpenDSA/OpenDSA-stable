@@ -1,6 +1,6 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v0.7.0-245-g6d40c3a
+ * Version v0.7.0-250-g86a7724
  * Copyright (c) 2011-2013 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
@@ -768,7 +768,7 @@
     return !!this.container.find(":animated").size() || this._animations > 0;
   };
   JSAV.ext._shouldAnimate = function() {
-    return (!this.RECORD && !$.fx.off);
+    return (!this.RECORD && !$.fx.off && this.SPEED > 50);
   };
   JSAV.ext.disableControls = function() {
     if (this._controlsContainer) {
@@ -5304,6 +5304,7 @@ TreeContours.prototype = {
     if (typeof newNext === "undefined") {
       return this._next;
     } else {
+      if (this._edgetonext) { this._edgetonext.show(); }
       return this._setnext(newNext, options);
     }
   };
@@ -5336,7 +5337,7 @@ TreeContours.prototype = {
       if (!classEquals) { return false; }
     }
     // compare edge style
-    if (this.edgeToNext()) {
+    if (this.next() && this.edgeToNext()) {
       var edgeEquals = this.edgeToNext().equals(otherNode.edgeToNext(),
           $.extend({}, options, {dontCheckNodes: true}));
       if (!edgeEquals) { return false; }
@@ -8144,7 +8145,7 @@ TreeContours.prototype = {
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v0.7.0-245-g6d40c3a";
+  var theVERSION = "v0.7.0-250-g86a7724";
 
   JSAV.version = function() {
     return theVERSION;
