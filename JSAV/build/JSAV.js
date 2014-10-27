@@ -1,6 +1,6 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v0.7.0-250-g86a7724
+ * Version v0.7.0-252-g0527b48
  * Copyright (c) 2011-2013 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
@@ -2547,7 +2547,16 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     JSAV.utils.extend(Line, JSAVGraphical);
 
     Line.prototype.translatePoint = translatePoint;
-    Line.prototype.movePoints = movePoints;
+    Line.prototype._polylineMovePoints = movePoints;
+    Line.prototype.movePoints = function(newx1, newy1, newx2, newy2) {
+      if ($.isArray(newx1)) {
+        // assume it's an array suitable for "general" movePoints
+        return this._polylineMovePoints(newx1);
+      } else {
+        // otherwise create an array suitable for "general" movePoints
+        return this._polylineMovePoints([[0, newx1, newy1], [1, newx2, newy2]]);
+      }
+    };
     Line.prototype.points = points;
 
     var Ellipse = function(jsav, raphael, x, y, rx, ry, props) {
@@ -7910,6 +7919,12 @@ TreeContours.prototype = {
                               }
                              },
                             this.options.modelDialog); // options passed for the model answer window
+    // add a class to "hide" the dialog when preparing it
+    if (modelOpts.dialogClass) {
+      modelOpts.dialogClass += " jsavmodelpreparing";
+    } else {
+      modelOpts.dialogClass = "jsavmodelpreparing";
+    }
     // function that will "catch" the model answer animator log events and rewrite
     // their type to have the jsav-exercise-model prefix and the av id
     var modelLogHandler = function(eventData) {
@@ -7960,7 +7975,8 @@ TreeContours.prototype = {
     this.modelanswer(prevPosition);
     // rewind the model av
     this.modelav.begin();
-    // show the dialog
+    // show the dialog and remove preparing class
+    this.modelDialog.removeClass("jsavmodelpreparing");
     this.modelDialog.show();
   };
   exerproto.reset = function() {
@@ -8145,7 +8161,7 @@ TreeContours.prototype = {
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v0.7.0-250-g86a7724";
+  var theVERSION = "v0.7.0-252-g0527b48";
 
   JSAV.version = function() {
     return theVERSION;
