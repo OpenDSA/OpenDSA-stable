@@ -34,7 +34,42 @@
   top: 40px;
 }
 
+#pointerBasedPreorderTraversalCON {
+  height: 430px;
+}
+
+#pointerBasedPreorderTraversalCON .jsavcode {
+  margin-top: 20px;
+  margin-left: 350px;
+}
+
+#pointerBasedPreorderTraversalCON .jsavtree {
+  top: -200px;
+  right: -260px;
+}
+
+#compositeBasedPreorderTraversalCON {
+  height: 630px;
+}
+
+#compositeBasedPreorderTraversalCON .jsavcode {
+  margin-top: -15px;
+  margin-left: 350px;
+}
+
+#compositeBasedPreorderTraversalCON .jsavtree {
+  top: -400px;
+  right: -260px;
+}
+
 .thickblacknode { /* Make a node edge to be thick and black */
+  background-color: white;
+  color: black;
+  border-color: black;
+  border-width: 2px;
+}
+
+#rectangle .internalnode {
   background-color: white;
   color: black;
   border-color: black;

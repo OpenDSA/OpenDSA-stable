@@ -299,7 +299,7 @@
 .jsavcontrols {
   text-align: center;
 }
-.jsavcontrols span {
+.jsavcontrols a {
   display: inline-block;
   color: transparent;
   text-indent: 9999px;
@@ -314,9 +314,8 @@
   border-radius: 20px;
   background-repeat:no-repeat;
   background-position:50% 50%;
-  cursor: pointer;
 }
-.jsavplaying span {
+.jsavplaying a {
   cursor: default;
 }
 .jsavcontrols .jsavbegin {
@@ -381,20 +380,17 @@ a.jsavsettings {
   background-color: #aaa;
   text-indent: 120%;
   padding: 2px;
-  border: 1px solid #777;
+  border: 1px solid black;
   -o-border-radius: 3px;
   -ms-border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
-  border-radius: 50%;
+  border-radius: 3px;
   float:right; 
   margin-right:10px; 
   display:block;
   white-space: nowrap;
   overflow: hidden;
-}
-a.jsavsettings:hover {
-  background-color: #888;
 }
 .jsavsettings .jsavhelp {
   font-size: 80%;
@@ -426,15 +422,11 @@ a.jsavsettings:hover {
   position: absolute;
   top: 15px;
 }
-.jsavmodelanswer .jsavcontrols span {
+.jsavmodelanswer .jsavcontrols a {
   margin: 5px 20px 0 0;
 }
 .jsavmodelanswer .jsavcontrols .jsavend {
   margin-right: 0;
-}
-/* move the (model answer) dialog outside of view when preparing it */
-.jsavdialog.jsavmodelpreparing {
-  left: -110% !important;
 }
 a.jsavdialogclose {
   background-color: #AAA;

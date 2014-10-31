@@ -546,17 +546,17 @@
     };
     if ($controls.size() !== 0) {
       var tmpTranslation = this._translate("beginButtonTitle");
-      $("<span class='jsavbegin' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</span>").click(beginHandler).appendTo($controls);
+      $("<a class='jsavbegin' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</a>").click(beginHandler).appendTo($controls);
       tmpTranslation = this._translate("backwardButtonTitle");
-      $("<span class='jsavbackward' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</span>").click(backwardHandler).appendTo($controls);
+      $("<a class='jsavbackward' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</a>").click(backwardHandler).appendTo($controls);
       tmpTranslation = this._translate("forwardButtonTitle");
-      $("<span class='jsavforward' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</span>").click(forwardHandler).appendTo($controls);
+      $("<a class='jsavforward' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</a>").click(forwardHandler).appendTo($controls);
       tmpTranslation = this._translate("endButtonTitle");
-      $("<span class='jsavend' title='" + tmpTranslation + "'>" + tmpTranslation +
-                    "</span>").click(endHandler).appendTo($controls);
+      $("<a class='jsavend' href='#' title='" + tmpTranslation + "'>" + tmpTranslation +
+                    "</a>").click(endHandler).appendTo($controls);
       this._controlsContainer = $controls;
     }
     // bind the handlers to events to enable control by triggering events
@@ -768,7 +768,7 @@
     return !!this.container.find(":animated").size() || this._animations > 0;
   };
   JSAV.ext._shouldAnimate = function() {
-    return (!this.RECORD && !$.fx.off && this.SPEED > 50);
+    return (!this.RECORD && !$.fx.off);
   };
   JSAV.ext.disableControls = function() {
     if (this._controlsContainer) {
@@ -2547,16 +2547,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     JSAV.utils.extend(Line, JSAVGraphical);
 
     Line.prototype.translatePoint = translatePoint;
-    Line.prototype._polylineMovePoints = movePoints;
-    Line.prototype.movePoints = function(newx1, newy1, newx2, newy2) {
-      if ($.isArray(newx1)) {
-        // assume it's an array suitable for "general" movePoints
-        return this._polylineMovePoints(newx1);
-      } else {
-        // otherwise create an array suitable for "general" movePoints
-        return this._polylineMovePoints([[0, newx1, newy1], [1, newx2, newy2]]);
-      }
-    };
+    Line.prototype.movePoints = movePoints;
     Line.prototype.points = points;
 
     var Ellipse = function(jsav, raphael, x, y, rx, ry, props) {
@@ -3304,9 +3295,6 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 
   function getNodeBorderAtAngle(dim, targetNodeCenter, angle, radius) {
     // dim: x, y coords of center and *half* of width and height
-    // make sure they have non-zero values
-    dim.width = Math.max(dim.width, 1);
-    dim.height = Math.max(dim.height, 1);
     var x, y, pi = Math.PI,
         urCornerA = Math.atan2(dim.height*2.0, dim.width*2.0),
         ulCornerA = pi - urCornerA,
@@ -5313,7 +5301,6 @@ TreeContours.prototype = {
     if (typeof newNext === "undefined") {
       return this._next;
     } else {
-      if (this._edgetonext) { this._edgetonext.show(); }
       return this._setnext(newNext, options);
     }
   };
@@ -5346,7 +5333,7 @@ TreeContours.prototype = {
       if (!classEquals) { return false; }
     }
     // compare edge style
-    if (this.next() && this.edgeToNext()) {
+    if (this.edgeToNext()) {
       var edgeEquals = this.edgeToNext().equals(otherNode.edgeToNext(),
           $.extend({}, options, {dontCheckNodes: true}));
       if (!edgeEquals) { return false; }
@@ -7411,20 +7398,9 @@ TreeContours.prototype = {
         i;
     // add feedback element
     $elems = $elems.add($('<div class="jsavfeedback" > </div>'));
-    // add the answer choices, randomize order
-    var order = [];
-    for (i=this.choices.length; i--; ) {
-      order.push(i);
-    }
-    for (i=5*order.length; i--; ) {
-      var rand1 = JSAV.utils.rand.numKey(0, order.length + 1),
-          rand2 = JSAV.utils.rand.numKey(0, order.length + 1),
-          tmp = order[rand1];
-      order[rand1] = order[rand2];
-      order[rand1] = tmp;
-    }
+    // add the answer choices
     for (i=0; i < this.choices.length; i++) {
-      $elems = $elems.add(this.choices[order[i]].elem());
+      $elems = $elems.add(this.choices[i].elem());
     }
     // ... and close button
     var close = $('<input type="button" value="' + this.jsav._translate('questionClose') + '" />').click(
@@ -7919,12 +7895,6 @@ TreeContours.prototype = {
                               }
                              },
                             this.options.modelDialog); // options passed for the model answer window
-    // add a class to "hide" the dialog when preparing it
-    if (modelOpts.dialogClass) {
-      modelOpts.dialogClass += " jsavmodelpreparing";
-    } else {
-      modelOpts.dialogClass = "jsavmodelpreparing";
-    }
     // function that will "catch" the model answer animator log events and rewrite
     // their type to have the jsav-exercise-model prefix and the av id
     var modelLogHandler = function(eventData) {
@@ -7975,8 +7945,7 @@ TreeContours.prototype = {
     this.modelanswer(prevPosition);
     // rewind the model av
     this.modelav.begin();
-    // show the dialog and remove preparing class
-    this.modelDialog.removeClass("jsavmodelpreparing");
+    // show the dialog
     this.modelDialog.show();
   };
   exerproto.reset = function() {
