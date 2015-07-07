@@ -13,46 +13,48 @@ $(document).ready(function () {
   var av = new JSAV(av_name);
   var leftMargin = 5,
       nodeWidth = 30,
-      arrow1_x = 25 + nodeWidth;
+      theTop = 35,
+      arrow1_x = 22 + nodeWidth;
 
-  var arr = av.ds.array(arrValues, {indexed: true, layout: "array",
-                                    left: leftMargin, top: 20});
+  var arr = av.ds.array(arrValues, {indexed: true, left: leftMargin, top: theTop});
   var pseudo = av.code(code);
 
   //vertical arrow pointing to current position
-  var arrow1 = av.g.line(arrow1_x, 10, arrow1_x, 35,
+  var arrow1 = av.g.line(arrow1_x, theTop - 5, arrow1_x, theTop + 15,
                          {"arrow-end": "classic-wide-long",
                           "opacity": 0, "stroke-width": 2});
 
   //horizontal arrow in step 4
-  var arrow2 = av.g.line(arrow1_x + 100, 20, arrow1_x + 20, 20,
+  var arrow2 = av.g.line(arrow1_x + 100, theTop, arrow1_x + 20, theTop,
                          {"arrow-end": "classic-wide-long",
                           "opacity": 0, "stroke-width": 2});
 
-  //label for current position in step 1
-  var label = av.label("curr", {before: arr, left: arrow1_x - 10, top: -25});
-  label.hide();
-
-  //array "it" for holding the deleted record
-  var arrItValues = [""];
-  var arrIt = av.ds.array(arrItValues,
-                          {indexed: false, layout: "array",
-                           left: leftMargin + (nodeWidth + 2) * 3, top: 90});
-  var labelIt = av.label("it", { before: arrIt, left: 85, top: 95 });
+  //arrays "it", "curr", and "listSize" for holding data fields
+  var arrIt = av.ds.array([""], {indexed: false,
+                                 left: leftMargin + (nodeWidth + 2) * 3, top: theTop + 70});
+  var labelIt = av.label("it", { before: arrIt, left: 85, top: theTop + 75});
   arrIt.hide();
   labelIt.hide();
+
+  var arrCurr = av.ds.array([1], {indexed: false,
+                                  left: leftMargin + (nodeWidth + 2) * 3, top: theTop + 105});
+  var labelCurr = av.label("curr", { before: arrCurr, left: 68, top: theTop + 110});
+
+  var arrSize = av.ds.array([5], {indexed: false,
+                                 left: leftMargin + (nodeWidth + 2) * 3, top: theTop + 140});
+  var labelSize = av.label("listSize", { before: arrCurr, left: 46, top: theTop + 145});
 
   // Slide 1
   arr.addClass([5, 6, 7], "unused");
   av.umsg(interpret("av_c1"));
   arr.highlight([1]);
-  label.show();
   arrow1.show();
   pseudo.setCurrentLine("sig");
   av.displayInit();
 
   // Slide 2
   arrIt.show();
+  arrIt.highlight(0);
   labelIt.show();
   av.effects.copyValue(arr, 1, arrIt, 0);
   arr.value(1, "");
@@ -70,6 +72,7 @@ $(document).ready(function () {
   arr.value(itemsSize - 1, "");
   arrow2.show();
   arr.unhighlight([1]);
+  arrIt.unhighlight(0);
   pseudo.setCurrentLine("for");
   pseudo.highlight("forbody");
   arr.highlight([1, 2, 3]);
@@ -84,16 +87,20 @@ $(document).ready(function () {
   arr.removeClass([itemsSize - 1], "unused");
   av.umsg(interpret("av_c4"));
   arrow2.hide();
+  arrSize.value(0, 4);
+  arrSize.highlight(0);
   av.step();
 
   // Slide 5
-  arrIt.highlight([0]);
+  arrIt.highlight(0);
   arr.addClass([4], "unused");
   pseudo.setCurrentLine("return");
+  arrSize.unhighlight(0);
   av.umsg(interpret("av_c5"));
   av.step();
 
   // Slide 6
+  arrIt.unhighlight(0);
   pseudo.setCurrentLine(0);
   av.umsg(interpret("av_c6"));
   av.recorded();  //

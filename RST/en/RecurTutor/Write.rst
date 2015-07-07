@@ -5,11 +5,12 @@
 
 .. avmetadata:: 
    :author: Sally Hamouda
-   :prerequisites:
+   :requires: recursion intro
+   :satisfies: recursion writing
    :topic: Recursion
 
-.. odsalink:: AV/RecurTutor/recursionwritecon2.css
-.. odsalink:: AV/RecurTutor/recursionwritecon1.css
+
+.. odsalink:: AV/RecurTutor/recursionWrtCON.css
 
 
 Writing a recursive function
@@ -26,18 +27,23 @@ To understand recursion, you must understand that the basic unit of recursion is
 The following visualization shows the basic four steps you need to write any recursive function:
 
 
-.. inlineav:: RecursionWriteCON1 ss
+.. inlineav:: recursionWrtStepsCON ss
    :output: show  
 
-The simplest version of a recursive function is an if-else statement where the "if" part is the base case, and the "else" part is the recursive case. There are several mistakes people make with a base case. The first one is picking too large a base case. Second, not realizing there may be more than one base case. Finally, thinking that the base case only gets called when the input size is the smallest. In fact, the recursion ALWAYS makes it to some base case. Thus, the base case is where the recursion eventually stops. Don't think of it as merely called when the input is, say, 0. It gets called for all cases (eventually).
-In the recursive case, there is a recursive call. Most recursive functions do something after the call. After all, you often need the solution of the "smaller" recursive call to create the solution for the "big" problem. However, on occasion, you may need to do some work prior to the recursive function call (e.g., calculating or printing something).
+The following visualization shows four different versions of the Sum recursive function and the differences between them
 
-The following visualization shows three different versions of the Sum recursive function and the differences between them
-
-.. inlineav:: RecursionWriteCON2 ss
+.. inlineav:: recursionWrtSumCON ss
    :output: show  
+
+
+.. topic:: Example
+
+   The following code shows an example of a recursive function that computes the Fibonacci of a given number.
+   Fibonacci Sequence is the series of numbers: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ... Where the next number is found by adding up the two numbers before it:
+   
+   .. codeinclude:: RecurTutor/Fibonacci
 
 You will never understand recursion well without doing a lot of practice on it. Here are set of practice exercises on recursion, try to practice them all to master recursion.
 
-.. odsascript:: AV/RecurTutor/recursionwritecon1.js
-.. odsascript:: AV/RecurTutor/recursionwritecon2.js
+.. odsascript:: AV/RecurTutor/recursionWrtStepsCON.js
+.. odsascript:: AV/RecurTutor/recursionWrtSumCON.js

@@ -38,6 +38,16 @@ collaborations for
 <a href="http://nsf.gov/news/news_summ.jsp?cntn_id=127063&org=NSF&from=news">
 innovations in STEM education</a>.
 
+<li>IUSE program grants
+<a href="http://nsf.gov/awardsearch/showAward.do?AwardNumber=1432008">DUE-1432008</a>,
+<a href="http://nsf.gov/awardsearch/showAward.do?AwardNumber=1431667">DUE-1431667</a>, and
+<a href="http://nsf.gov/awardsearch/showAward.do?AwardNumber=1431399">DUE-1431399</a>
+support the collaboration of Virginia Tech, Duke University, and 
+University of Wisconsin-Oshkosh to greatly expand the content and
+infrastructure for OpenDSA.
+See the <a href="IUSE14.pdf">NSF-IUSE 2014 Grant Proposal</a>
+(funded beginning January 2015 and lasting for three years).
+
 </ul>
 
 </div>

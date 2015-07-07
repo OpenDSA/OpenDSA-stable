@@ -25,52 +25,32 @@
           }
         }
       },
-      "IS/BinaryTree": {
-        "long_name": "Binary Tree Terminology",
-        "exercises": {
-          "DprobsAll": {
-            "long_name": "Tree Definition Summary",
-            "required": true,
-            "points": 3,
-            "threshold": 8
-          }
-        }
-      },
-      "IS/CompleteTree": {
-        "long_name": "Array Implementation for Complete Trees",
-        "exercises": {}
-        
-      },
-      "IS/BinaryTreeTraversal": {
-        "long_name": "Binary Tree Traversals",
-        "exercises": {}
-        
-      },
-      "IS/BinaryTreeImpl": {
-        "long_name": "Binary Tree Implementations",
-        "exercises": {}
-        
-      },
-      "IS/Composite": {
-        "long_name": "Composite Design Pattern",
-        "exercises": {}
-        
-      },
-      "IS/AVL": {
-        "long_name": "The AVL Tree",
-        "exercises": {}
-      },
-      "IS/GenTreeIntro": {
-        "long_name": "General Trees",
-        "exercises": {}
-      },
-      "IS/SequentialRep": {
-        "long_name": "Sequential Tree Representations",
+      "IS/BinaryTreeFullThm": {
+        "long_name": "Full Binary Tree Theorem",
         "exercises": {}
       },
       "IS/TwoThreeTree_Test": {
         "long_name": "Two Three Tree",
         "exercises": {}
+      }
+    },
+    "Graphs": {
+      "Graph/GraphIntro": {
+        "long_name": "Introduction and Terminology",
+        "exercises": {
+          "GraphCalcSumm": {
+            "long_name": "Graph Space Requirements Exercise",
+            "required": true,
+            "points": 2.0,
+            "threshold": 5
+          },
+          "GraphIntroSumm": {
+            "long_name": "Graph Terminology Summary Exercise",
+            "required": true,
+            "points": 2.0,
+            "threshold": 5
+          }
+        }
       }
     },
     "Appendix": {

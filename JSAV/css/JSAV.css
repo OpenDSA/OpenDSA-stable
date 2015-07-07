@@ -16,6 +16,7 @@
 .jsavcanvas {
   position: relative;
   background-color: inherit;
+  overflow-x: auto;
 }
 
 .jsavnode {
@@ -76,6 +77,7 @@
   min-height: 50px;
   padding: 0;
   clear:both;
+  white-space: nowrap;
   -webkit-transform-style: preserve-3d;
 }
 .jsavarray * {
@@ -88,11 +90,14 @@
 }
 .jsavindexlabel {
   width: 100%;
-  height: 20px;
-  line-height: 20px;
+  height: 25px;
+  line-height: 25px;
   color: black;
   position: absolute;
   vertical-align: middle;
+}
+.jsavindex {
+  box-sizing: border-box;
 }
 .jsavindex span {
   z-index: 99;
@@ -292,84 +297,110 @@
   position: absolute;
   height: 100%;
   width: 100%;
-  z-index: 100;
+  z-index: 110;
+}
+
+.jsavcontainer svg {
+  pointer-events: none;
+}
+.jsavcontainer svg * {
+  pointer-events: visible;
 }
 
 /**** STYLING THE CONTROLS ****/
 .jsavcontrols {
   text-align: center;
 }
-.jsavcontrols a {
+.jsavcontrols span {
   display: inline-block;
-  color: transparent;
-  text-indent: 9999px;
+  color: #777;
+  font-family: 'Times New Roman';
+  font-size: 20px;
+  font-weight: bolder;
+  line-height: 45px;
   width: 45px;
   height: 45px;
   margin: 15px 40px;
-  background-color: #aaa;
-  -o-border-radius: 20px;
-  -moz-border-radius: 20px;
-  -webkit-border-radius: 20px;
-  -ms-border-radius: 20px;
-  border-radius: 20px;
-  background-repeat:no-repeat;
-  background-position:50% 50%;
+  background-color: #fff;
+  border: 1px solid #777;
+  -o-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -ms-border-radius: 50%;
+  border-radius: 50%;
+  cursor: pointer;
 }
-.jsavplaying a {
+.jsavplaying span {
   cursor: default;
 }
-.jsavcontrols .jsavbegin {
-  background-image: url(images/begin.png);
-}
-.jsavcontrols .jsavend {
-  background-image: url(images/end.png);
-}
-.jsavcontrols .jsavbackward {
-  background-image: url(images/backward.png);
-}
-.jsavcontrols .jsavforward {
-  background-image: url(images/forward.png);
+.jsavbegin, .jsavend {
+  letter-spacing: -2px;
 }
 /**** END STYLING THE CONTROLS ****/
 
 /**** STYLING THE DIALOG ****/
 .jsavdialog {
-  border: 1px solid black;
+  border: 1px solid #aaa;
   background-color: #fff;
   z-index: 1000;
   position: absolute;
   top: 0; 
   left: 0;
-  -moz-border-radius: 6px;
-  -ms-border-radius: 6px;
-  -o-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.8);
 }
 .jsavmodal {
   z-index: 999;
   background-color: rgb(120, 120, 120);
   background-color: rgba(0, 0, 0, 0.2);
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  bottom: 0;
+  right: 0;
 }
 .jsavdialog h2 {
   background-color: #eee;
-  border-bottom: 1px dashed black;
   color: black;
+  font-family: Helvetica, Arial;
   font-size: 1.5em;
   font-weight: bold;
   margin: 0;
-  padding: 5px;
-  -moz-border-radius: 6px 6px 0 0;
-  -ms-border-radius: 6px 6px 0 0;
-  -o-border-radius: 6px 6px 0 0;
-  -webkit-border-radius: 6px 6px 0 0;
-  border-radius: 6px 6px 0 0;
+  padding: 7px 15px;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+  cursor: grab;
 }
+.jsavdialog.ui-draggable-dragging, .jsavdialog.ui-draggable-dragging h2 {
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+}
+a.jsavdialogclose {
+  border: 1px solid #777;
+  -ms-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -o-border-radius: 20px;
+  border-radius: 20px;
+  color: #777;
+  float: right;
+  font-family: monospace;
+  font-size: 30px;
+  font-weight: normal;
+  height: 20px;
+  padding: 3px;
+  text-align: center;
+  text-decoration: none;
+  width: 20px;
+  line-height: 22px;
+}
+a.jsavdialogclose:hover {
+  background-color: #ccc;
+}
+
 .jsavsettings {
   padding: 15px;
+  font-family: Helvetica, Arial
 }
 a.jsavsettings {
   background-image: url(images/settings.png);
@@ -380,21 +411,28 @@ a.jsavsettings {
   background-color: #aaa;
   text-indent: 120%;
   padding: 2px;
-  border: 1px solid black;
+  border: 1px solid #777;
   -o-border-radius: 3px;
   -ms-border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
-  border-radius: 3px;
+  border-radius: 50%;
   float:right; 
   margin-right:10px; 
   display:block;
   white-space: nowrap;
   overflow: hidden;
 }
+a.jsavsettings:hover {
+  background-color: #888;
+}
 .jsavsettings .jsavhelp {
   font-size: 80%;
   margin-left: 40px;
+}
+.jsavsettings .jsavversion {
+  float: right;
+  font-size: smaller;
 }
 .jsavrow {
   margin: 15px 8px 4px 8px;
@@ -413,40 +451,21 @@ a.jsavsettings {
   border-radius: 8px;
   position: relative;
 }
-.jsavcontainer svg {
-  pointer-events: none;
-}
 .jsavmodelanswer .jsavcounter {
   float: left;
   left: 10px;
   position: absolute;
   top: 15px;
 }
-.jsavmodelanswer .jsavcontrols a {
+.jsavmodelanswer .jsavcontrols span {
   margin: 5px 20px 0 0;
 }
 .jsavmodelanswer .jsavcontrols .jsavend {
   margin-right: 0;
 }
-a.jsavdialogclose {
-  background-color: #AAA;
-  border: 2px solid white;
-  -ms-border-radius: 20px;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  -o-border-radius: 20px;
-  border-radius: 20px;
-  color: white;
-  float: right;
-  font-family: monospace;
-  font-size: 20px;
-  font-weight: normal;
-  height: 20px;
-  padding: 3px;
-  text-align: center;
-  text-decoration: none;
-  width: 20px;
-  line-height: 1;
+/* move the (model answer) dialog outside of view when preparing it */
+.jsavdialog.jsavmodelpreparing {
+  left: -110% !important;
 }
 
 .jsavexercisecontrols {
@@ -627,12 +646,16 @@ ul.jsavcode {
 }
 .jsavmatrix .jsavarray li.jsavnode {
   border-radius: 0;
-  min-height: 30px;
-  height: auto;
-  width: auto;
-  min-width: 30px;
+  width: 30px;
+  height: 30px;
   font-size: 14px;
   border-top: none;
+}
+.jsavmatrix .jsavarray.jsavautoresize li.jsavnode {
+  min-height: 30px;
+  min-width: 30px;
+  height: auto;
+  width: auto;
 }
 .jsavmatrix .jsavarray .jsavvalue {
   height: 30px;

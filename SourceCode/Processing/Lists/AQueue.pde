@@ -18,8 +18,8 @@ class AQueue implements Queue {
 
   String toString() {
     StringBuffer out = new StringBuffer(length() * 4);
-    for (int i=front-1; i != rear; i--) {
-      if (i == -1) i = length() - 1; // Adjust for wrap-around
+    for (int i=front; i != (rear+1)%maxSize; i++) {
+      i = i % maxSize;                 // Adjust for wrap-around
       out.append(queueArray[i]);
       out.append(" ");
     }

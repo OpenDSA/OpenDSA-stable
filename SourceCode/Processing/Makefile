@@ -7,10 +7,10 @@
 # (Bash) export DISPLAY=:0.0
 # (csh/tcsh) setenv DISPLAY :0.0
 
-PROCESS = ~/processing-2.0b8/processing-java
+PROCESS = ~/processing-2.0b9/processing-java
 
 # Use this one on Linux
-# BUILD = build
+#BUILD = build
 # On Windows, I can't make it work without an absolute path
 BUILD = /c/Cliff/OpenDSA/SourceCode/Processing/build
 
@@ -35,7 +35,16 @@ build/UpDown/success:
 	@cp Demo/UpDown.pde build/UpDown
 	@$(PROCESS) --run --sketch="$(BUILD)/UpDown" --output="build/build" --force
 
-Misc: Fact TOH Fibonnaci Anal Sequential
+Misc: Largest Fact TOH Fibonnaci Anal
+
+Largest: build/LargestTest/success
+
+build/LargestTest/success: Misc/LargestTest.pde
+	@echo "Largest Test"
+	-@rm -rf build/LargestTest
+	@mkdir build/LargestTest
+	@cp Misc/LargestTest.pde build/LargestTest
+	@$(PROCESS) --run --sketch="$(BUILD)/LargestTest" --output="build/build" --force
 
 Fact: build/Fact/success
 
@@ -70,7 +79,7 @@ build/Fibonnaci/success: Misc/Fibonnaci.pde
 
 Anal:  build/Anal/success
 
-build/Anal/success: Misc/Anal.pde Searching/bsearch.pde Searching/Sequential.pde Misc/Largest.pde
+build/Anal/success: Misc/Anal.pde Searching/Bsearch.pde Searching/Sequential.pde Misc/Largest.pde
 	@echo "Analysis Chapter Test"
 	-@rm -rf build/Anal
 	@mkdir build/Anal
@@ -84,11 +93,11 @@ Lists: ListTest ListAlt FreeList DoubleTest StackTest QueueTest
 
 ListTest: build/ListTest/success
 
-build/ListTest/success: Lists/ListADT.pde Lists/AList.pde Lists/Link.pde Lists/LList.pde Lists/ListTest.pde
+build/ListTest/success: Lists/List.pde Lists/AList.pde Lists/Link.pde Lists/LList.pde Lists/ListTest.pde
 	@echo "Array-based and Linked List Test"
 	-@rm -rf build/ListTest
 	@mkdir build/ListTest
-	@cp Lists/ListADT.pde build/ListTest
+	@cp Lists/List.pde build/ListTest
 	@cp Lists/AList.pde build/ListTest/
 	@cp Lists/LList.pde build/ListTest/
 	@cp Lists/Link.pde build/ListTest/
@@ -97,11 +106,11 @@ build/ListTest/success: Lists/ListADT.pde Lists/AList.pde Lists/Link.pde Lists/L
 
 ListAlt: build/ListAlt/success
 
-build/ListAlt/success: ListAlt/ListAlt.pde ListAlt/ListIndex.pde ListAlt/ListADT.pde ListAlt/AList.pde
+build/ListAlt/success: ListAlt/ListAlt.pde ListAlt/ListIndex.pde ListAlt/List.pde ListAlt/AList.pde
 	@echo "Alternate list implementation test"
 	-@rm -rf build/ListAlt
 	@mkdir build/ListAlt
-	@cp ListAlt/ListADT.pde build/ListAlt
+	@cp ListAlt/List.pde build/ListAlt
 	@cp ListAlt/AList.pde build/ListAlt/
 	@cp ListAlt/ListAlt.pde build/ListAlt/
 	@cp ListAlt/ListIndex.pde build/ListAlt/
@@ -109,11 +118,11 @@ build/ListAlt/success: ListAlt/ListAlt.pde ListAlt/ListIndex.pde ListAlt/ListADT
 
 FreeList: build/FreeList/success
 
-build/FreeList/success: Lists/ListADT.pde Lists/AList.pde Lists/Freelink.pde Lists/Freelist.pde Lists/ListTest.pde
+build/FreeList/success: Lists/List.pde Lists/AList.pde Lists/Freelink.pde Lists/Freelist.pde Lists/ListTest.pde
 	@echo "Freelist Test"
 	-@rm -rf build/FreeList
 	@mkdir build/FreeList
-	@cp Lists/ListADT.pde build/FreeList
+	@cp Lists/List.pde build/FreeList
 	@cp Lists/AList.pde build/FreeList/
 	@cp Lists/Freelist.pde build/FreeList/LList.pde
 	@cp Lists/Freelink.pde build/FreeList/Link.pde
@@ -122,11 +131,11 @@ build/FreeList/success: Lists/ListADT.pde Lists/AList.pde Lists/Freelink.pde Lis
 
 DoubleTest: build/DoubleTest/success
 
-build/DoubleTest/success: Lists/ListADT.pde Lists/AList.pde Lists/DLink.pde Lists/Dlist.pde Lists/ListTest.pde
+build/DoubleTest/success: Lists/List.pde Lists/AList.pde Lists/DLink.pde Lists/Dlist.pde Lists/ListTest.pde
 	@echo "Array-based and Doubly Linked List Test"
 	-@rm -rf build/DoubleTest
 	@mkdir build/DoubleTest
-	@cp Lists/ListADT.pde build/DoubleTest
+	@cp Lists/List.pde build/DoubleTest
 	@cp Lists/AList.pde build/DoubleTest/
 	@cp Lists/Dlist.pde build/DoubleTest/LList.pde
 	@cp Lists/DLink.pde build/DoubleTest/Link.pde
@@ -163,7 +172,7 @@ Design: Dictionary
 
 Dictionary: build/DictionaryTest/success
 
-build/DictionaryTest/success: Design/Dictionary.pde Design/DictionaryTest.pde Design/Payroll.pde Design/UALDictionary.pde Utils/KVPair.pde Lists/AList.pde Lists/ListADT.pde
+build/DictionaryTest/success: Design/Dictionary.pde Design/DictionaryTest.pde Design/Payroll.pde Design/UALDictionary.pde Utils/KVPair.pde Lists/AList.pde Lists/List.pde
 	@echo "Dictionary Test"
 	-@rm -rf build/DictionaryTest
 	@mkdir build/DictionaryTest
@@ -173,14 +182,14 @@ build/DictionaryTest/success: Design/Dictionary.pde Design/DictionaryTest.pde De
 	@cp Design/UALDictionary.pde build/DictionaryTest
 	@cp Utils/KVPair.pde build/DictionaryTest
 	@cp Lists/AList.pde build/DictionaryTest
-	@cp Lists/ListADT.pde build/DictionaryTest
+	@cp Lists/List.pde build/DictionaryTest
 	@$(PROCESS) --run --sketch="$(BUILD)/DictionaryTest" --output="$(BUILD)/build" --force
 
 Binary: Traverse ExpTree ExpTreeC BST BSTDict Minheap Maxheap Huffman
 
 Traverse: build/Traverse/success
 
-build/Traverse/success: Binary/BinNode.pde Binary/BSTNode.pde Binary/Preorder.pde Binary/Traverse.pde Utils/KVPair.pde Binary/checkBST.pde
+build/Traverse/success: Binary/BinNode.pde Binary/BSTNode.pde Binary/Traverse.pde Utils/KVPair.pde
 	@echo "Traversal Test"
 	-@rm -rf build/Traverse
 	@mkdir build/Traverse
@@ -188,8 +197,6 @@ build/Traverse/success: Binary/BinNode.pde Binary/BSTNode.pde Binary/Preorder.pd
 	@cp Binary/BSTNode.pde build/Traverse
 	@cp Utils/KVPair.pde build/Traverse
 	@cp Binary/Traverse.pde build/Traverse
-	@cp Binary/checkBST.pde build/Traverse
-	@cp Binary/Preorder.pde build/Traverse
 	@$(PROCESS) --run --sketch="$(BUILD)/Traverse" --output="$(BUILD)/build" --force
 
 ExpTree: build/ExpTree/success

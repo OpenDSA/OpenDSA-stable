@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Convert NFA to DFA test</title>
+    	<link rel="stylesheet" href="../../../JSAV/css/JSAV.css" type="text/css" media="screen" title="no title" charset="utf-8" />
+    	<link rel="stylesheet" href="../resources/FA.css" type="text/css" />
+		<style>
+			#av {
+      			text-align: center;
+			}
+			p.jsavoutput.jsavline {
+				height: 10px;
+			}
+    		.jsavgraph {
+    			display: inline-block;
+    		}
+    		#editable .jsavnode { cursor: pointer;}
+    		#editable .jsavedge { 
+    			cursor: pointer;
+    			stroke-width: 1;	/*can change to make edges easier to click */
+    		}
+    		#conversionButton {
+    			display: none;
+    		}
+    		.jsavmodelanswer {
+    			text-align: center;
+    		}
+		</style>
+	</head>
+	<body>
+		
+		<div id="av">
+			<h1>Convert NFA to DFA test</h1>
+			<div class="jsavexercisecontrols" align="center">
+				<a class="jsavsettings" href="#">Settings</a>
+			</div>
+			<p style="font-size: 30px">&Sigma;: <span id='alphabet'></span></p>
+      		<p class="jsavoutput jsavline"></p>
+			<div id="reference" class="jsavcanvas"></div>
+			<div id="editable" class="jsavcanvas"></div>
+
+		</div>
+		<div align="right">
+			<span id='mode'></span>
+			<button type="button" id="conversionButton">Continue expanding</button>
+			<button type="button" id="movenodesbutton" class="editButton">Move nodes</button>
+			<button type="button" id="removenodesbutton" class="editButton">Remove nodes</button>
+		</div>
+		<!-- <button onclick="convertToDFA(g)">Convert NFA to DFA</button> 
+		<button onclick="g.layout()">Layout</button> -->
+		
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+		<script src="../../../JSAV/lib/raphael.js"></script>
+   		<script src="../../../JSAV/lib/dagre.min.js"></script>
+		<script src="../../../JSAV/lib/jquery.transit.js"></script>
+		<script src="../../../JSAV/build/JSAV.js"></script>
+		<script src="../resources/underscore-min.js"></script>
+		<script src="../resources/FA.js"></script>
+		<script src="conversionExercise.js"></script>
+   	</body>
+  </html>

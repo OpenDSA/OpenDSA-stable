@@ -4,7 +4,7 @@ TARGET = build
 CSSLINTFLAGS = --quiet --errors=empty-rules,import,errors --warnings=duplicate-background-images,compatible-vendor-prefixes,display-property-grouping,fallback-colors,duplicate-properties,shorthand,gradients,font-sizes,floats,overqualified-elements,import,regex-selectors,rules-count,unqualified-attributes,vendor-prefix,zero-units
 MINIMIZE = java -jar tools/yuicompressor-2.4.7.jar --nomunge
 
-.PHONY: all clean lint csslint jshint min CS2114 CS223 CS3114 CS5114 CS3114AM CS3114PM CS150 OpenDSA allBooks nomin pull CSCI204 CSCI102 CS2401 COP3530 CS208
+.PHONY: all clean lint csslint jshint min CS2114 CS2114gen CS223 CS5114 CS3114 CS3114notes CS150 OpenDSA test testfi testX IS allBooks nomin pull CPSC270S15 CS2401 COP3530 CS208 ECE252 Tutorial TDDD86_2014 S15 CSCI115
 
 all: lint
 
@@ -46,8 +46,6 @@ jsav:
 	cp -r dev/OpenDSA/JSAV/css JSAV/css
 	$(RM) JSAV/extras
 	cp -r dev/OpenDSA/JSAV/extras JSAV/extras
-	$(RM) JSAV/doc
-	cp -r dev/OpenDSA/JSAV/doc JSAV/doc
 	$(RM) JSAV/examples
 	cp -r dev/OpenDSA/JSAV/examples JSAV/examples
 
@@ -67,6 +65,7 @@ docopy:
 	$(RM) lib
 	mkdir lib
 	-cp dev/OpenDSA/lib/* lib
+	cp -r dev/OpenDSA/lib/codemirror lib/codemirror
 	$(RM) lib/*-min.*
 	$(RM) tools
 	cp -r dev/OpenDSA/tools tools
@@ -97,14 +96,35 @@ nomin:
 	@cp lib/odsaStyle.css lib/odsaStyle-min.css
 	@cp lib/gradebook.css lib/gradebook-min.css
 
+S15: CS2114 ECE252 CPSC270 CSCI204 CS3114 RecurTutor CSCI115 uwosh-pl CS4104S15 CS5114S15
+
+Tutorial: min
+	python $(CONFIG_SCRIPT) config/Tutorial.json
+
+TDDD86_2014: min
+	python $(CONFIG_SCRIPT) config/TDDD86_2014.json
+
+RecurTutor: min
+	python $(CONFIG_SCRIPT) config/RecurTutor.json
+
+RecurTutor2: min
+	python $(CONFIG_SCRIPT) config/RecurTutor2.json
+
 CSCI102: min
 	python $(CONFIG_SCRIPT) config/CSCI102.json
+
+CSCI115: min
+	python $(CONFIG_SCRIPT) config/CSCI115S15.json
 
 CS150: min
 	python $(CONFIG_SCRIPT) config/CS150.json
 
+CPSC270: min
+	python $(CONFIG_SCRIPT) config/CPSC270S15Siochi.json
+	python $(CONFIG_SCRIPT) config/CPSC270S15Flores.json
+
 CSCI204: min
-	python $(CONFIG_SCRIPT) config/CSCI204.json
+	python $(CONFIG_SCRIPT) config/CSCI204S15.json
 
 CS208: min
 	python $(CONFIG_SCRIPT) config/CS208.json
@@ -120,6 +140,9 @@ CSE-A1141: min
 
 CS2114: min
 	python $(CONFIG_SCRIPT) config/CS2114.json
+
+CS2114gen: min
+	python $(CONFIG_SCRIPT) config/CS2114gen.json
 
 CS2401: min
 	python $(CONFIG_SCRIPT) config/CS2401.json
@@ -139,8 +162,17 @@ CS3114notes: min
 COP3530: min
 	python $(CONFIG_SCRIPT) config/COP3530.json
 
+CS4104S15: min
+	python $(CONFIG_SCRIPT) config/CS4104S15.json
+
 CS5114: min
 	python $(CONFIG_SCRIPT) config/CS5114.json
+
+CS5114S15: min
+	python $(CONFIG_SCRIPT) config/CS5114S15.json
+
+ECE252: min
+	python $(CONFIG_SCRIPT) config/ECE252S15.json
 
 OpenDSA: min
 	python $(CONFIG_SCRIPT) config/OpenDSA.json
@@ -148,8 +180,17 @@ OpenDSA: min
 test: min
 	python $(CONFIG_SCRIPT) config/test.json
 
+testfi: min
+	python $(CONFIG_SCRIPT) config/testfi.json
+
+testpt: min
+	python $(CONFIG_SCRIPT) config/testpt.json
+
 testcmap: min
 	python $(CONFIG_SCRIPT) config/testcmap.json
+
+uwosh-pl: min
+	python $(CONFIG_SCRIPT) config/uwosh-pl.json
 
 Dev: min
 	python $(CONFIG_SCRIPT) config/Dev.json
@@ -162,6 +203,9 @@ good: min
 
 invalid: min
 	python $(CONFIG_SCRIPT) config/invalid.json
+
+C2GEN: min
+	python $(CONFIG_SCRIPT) config/C2GEN.json
 
 allBooks: CS2114 CS2401 CS3114 OpenDSA Everything testcmap
 

@@ -92,13 +92,12 @@ $(document).ready(function () {
     function highlightPath(root, node, undo) {
       var n = node;
       var css;
-      if (undo) {
-        css = {"stroke-width": "1", "stroke": "black"};
-      } else {
-        css = {"stroke-width": "4", "stroke": "blue"};
-      }
       while (n !== root) {
-        n.edgeToParent().css(css);
+        if (undo) {
+          n.edgeToParent().removeClass("blueline");
+	} else {
+          n.edgeToParent().addClass("blueline");
+	}
         n = n.parent();
       }
     }
@@ -260,13 +259,13 @@ $(document).ready(function () {
       pseudo,
 
       // Load the configurations created by odsaAV.js
-      config = ODSA.UTILS.loadConfig(),
+      config = ODSA.UTILS.loadConfig({default_code: "none"}),
       interpret = config.interpreter,
       code = config.code,
       codeOptions = {after: {element: $(".instructions")}, visible: true},
 
       // Settings for the AV
-      settings = new JSAV.utils.Settings($(".jsavsettings")),
+      settings = config.getSettings(),
 
       // Create a JSAV instance
       av = new JSAV($(".avcontainer"));
@@ -275,11 +274,8 @@ $(document).ready(function () {
 
   // show a JSAV code instance only if the code is defined in the parameter
   // and the parameter value is not "none"
-  if (PARAMS["JXOP-code"] && code) {
+  if (code) {
     pseudo = av.code($.extend(codeOptions, code));
-  } else {
-    // create a dummy JSAV code instance
-    pseudo = av.code([], codeOptions);
   }
 
   var exercise = av.exercise(modelSolution, initialize,

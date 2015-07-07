@@ -1,25 +1,5 @@
 boolean SUCCESS = true;
 
-  // Visit nodes via inorder traversal
-/* *** ODSATag: inorder *** */
-void inorder(BinNode rt) {
-    if (rt == null) return null;
-    inorder(rt.left());
-    visit(rt);
-    inorder(rt.right());
-  }
-/* *** ODSAendTag: inorder *** */
-
-  // Visit nodes via postorder traversal
-/* *** ODSATag: postorder *** */
-void postorder(BinNode rt) {
-    if (rt == null) return null;
-    postorder(rt.left());
-    postorder(rt.right());
-    visit(rt);
-  }
-/* *** ODSAendTag: postorder *** */
-
 /* *** ODSATag: preorder *** */
 void preorder(BinNode rt) {
   if (rt == null) return; // Empty subtree - do nothing
@@ -29,46 +9,6 @@ void preorder(BinNode rt) {
 }
 /* *** ODSAendTag: preorder *** */
 
-/* *** ODSATag: pointer based preorder *** */
-void traverse(VarBinNode rt) {
-  if (rt == null) return;
-  if (rt.isLeaf())      
-    Visit.VisitLeafNode(((VarLeafNode)rt).value());
-  else {               
-    Visit.VisitIntlNode(((VarIntlNode)rt).value());
-    traverse(((VarIntlNode)rt).leftchild());
-    traverse(((VarIntlNode)rt).rightchild());
-  }
-}
-/* *** ODSAendTag: pointer based preorder *** */
-
-/* *** ODSATag: composite based preorder *** */
-/** Preorder traversal */
-  void traverse(VarBinNode rt) {
-    if (rt != null) { rt.traverse(); }
-  }
-/** Leaf node: Composite */
-  class VarLeafNode implements VarBinNode {
-   ...
-    boolean isLeaf() { return true; }
-   ...
-    void traverse() { Visit.VisitLeafNode(operand); }
-  }
-/** Internal node: Composite */
-  class VarIntlNode implements VarBinNode { 
-   ...
-     boolean isLeaf() { return false; }
-     VarBinNode leftchild() { return left; }
-     VarBinNode rightchild() { return right; }
-   ...
-     void traverse() {
-       Visit.VisitIntlNode(operator);
-       if (left != null) left.traverse();
-       if (right != null) right.traverse();
-     }
-   }
-/* *** ODSAendTag: composite based preorder *** */
-
 /* *** ODSATag: preorder2 *** */
 // This is a bad idea
 void preorder2(BinNode rt) {
@@ -77,6 +17,26 @@ void preorder2(BinNode rt) {
   if (rt.right() != null) preorder2(rt.right());
 }
 /* *** ODSAendTag: preorder2 *** */
+
+// Visit nodes via inorder traversal
+/* *** ODSATag: inorder *** */
+void inorder(BinNode rt) {
+  if (rt == null) return;
+  inorder(rt.left());
+  visit(rt);
+  inorder(rt.right());
+}
+/* *** ODSAendTag: inorder *** */
+
+// Visit nodes via postorder traversal
+/* *** ODSATag: postorder *** */
+void postorder(BinNode rt) {
+  if (rt == null) return;
+  postorder(rt.left());
+  postorder(rt.right());
+  visit(rt);
+}
+/* *** ODSAendTag: postorder *** */
 
 void visit(BinNode rt) {
   print(rt.element() + " ");
@@ -88,6 +48,19 @@ int count(BinNode rt) {
   return 1 + count(rt.left()) + count(rt.right());
 }
 /* *** ODSAendTag: count *** */
+
+// Assumes that equal values go to the left
+/* *** ODSATag: checkBST *** */
+boolean checkBST(BSTNode rt, Comparable low, Comparable high) {
+  if (rt == null) return true; // Empty subtree
+  Comparable rootval = rt.element();
+  if ((rootval.compareTo(low) <= 0) || (rootval.compareTo(high) > 0))
+    return false; // Out of range
+  if (!checkBST(rt.left(), low, rootval))
+    return false; // Left side failed
+  return checkBST(rt.right(), rootval, high);
+}
+/* *** ODSAendTag: checkBST *** */
 
 void setup() {
   BSTNode rt1 = null;
@@ -104,6 +77,10 @@ void setup() {
   preorder(rt1);
   println();
   preorder2(rt1);
+  println();
+  inorder(rt1);
+  println();
+  postorder(rt1);
   println();
 
   if (SUCCESS) {

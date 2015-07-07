@@ -6,6 +6,9 @@ Using OpenDSA to Create JSAV-based Proficiency Exercises
 Place-holder for best practices and advice on writing JSAV-based
 proficiency exercises.
 
+There is a tutorial for how to create a proficiency exercise at
+http://jsav.io/exercises/tutorial-exercise/.
+
 Comparisons for gradeable steps
 -------------------------------
 

@@ -43,14 +43,18 @@ function produces a number in the range 0 to :math:`M-1`.
 Binning
 -------
 
-Say we are given keys in the range 0 to 999, and have a hash table of size 10.
-In this case, a possible hash function might simply divide the key value by 100.
-Thus, all keys in the range 0 to 99 would hash to slot 0, keys 100 to 199 would
-hash to slot 1, and so on. In other words, this hash function "bins" the first
-100 keys to the first slot, the next 100 keys to the second slot, and so on.
+Say we are given keys in the range 0 to 999, and have a hash table of
+size 10.
+In this case, a possible hash function might simply divide the key
+value by 100.
+Thus, all keys in the range 0 to 99 would hash to slot 0, keys 100 to
+199 would hash to slot 1, and so on.
+In other words, this hash function "bins" the first 100 keys to the
+first slot, the next 100 keys to the second slot, and so on.
 
-:dfn:`Binning` in this way has the problem that it will cluster together keys
-if the distribution does not divide evenly on the high-order bits.
+:term:`Binning` in this way has the problem that it will cluster
+together keys if the distribution does not divide evenly on the
+high-order bits.
 In the above example, if more records have keys in the range 900-999
 (first digit 9) than have keys in the range 100-199
 (first digit 1),  more records will hash to slot 9 than to slot 1.
@@ -121,14 +125,14 @@ The Mid-Square Method
 ---------------------
 
 A good hash function to use with integer key values is the
-:dfn:`mid-square` method.
+:term:`mid-square method`.
 The mid-square method squares the key value, and then takes out the middle
 :math:`r` bits of the result, giving a value in the range
 0 to :math:`2^{r}-1`.
 This works well because most or all bits of the key value contribute to
 the result.
 For example, consider records whose keys are 4-digit numbers in base
-10, as shown in Figure :numref:`MidSquareFig`.
+10, as shown in Figure :num:`Figure #MidSquareFig`.
 The goal is to hash these key values to a table of size 100
 (i.e., a range of 0 to 99).
 This range is equivalent to two digits in base 10.
@@ -143,19 +147,26 @@ Thus, the result is not dominated by the distribution of the bottom
 digit or the top digit of the original key value.
 Of course, if the key values all tend to be small numbers,
 then their squares will only affect the low-order digits of the hash value.
-This image shows the long division process, and the relationship between
-the digits of the operator and the digits of the result.
 
 .. _MidSquareFig:
 
 .. odsafig:: Images/MidSquare.png
    :width: 70
    :align: center
-   :capalign: center
+   :capalign: justify
    :figwidth: 90%
    :alt: Mid-square method example
 
-   An example of the mid-square method.
+   An example of the mid-square method. This image shows the
+   traditional gradeschool long multiplication process. The value
+   being squared is 4567. The result of squaring is 20857489.
+   At the bottom, of the image, the value 4567 is show again, with
+   each digit at the bottom of a "V". The associated "V" is showing
+   the digits from the result that are being affected by each digit of
+   the input. That is, "4" affects the output digits 2, 0, 8, 5,
+   an 7. But it has no affect on the last 3 digits. The key point is
+   that the middle two digits of the result (5 and 7) are affected by
+   every digit of the input.
 
 Here is a little calculator for you to see how this works.
 Start with '4567' as an example.
@@ -184,7 +195,7 @@ If the hash table size :math:`M` is small compared to the
 resulting summations, then this hash function should do a
 good job of distributing strings evenly among the hash table slots,
 because it gives equal weight to all characters in the string.
-This is an example of the :dfn:`folding` approach to designing a hash
+This is an example of the :term:`folding method` to designing a hash
 function.
 Note that the order of the characters in the string has no effect on
 the result.

@@ -1,5 +1,6 @@
 var jsav, expr1, str, arr, ans, opt, strArr, ansArr, varArr, optArr, var1, var2, var3, rnd, lightArr, answerArr, guessArr;
 
+// Handle onClick events for Highlight Exercises.
 clickHandler = function(index, e)
 {
 	if(lightArr[index] === true)
@@ -21,6 +22,7 @@ clickHandler = function(index, e)
 	}
 }
 
+// Initialize Applicative Next-Step Exercises.
 init_app = function()
 {
 	varArr = ["a", "b", "c", "i", "j", "k", "w", "x", "y", "z"];
@@ -33,9 +35,9 @@ init_app = function()
 	strArr = ["(\u03BB"+var1+".("+var1+" "+var1+") (\u03BB"+var2+"."+var2+" "+var3+"))", 
 			  "(\u03BB"+var1+"."+var1+" (\u03BB"+var2+"."+var2+" "+var3+"))",
 			  "\u03BB"+var1+".(\u03BB"+var1+".("+var1+" "+var1+") "+var2+")"];
-	ansArr = ["(^"+var1+".("+var1+" "+var1+") "+var3+")",
-			  "(^"+var1+"."+var1+" "+var3+")",
-			  "^"+var1+".("+var2+" "+var2+")"];
+	ansArr = ["(\s*^"+var1+".\s*(\s*"+var1+"\s*"+var1+"\s*)\s*"+var3+"\s*)",
+			  "(\s*^"+var1+".\s*"+var1+"\s*"+var3+"\s*)",
+			  "^"+var1+".\s*(\s*"+var2+"\s*"+var2+"\s*)"];
 	rnd = Math.floor(Math.random()*3);
 	str = strArr[rnd];
 	ans = ansArr[rnd];
@@ -43,6 +45,7 @@ init_app = function()
 	expr1 = jsav.code(str, {lineNumbers: false});
 }
 
+// Initialize Normal Next-Step Exercises.
 init_norm = function()
 {
 	varArr = ["a", "b", "c", "i", "j", "k", "w", "x", "y", "z"];
@@ -55,9 +58,9 @@ init_norm = function()
 	strArr = ["(\u03BB"+var1+".("+var1+" "+var1+") (\u03BB"+var2+"."+var2+" "+var3+"))", 
 			  "(\u03BB"+var1+"."+var1+" (\u03BB"+var2+"."+var2+" "+var3+"))",
 			  "\u03BB"+var1+".(\u03BB"+var1+".("+var1+" "+var1+") "+var2+")"];
-	ansArr = ["((^"+var2+"."+var2+" "+var3+") (^"+var2+"."+var2+" "+var3+")",
-			  "(^"+var2+"."+var2+" "+var3+")",
-			  "^"+var1+".("+var2+" "+var2+")"];
+	ansArr = ["(\s*(^"+var2+".\s*"+var2+"\s*"+var3+"\s*)\s*(\s*^"+var2+".\s*"+var2+"\s*"+var3+"\s*)\s*)",
+			  "(\s*^"+var2+".\s*"+var2+"\s*"+var3+"\s*)",
+			  "^"+var1+".\s*(\s*"+var2+"\s*"+var2+"\s*)"];
 	rnd = Math.floor(Math.random()*3);
 	str = strArr[rnd];
 	ans = ansArr[rnd];
@@ -65,6 +68,7 @@ init_norm = function()
 	expr1 = jsav.code(str, {lineNumbers: false});
 }
 
+// Initialize Alpha Multiple Choice Exercises.
 init_alpha = function()
 {
 	varArr = ["a", "b", "c", "i", "j", "k", "w", "x", "y", "z"];
@@ -74,15 +78,27 @@ init_alpha = function()
 	var2 = varArr.splice(rnd, 1);
 	rnd = Math.floor(Math.random()*8);
 	var3 = varArr.splice(rnd, 1);
-	strArr = ["(\u03BB"+var1+".\u03BB"+var2+".("+var1+" "+var2+") "+var2+")"];
-	ansArr = ["(\u03BB"+var1+".\u03BB"+var3+".("+var1+" "+var3+") "+var2+")"];
+	strArr = ["(\u03BB"+var1+".\u03BB"+var2+".("+var1+" "+var2+") "+var2+")",
+			  "(\u03BB"+var1+"."+var1+" "+var1+")",
+			  "(\u03BB"+var1+"."+var1+"(\u03BB"+var1+".("+var1+" "+var1+")))"];
+	ansArr = ["(\u03BB"+var1+".\u03BB"+var3+".("+var1+" "+var3+") "+var2+")",
+			  "(\u03BB"+var2+"."+var2+" "+var1+")",
+			  "(\u03BB"+var2+"."+var2+"(\u03BB"+var1+".("+var1+" "+var1+")))"];
 	optArr = 	[
 					["(\u03BB"+var1+".\u03BB"+var2+".("+var3+" "+var2+") "+var3+")", 
 					 "(\u03BB"+var3+".\u03BB"+var2+".("+var3+" "+var2+") "+var2+")", 
 					 "(\u03BB"+var1+".\u03BB"+var2+".("+var1+" "+var2+") "+var3+")",
-					 "(\u03BB"+var1+".\u03BB"+var3+".("+var1+" "+var3+") "+var2+")"]
+					 "(\u03BB"+var1+".\u03BB"+var3+".("+var1+" "+var3+") "+var2+")"],
+					["(\u03BB"+var1+"."+var2+" "+var1+")",
+					 "(\u03BB"+var1+"."+var1+" "+var2+")",
+					 "(\u03BB"+var2+"."+var1+" "+var1+")",
+					 "(\u03BB"+var2+"."+var2+" "+var1+")"],
+					["(\u03BB"+var1+"."+var1+"(\u03BB"+var2+".("+var2+" "+var2+")))", 
+					 "(\u03BB"+var1+"."+var1+"(\u03BB"+var1+".("+var2+" "+var2+")))", 
+					 "(\u03BB"+var1+"."+var1+"(\u03BB"+var2+".("+var1+" "+var1+")))",
+					 "(\u03BB"+var2+"."+var2+"(\u03BB"+var1+".("+var1+" "+var1+")))"]
 				];
-	rnd = Math.floor(Math.random());
+	rnd = Math.floor(Math.random()*3);
 	str = strArr[rnd];
 	ans = ansArr[rnd];
 	opt = optArr[rnd];
@@ -90,6 +106,59 @@ init_alpha = function()
 	expr1 = jsav.code(str, {lineNumbers: false});
 }
 
+// Initialize Bound Variable Exercises.
+init_bound_highlight = function()
+{
+	jsav = new JSAV("jsav", {"animationMode": "none"});
+	varArr = ["a", "b", "c", "i", "j", "k", "w", "x", "y", "z"];
+	rnd = Math.floor(Math.random()*10);
+	var1 = varArr.splice(rnd, 1);
+	rnd = Math.floor(Math.random()*9);
+	var2 = varArr.splice(rnd, 1);
+	rnd = Math.floor(Math.random()*8);
+	var3 = varArr.splice(rnd, 1);
+	strArr = [["(", "\u03BB"+var1+".", "\u03BB"+var2+".", "(", var1, var2, ")", var2, ")"]];
+	ansArr = [[4,5]];
+	rnd = Math.floor(Math.random());
+	arr = jsav.ds.array(strArr[rnd]);
+	answerArr = ansArr[rnd];
+	ans = answerArr;
+	lightArr = [];
+	guessArr = [];
+	for(i = 0; i < 9; i++)
+	{
+		lightArr[i] = false;
+	}
+	arr.click(clickHandler);
+}
+
+// Initialize Free Variable Exercises.
+init_free_highlight = function()
+{
+	jsav = new JSAV("jsav", {"animationMode": "none"});
+	varArr = ["a", "b", "c", "i", "j", "k", "w", "x", "y", "z"];
+	rnd = Math.floor(Math.random()*10);
+	var1 = varArr.splice(rnd, 1);
+	rnd = Math.floor(Math.random()*9);
+	var2 = varArr.splice(rnd, 1);
+	rnd = Math.floor(Math.random()*8);
+	var3 = varArr.splice(rnd, 1);
+	strArr = [["(", "\u03BB"+var1+".", "\u03BB"+var2+".", "(", var1, var2, ")", var2, ")"]];
+	ansArr = [[7]];
+	rnd = Math.floor(Math.random());
+	arr = jsav.ds.array(strArr[rnd]);
+	answerArr = ansArr[rnd];
+	ans = answerArr;
+	lightArr = [];
+	guessArr = [];
+	for(i = 0; i < 9; i++)
+	{
+		lightArr[i] = false;
+	}
+	arr.click(clickHandler);
+}
+
+// Initialize Applicative Highlight Exercises.
 init_app_highlight = function()
 {
 	jsav = new JSAV("jsav", {"animationMode": "none"});
@@ -106,7 +175,7 @@ init_app_highlight = function()
 	ansArr = [[9,8],
 			  [6,5],
 			  [7,4,5]];
-	rnd = Math.floor(Math.random());
+	rnd = Math.floor(Math.random()*3);
 	arr = jsav.ds.array(strArr[rnd]);
 	answerArr = ansArr[rnd];
 	ans = answerArr;
@@ -119,6 +188,7 @@ init_app_highlight = function()
 	arr.click(clickHandler);
 }
 
+// Initialize Normal Highlight Exercises.
 init_norm_highlight = function()
 {
 	jsav = new JSAV("jsav", {"animationMode": "none"});
@@ -135,7 +205,7 @@ init_norm_highlight = function()
 	ansArr = [[6,7,8,9,10,3,4],
 			  [3,4,5,6,7,2],
 			  [7,4,5]];
-	rnd = Math.floor(Math.random());
+	rnd = Math.floor(Math.random()*3);
 	arr = jsav.ds.array(strArr[rnd]);
 	answerArr = ansArr[rnd];
 	ans = answerArr;
@@ -148,6 +218,8 @@ init_norm_highlight = function()
 	arr.click(clickHandler);
 }
 
+
+// Initialize Alpha Highlight Exercises.
 init_alpha_highlight = function()
 {
 	jsav = new JSAV("jsav", {"animationMode": "none"});
@@ -158,9 +230,17 @@ init_alpha_highlight = function()
 	var2 = varArr.splice(rnd, 1);
 	rnd = Math.floor(Math.random()*8);
 	var3 = varArr.splice(rnd, 1);
-	strArr = [["(", "\u03BB"+var1+".", "\u03BB"+var2+".", "(", var1, var2, ")", var2, ")"]];
-	ansArr = [[2,5]];
-	rnd = Math.floor(Math.random());
+	strArr = [
+				["(", "\u03BB"+var1+".", "\u03BB"+var2+".", "(", var1, var2, ")", var2, ")"],
+				["(", "\u03BB"+var1+".", var1, var1, ")"],
+				["(", "\u03BB"+var1+".", var1, "(", "\u03BB"+var1+".", "(", var1, var1, ")"]
+			 ];
+	ansArr = [
+				[2,5],
+				[1,2],
+				[1,2]
+			 ];
+	rnd = Math.floor(Math.random()*3);
 	arr = jsav.ds.array(strArr[rnd]);
 	answerArr = ansArr[rnd];
 	ans = answerArr;
@@ -173,6 +253,8 @@ init_alpha_highlight = function()
 	arr.click(clickHandler);
 }
 
+// Validate the answer for Alpha Highlight Exercises.
+// Now also validates the answer for Free/Bound Variable Exercises.
 validate_alpha_Answer = function()
 {
 	if(answerArr.length == guessArr.length)
@@ -202,6 +284,7 @@ validate_alpha_Answer = function()
 	}
 }
 
+// Validate the answer for Beta Highlight Exercises.
 validate_beta_Answer = function()
 {
 	if(answerArr.length == guessArr.length)
@@ -228,12 +311,15 @@ validate_beta_Answer = function()
 	}
 }
 
+
+// Generate incorrect answers for Alpha Choice Exercise.
 alphaChoice = function()
 {
 	rnd = Math.floor(Math.random()*opt.length);
 	return opt.splice(rnd,1);
 }
 
+// Return the answer for the current exercise.
 genAnswer = function()
 {
 	return ans;

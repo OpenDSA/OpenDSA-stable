@@ -55,7 +55,7 @@ $(document).ready(function () {
     stack = av.ds.stack(insertData, {relativeTo: bh, left: -30, anchor: "left top", myAnchor: "right top", top: 0, xtransition: 5, ytransition: -3});
     stack.first().highlight();
     stack.layout();
-    insertLabel = av.label("Insert values",
+    insertLabel = av.label(interpret("av_insert_values"),
                     {relativeTo: stack, top: 15, anchor: "center bottom"});
     av.displayInit();
     $.fx.off = false;
@@ -150,12 +150,10 @@ $(document).ready(function () {
       interpret = config.interpreter,
       code = config.code,
       codeOptions = {after: {element: $(".instructions")}, visible: true},
-
-      // Settings for the AV
-      settings = new JSAV.utils.Settings($(".jsavsettings")),
+      settings = config.getSettings();     // Settings for the AV
 
       // Create a JSAV instance
-      av = new JSAV($('.avcontainer'), {settings: settings});
+  var av = new JSAV($('.avcontainer'), {settings: settings});
 
   av.recorded();
 

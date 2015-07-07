@@ -1,45 +1,47 @@
+/*global ODSA */
 "use strict";
-/*global alert: true, ODSA, console */
-
-(function ($) {
-  var av;
-  var code;
+// Written by Mohammed Farghally and Cliff Shaffer
+// Quick Sort Partition Analysis
+$(document).ready(function () {
+  var av_name = "QuickSortPartitionAnalysisCON";
+  // Load the config object with interpreter and code created by odsaUtils.js
+  var config = ODSA.UTILS.loadConfig({"av_name": av_name}),
+      interpret = config.interpreter,       // get the interpreter
+      code = config.code;                   // get the code object
+  var av = new JSAV(av_name);
+  var pseudo = av.code(code).hide();
   var arr;
   var arr_values = [];
   var pointer1, pointer2, pointer3;
   var left_moves = 0, right_moves = 0;
   var lmoves, rmoves;
-  av = new JSAV("QuickSortPartitionAnalysisCON"); 
-  av.umsg("To analyze Quicksort, we first analyze the findpivot and partition functions when operating on a subarray of length $k$");
+  
+  // Slide 1
+  av.umsg(interpret("Slide 1"));
   av.displayInit();
-  av.umsg("Clearly, findpivot takes constant time for any $k$. Here we have $k = 9$");
-  code = av.code({url: "../../../SourceCode/Processing/Sorting/Quicksort.pde",
-                    lineNumbers: true,
-                    startAfter: "/* *** ODSATag: findpivot *** */",
-                    endBefore: "/* *** ODSAendTag: findpivot *** */", top: 200, left: 200});
-  for (var i = 0;i < 9;i++){
+  
+  // Slide 2
+  av.umsg(interpret("Slide 2"));
+  for (var i = 0; i < 9; i++) {
     arr_values[i] = " ";
   }
-  arr = av.ds.array(arr_values, {"left":150, "top":30,"indexed":true});
-  code.css(2,{"background-color":"#00CCFF"});
+  arr = av.ds.array(arr_values, {"left": 150, "top": 30, "indexed": true});
   pointer1 = av.pointer("i", arr.index(0));
-  pointer2 = av.pointer("j", arr.index(8));	
+  pointer2 = av.pointer("j", arr.index(8));
   pointer3 = av.pointer("pivot", arr.index(4));
-  av.step();		
-  code.hide();
+  av.step();
+
+  // Slide 3 
+  pseudo.show();
   pointer1.hide();
   pointer2.hide();
   pointer3.hide();
   av.umsg("Function partition contains an outer while loop with two nested while loops");
-  code = av.code({url: "../../../SourceCode/Processing/Sorting/Quicksort.pde",
-                    lineNumbers: true,
-                    startAfter: "/* *** ODSATag: partition *** */",
-                    endBefore: "/* *** ODSAendTag: partition *** */", top: 200, left: 80});
-  code.css(2,{"background-color":"#99FF66"});
-  code.css(3,{"background-color":"#00CCFF"});
-  code.css(4,{"background-color":"#00CCFF"});
+  pseudo.highlight("loops");
   av.step();
-  av.umsg("The total cost of the partition operation is constrained by how far left and right can move inwards");
+  
+  // Slide 4
+  av.umsg(interpret("Slide 4"));
   pointer1 = av.pointer("left", arr.index(0));
   pointer2 = av.pointer("right", arr.index(7),
                              { anchor: "center bottom",
@@ -57,30 +59,42 @@
                                arrowAnchor: "center bottom"
                              });
   av.step();
-  av.umsg("The swap operation in the body of the outer while loop guarantees the movement of left and right at least one step each");
-  code.css(3,{"background-color":"white"});
-  code.css(4,{"background-color":"white"});
-  code.css(5,{"background-color":"#00CCFF"});
+  
+  // Slide 5
+  av.umsg(interpret("Slide 5"));
+  pseudo.unhighlight("loop2");
+  pseudo.unhighlight("loop3");
+  pseudo.highlight("if");
   av.step();
-  av.umsg("Thus, the maximum number of times swap can be executed is $\\frac{s-1}{2}$. In this case, left and right will move at most $\\frac{s-1}{2}$ steps each for a total of $s-1$ steps");
+  
+  // Slide 6
+  av.umsg(interpret("Slide 6"));
   av.step();
-  av.umsg("The first inner while loop can be executed at most $s-1$ times in which case left will end up at the pivot and the outer while loop will end");
+  
+  // Slide 7
+  av.umsg(interpret("Slide 7"));
   pointer1.target(arr.index(8));
-  code.css(5,{"background-color":"white"});
-  code.css(3,{"background-color":"#00CCFF"});
+  pseudo.unhighlight("if");
+  pseudo.highlight("loop2");
   av.step();
-  av.umsg("The second inner while loop can be executed at most $s-1$ times in which case right will end up at array position $-1$ and the outer while loop will end");
+  
+  // Slide 8
+  av.umsg(interpret("Slide 8"));
   pointer1.target(arr.index(0));
-  var a = av.ds.array(["-1"], {"left":103, "top":30,"indexed":false});
+  var a = av.ds.array(["-1"], {"left": 103, "top": 30, "indexed": false});
   pointer2.target(a.index(0));
-  code.css(3,{"background-color":"white"});
-  code.css(4,{"background-color":"#00CCFF"});
+  pseudo.unhighlight("loop2");
+  pseudo.highlight("loop3");
   av.step();
-  av.umsg("Accordingly, the outer while loop along with its two inner loops will move left and right a total of $s-1$ steps");
-  code.css(3,{"background-color":"#00CCFF"});
+  
+  // Slide 9
+  av.umsg(interpret("Slide 9"));
+  pseudo.highlight("loop2");
   a.hide();
   pointer2.target(arr.index(7));
   av.step();
-  av.umsg("Thus, the running time of the partition function is $\\theta(s)$, where $s$ is the size of the subarray");
+  
+  // Slide 10
+  av.umsg(interpret("Slide 10"));
   av.recorded();
-}(jQuery));
+});

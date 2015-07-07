@@ -52,6 +52,9 @@ Glossary
       Two :term:`nodes <node>` of a :term:`tree` or two
       :term:`vertices <vertex>` of a :term:`graph` are said to be
       adjacent if they have an :term:`edge` connecting them.
+      If the edge is directed from :math:`a` to :math:`b`,
+      then we say that :math:`a` is adjacent to :math:`b`,
+      and :math:`b` is adjacent from :math:`a`. 
 
    adjacency list
       An implementation for a :term:`graph` that uses an (array-based)
@@ -175,6 +178,10 @@ Glossary
       We frequently use the term :term:`algorithm analysis` to mean
       the same thing.
 
+   attribute
+      In :term:`object-oriented programming <object-oriented programming paradigm>`,
+      a synonym for :term:`data member`.
+
    average case
       In algorithm analysis, the average of the costs for all problem
       instances of a given input size :math:`n`. If not all problem
@@ -271,8 +278,8 @@ Glossary
       data structure, and finding a specified data item.
 
    best case
-      In algorithm analysis, the problem instance from among all
-      problem instances for a given input size :math:`n` that has
+      In algorithm analysis, the :term:`problem instance` from among
+      all problem instances for a given input size :math:`n` that has
       least cost. Note that the best case is **not** when :math:`n` is
       small, since we are referring to the best from a class of inputs
       (i.e, those inputs of size :math:`n`).
@@ -336,6 +343,20 @@ Glossary
       if it is "0", or a right branch if it is "1".
       Examples include the :term:`Huffman coding tree` and the
       :term:`Bintree`.
+
+   binning
+      In :term:`hashing`, binning is a type of :term:`hash function`.
+      Say we are given keys in the range 0 to 999, and have a hash
+      table of size 10.
+      In this case, a possible hash function might simply divide the
+      key value by 100.
+      Thus, all keys in the range 0 to 99 would hash to slot 0, keys
+      100 to 199 would hash to slot 1, and so on.
+      In other words, this hash function "bins" the first 100 keys to
+      the first slot, the next 100 keys to the second slot, and so
+      on.
+      This approach tends to make the hash function dependent on the
+      distribution of the high-order bits of the keys.
 
    bintree
       A :term:`spatial data structure` in the form of binary
@@ -420,8 +441,26 @@ Glossary
       Even an optimized version will normally run slower than
       :term:`insertion sort`, so it has little to recommend it.
 
+   bucket
+      In :term:`bucket hashing`, a bucket is a sequence of
+      :term:`slots <slot>` in the :term:`hash table` that are grouped
+      together.
+
+   bucket hashing
+      A method of :term:`hashing` where multiple :term:`slots <slot>`
+      of the :term:`hash table` are grouped together to form a
+      :term:`bucket`.
+      The :term:`hash function` then either hashes to some bucket, or
+      else it hashes to a :term:`home slot` in the normal way, but
+      this home slot is part of some bucket.
+      :term:`Collision resolution <collision resolution>` is handled
+      first by attempting to find a free position within the same
+      bucket as the home slot.
+      If the bucket if full, then the record is placed in an
+      :term:`overflow bucket`.
+
    bucket sort
-      A variation on the :term:`binsort`, where each bin is associated
+      A variation on the :term:`Binsort`, where each bin is associated
       with a range of :term:`key` values.
       This will require some method of
       sorting the records placed into each bin.
@@ -510,7 +549,9 @@ Glossary
 
    class
       In the :term:`object-oriented programming paradigm`
-      an ADT and its implementation together make up a class. 
+      an ADT and its implementation together make up a class.
+      An instantiation of a class within a program is termed an
+      :term:`object`.
 
    class hierarchy
       In :term:`object-oriented programming <object-oriented programming paradigm>`,
@@ -545,17 +586,6 @@ Glossary
       the :term:`hash table`.
       This is in contrast to an :term:`open hash system`.
 
-   collision
-      In a :term:`hash system`, this refers to the case where two
-      search :term:`keys <key>` are mapped by the
-      :term:`hash function` to the same 
-      slot in the :term:`hash table`.
-      This can happen on insertion or search when another record has
-      already been hashed to that slot.
-      In this case, a :term:`closed hash system` will require a
-      process known as :term:`collision resolution` to find the
-      location of the desired record.
-
    cluster
       In :term:`file processing`, a collection of physically adjacent
       :term:`sectors <sector>` that define the smallest allowed
@@ -569,6 +599,17 @@ Glossary
       The disadvantage of large cluster size is that it increases
       :term:`internal fragmentation` since any space not actually
       used by the file in the last cluster is wasted.
+
+   collision
+      In a :term:`hash system`, this refers to the case where two
+      search :term:`keys <key>` are mapped by the
+      :term:`hash function` to the same 
+      slot in the :term:`hash table`.
+      This can happen on insertion or search when another record has
+      already been hashed to that slot.
+      In this case, a :term:`closed hash system` will require a
+      process known as :term:`collision resolution` to find the
+      location of the desired record.
 
    collision resolution
       In a :term:`closed hash system`, this is the process of finding
@@ -670,7 +711,7 @@ Glossary
       science and mathematics that focuses on classifying
       computational problems according to their inherent difficulty,
       and relating those classes to each other.
-      An example is the study of :term:`NP Complete` problems.
+      An example is the study of :term:`NP-Complete` problems.
 
    connected component
       In an :term:`undirected graph`, a :term:`subset` of the
@@ -736,12 +777,18 @@ Glossary
    DAG
       Abbreviation for :term:`directed acyclic graph`.
 
+   data field
+      In :term:`object-oriented programming <object-oriented programming paradigm>`,
+      a synonym for :term:`data member`.
+
    data item
       A piece of information or a record whose value is drawn from a type.
 
    data member
       The variables that together define the space required by a data
       item are referred to as data members.
+      Some of the commonly used synonyms include :term:`data field`,
+      :term:`attribute`, and :term:`instance variable`.
 
    data structure
       The implementation for an :term:`ADT`.
@@ -760,11 +807,26 @@ Glossary
       such as the proof that sorting requires
       :math:`\Omega(n \log n)` comparisons in the worst case.
 
+   decision problem
+      A problem whose output is either "YES" or "NO".
+
    degree
       In :term:`graph` terminology, the degree for a :term:`vertex` is
       its number of :term:`neighbors <neighbor>`.
+      In a :term:`directed graph`, the :term:`in degree` is the number
+      of edges directed into the vertex, and the :term:`out degree` is
+      the number of edges directed out of the vertex.
       In :term:`tree` terminology, the degree for a :term:`node` is
       its number of :term:`children <child>`.
+
+   delegation mental model for recursion
+      A way of thinking about the process of :term:`recursion`.
+      The recursive function "delegates" most of the work when it
+      makes the recursive call.
+      The advantage of the delegation mental model for recursion is
+      that you don't need to think about how the delegated task is
+      performed.
+      It just gets done.
 
    dense graph
       A :term:`graph` where the actual number of :term:`edges <edge>`
@@ -800,6 +862,11 @@ Glossary
       Another way to say it is: The
       :term:`children <child>` of :math:`A`, their children, and so
       on.
+
+   deserialization
+      The process of returning a :term:`serialized <serialization>`
+      representation for a data structure back to its original
+      in-memory form.
 
    design pattern
       An a bstractions for describing the design of programs |---|
@@ -856,6 +923,11 @@ Glossary
       Abbreviated as :term:`DAG`.
       Note that a DAG is not necessarily a :term:`tree` since a given
       :term:`node` might have multiple :term:`parents <parent>`.
+
+   directed edge
+      An :term:`edge` that goes from :term:`vertex` to another.
+      In contrast, an :term:`undirected edge` simply links to vertices
+      without a direction.
 
    directed graph
       :to-term: directed acyclic graph :label: types
@@ -974,6 +1046,15 @@ Glossary
       For this idea to work, the next block of data to be processed
       must be known or predicted with reasonable accuracy.
 
+   double hashing
+      A :term:`collision resolution` method. A second hash
+      function is used to generate a value :math:`c` on the key.
+      That value is then used by this key as the step size in
+      :term:`linear probing by steps`.
+      Since different keys use different step sizes (as generated by
+      the second hash function), this process avoids the clustering
+      caused by standard linear probing by steps.
+
    doubly linked list
       A :term:`linked list` implementation variant where each list
       node contains access pointers to both the previous element and
@@ -981,6 +1062,14 @@ Glossary
 
    DSA
       Abbreviation for Data Structures and Algorithms.
+
+   dynamic
+      Something that is changes (in contrast to :term:`static`).
+      In computer programming, dynamic normally refers to something
+      that happens at run time.
+      For example, run-time analysis is analysis of the program's
+      behavior, as opposed to its (static) text or structure
+      Dynamic binding or dynamic memory allocation occurs at run time.
 
    dynamic allocation
       The act of creating an object from :term:`free store`.
@@ -1230,9 +1319,9 @@ Glossary
       :term:`all-pairs shortest paths problem`.
       It uses the :term:`dynamic programming` algorithmic technique,
       and runs in :math:`\Theta(n^3)` time.
-      As with any dynamic programming algorithm, the key issue is to
-      avoid duplicating work through proper bookkeeping on the
-      solution space.
+      As with any :term:`dynamic programming` algorithm,
+      the key issue is to avoid duplicating work by using proper
+      bookkeeping on the algorithm's progress through the solution space.
       The basic idea is to first find all the direct edge costs, then
       improving those costs by allowing paths through :term:`vertex`
       0, then the cheapest paths involving paths going through
@@ -1272,6 +1361,18 @@ Glossary
       Flyweights can also used to advantage in the implementation of the
       :term:`bintree` and :term:`PR quadtree`.
 
+   folding method
+      In :term:`hashing`, an approach to implementing a
+      :term:`hash function`.
+      Most typically used when the key is a string, the folding method
+      breaks the string into pieces (perhaps each letter is a piece,
+      or a small series of letters is a piece), converts the letter(s)
+      to an integer value (typically by using its underlying encoding
+      value), and summing up the pieces.
+
+   forest
+      A collection of one or more :term:`trees <tree>`.
+
    free block
       A block of unused space in a :term:`memory pool`.
 
@@ -1304,7 +1405,7 @@ Glossary
       :term:`free store`.
 
    free tree
-      A connected, undirected graph with no simple cycles.
+      A connected, :term:`undirected graph` with no simple cycles.
       An equivalent definition is that a free tree is connected and
       has :math:`|\mathbf{V}| - 1` edges.
 
@@ -1405,6 +1506,7 @@ Glossary
       input :math:`I`?
       This problem has been proved impossible to solve in the general
       case.
+      Thus, it is an example of an :term:`unsolveable problem`.
 
    handle
       When using a :term:`memory manager` to store data, the
@@ -1416,6 +1518,17 @@ Glossary
       client.
       This is typically the location and length of the message within
       the :term:`memory pool`.
+
+   hard algorithm
+      "Hard" is traditionally defined in relation to running time, and
+      a "hard" algorithm is defined to be an algorithm with exponential
+      running time.
+
+   hard problem
+      "Hard" is traditionally defined in relation to running time, and
+      a "hard" problem is defined to be one whose best known algorithm
+      requires exponential running time.
+
 
    harmonic series
       The sum of reciprocals from 1 to :math:`n` is called the
@@ -1511,6 +1624,14 @@ Glossary
       expected (by the agent employing the heuristic) to provide a
       reasonably efficient solution.
 
+   home position
+      In :term:`hashing`, a synonym for :term:`home slot`.
+
+   home slot
+      In :term:`hashing`, this is the :term:`slot` in the
+      :term:`hash table` determined for a given key by the
+      :term:`hash function`.
+
    homogeneity
       In a :term:`container` class, this is the property that all
       objects stored in the container are of the same class.
@@ -1541,6 +1662,10 @@ Glossary
    Huffman tree
       Shorter form of the term :term:`Huffman coding tree`.
 
+   in degree
+      In :term:`graph` terminology, the in degree for a :term:`vertex` is
+      the number of edges directed into the vertex.
+
    inode
       Short for "index node".
       In UNIX-style file systems, specific disk :term:`sectors <sector>`
@@ -1560,7 +1685,10 @@ Glossary
       :term:`object space decomposition`.
 
    incident
-      In :term:`graph` terminology, a synonym for :term:`adjacent`.
+      In :term:`graph` terminology,
+      an edge connecting two vertices is said to be incident with
+      those vertices.
+      The two vertices are said to be :term:`adjacent`.
 
    index file
       A file whose records consist of
@@ -1621,10 +1749,9 @@ Glossary
       This best-case cost makes it useful when we have reason to
       expect the input to be nearly sorted.
 
-   instance
-      A specific selection of values for the parameters to a problem.
-      In other words, a specific set of inputs to a problem.
-
+   instance variable
+      In :term:`object-oriented programming <object-oriented programming paradigm>`,
+      a synonym for :term:`data member`.
 
    internal fragmentation
       A condition that occurs when more than :math:`m` bytes
@@ -1701,6 +1828,11 @@ Glossary
    K-ary tree
       A type of :term:`full tree` where every internal node has
       exactly :math:`K` :term:`children <child>`.
+
+   k-path
+      In :term:`Floyd's algorithm`, a k-path is a path between two
+      vertices :math:`i` and :math:`j` that can only go through
+      vertices with an index value less than or equal to :math:`k`.
 
    kd tree
       A :term:`spatial data structure` that uses a binary tree to
@@ -1841,6 +1973,31 @@ Glossary
    linear order
       Another term for :term:`total order`.
 
+   linear probing
+      In :term:`hashing`, this is the simplest
+      :term:`collision resolution` method.
+      Term :math:`i` of the :term:`probe sequence` is simply
+      :math:`i`, meaning that collision resolution works by moving
+      sequentially through the hash table from the :term:`home slot`.
+      While simple, it is also inefficient, since it quickly leads to
+      certain free :term:`slots <slot>` in the hash table having
+      higher probability of being selected during insertion or
+      search.
+
+   linear probing by steps
+      In :term:`hashing`, this :term:`collision resolution` method is
+      a variation on simple :term:`linear probing`.
+      Some constant :math:`c` is defined such that
+      term :math:`i` of the :term:`probe sequence` is
+      :math:`ci`.
+      This  means that collision resolution works by moving
+      sequentially through the hash table from the :term:`home slot`
+      in steps of size :math:`c`.
+      While not much improvement on linear probing, it forms the basis
+      of another collision resolution method called
+      :term:`double hashing`, where each key uses a value for
+      :math:`c` defined by a second :term:`hash function`.
+
    linear search
       Another name for :term:`sequential search`.
 
@@ -1866,6 +2023,11 @@ Glossary
       It does not refer to the relationship
       between :term:`key` values for the list elements (that is,
       "ordered" does not mean "sorted").
+
+   load factor
+      In :term:`hashing` this is the fraction of the :term:`hash
+      table` :term:`slots <slot>` that contain a record.
+      Hash systems usually try to keep the load factor below 50%.
 
    locality of reference
       The concept that accesses within a collection of records is not
@@ -2065,6 +2227,17 @@ Glossary
    MST
       Abbreviation for :term:`minimal-cost spanning tree`.
 
+   mid-square method
+      In :term:`hashing`, an approach to implementing a
+      :term:`hash function`.
+      The key value is squared, and some number of bits from the
+      middle of the resulting value are extracted as the hash code.
+      Some care must be taken to extract bits that tend to actually be
+      in the middle of the resulting value, which requires some
+      understanding of the typical key values.
+      When done correctly, this has the advantage of having the hash
+      code be affected by all bits of the key
+
    min heap
       A :term:`heap` where every :term:`node` has a :term:`key` value
       less than its :term:`children <child>`.
@@ -2121,7 +2294,7 @@ Glossary
       conjunction with a :term:`multi-dimensional search structure`.
       Most typically, a :term:`spatial` search key representing a
       position in multi-dimensional (2 or 3 dimensions) space.
-      But a multidimensional key could be used to organize data within
+      But a multi-dimensional key could be used to organize data within
       non-spatial dimensions, such as temperature and time.
 
    multi-dimensional search structure
@@ -2157,23 +2330,51 @@ Glossary
       In set notation, a relation that is :term:`reflexive`,
       :term:`antisymmetric`, and :term:`transitive`.
 
-   NP Complete
+   NP
+      An acronym for
+      :term:`non-deterministic polynomial <non-deterministic polynomial time algorithm>`.
+
+   NP-Complete
       A class of problems that are related to each other in this way:
       If ever one such problem is proved to be solvable in
       polynomial time, or proved to require exponential time,
-      then all other NP Complete problems will cost likewise.
+      then all other NP-Complete problems will cost likewise.
       Since so many real-world problems have been proved to be
-      NP Complete, it would be extremely useful to determine if they
+      NP-Complete, it would be extremely useful to determine if they
       have polynomial or exponential cost. But so far, nobody has
       been able to determine the truth of the situation.
+      A more technical definition is that a problem is NP-Complete if
+      it is in NP and is NP-hard.
+
+   NP-hard
+      A problem that is "as hard as" any other problem in :term:`NP`.
+      That is, Problem X is NP-hard if any algorithm in NP can be
+      :term:`reduced <reduction>` to X in polynomial time.
+
+   non-deterministic algorithm
+      An algorithm that may operate using a
+      :term:`non-deterministic choice` operation.
+      
+   non-deterministic choice
+      An operation that captures the concept of nondeterminism.
+      A nondeterministic choice can be viewed as either
+      "correctly guessing" between a set of choices, or implementing
+      each of the choices in parallel.
+      In the parallel view, the nondeterminism was successful if at
+      least one of the choices leads to a correct answer.
+
+   non-deterministic polynomial time algorithm
+      An algorithm that runs in polynomial time, and which may
+      (or might not) use :term:`non-deterministic choice`.
 
    object
       An instance of a class, that is, something that is created and
       takes up storage during the execution of a computer program.
       In the :term:`object-oriented programming paradigm`, objects
       are the basic units of operation.
-      Not only do they have state (variables), but they
-      know how to perform certain actions (:term:`methods <method>`).
+      Objects have state in the form of :term:`data members <data member>`,
+      and they know how to perform certain actions
+      (:term:`methods <method>`).
 
    object-oriented programming paradigm
       An approach to problem-solving where all computations are
@@ -2194,6 +2395,9 @@ Glossary
 
    one-way list
       A synonym for a :term:`singly linked list`.
+
+   open addressing
+      A synonym for :term:`closed hashing <closed hash system>`.
 
    open hash system
       A :term:`hash system` where multiple records might be associated
@@ -2216,6 +2420,10 @@ Glossary
       optimum against which to compare the performance for a
       :term:`self-organizing list heuristic`.
 
+   out degree
+      In :term:`graph` terminology, the out degree for a :term:`vertex` is
+      the number of edges directed out of the vertex.
+
    overflow
       The condition where the amount of data stored in an entity has
       exceeded its capacity.
@@ -2223,6 +2431,15 @@ Glossary
       number of records.
       If a record is attempted to be inserted into a node that is
       full, then something has to be done to handle this case.
+
+   overflow bucket
+      In :term:`bucket hashing`, this is the :term:`bucket` into which
+      a record is placed if the bucket containing the record's
+      :term:`home slot` is full.
+      The overflow bucket is logically considered to have infinite
+      capacity, though in practice search and insert will become
+      relatively expensive if many records are stored in the overflow
+      bucket.
 
    overhead
       All information stored by a data structure aside from the actual
@@ -2299,6 +2516,16 @@ Glossary
       forms a path of length :math:`n-1` if there exist edges from
       :math:`v_i` to :math:`v_{i+1}` for :math:`1 \leq i < n`.
 
+   path compression
+      When implementing the :term:`UNION/FIND` algorithm, path
+      compression is a local optimization step that can be performed
+      during the FIND step.
+      Once the root of the tree for the current object has been found,
+      the path to the root can be traced a second time, with all
+      objects in the tree made to point directly to the root.
+      This reduces the depth of the tree from typically
+      :math:`\Theta(\log n)` to nearly constant.
+
    peripheral storage
       Any storage device that is not part of the core processing
       of the computer (that is, :term:`RAM`).
@@ -2338,6 +2565,16 @@ Glossary
       comprise the storage space for the drive.
       Typically, each surface (top and bottom) of each platter stores
       data, and each surface has its own :term:`I/O head`.
+
+   point quadtree
+      A `term:`spatial data structure` for storing point data.
+      It is similar to a :term:`PR quadtree` in that it (in two
+      dimensions) splits the world into four parts.
+      However, it splits using an :term:`object space decomposition`.
+      That is, quadrant containing the point is split into four parts
+      at the point.
+      It is similar to the :term:`kd tree` which splits alternately in
+      each dimension, except that it splits in all dimensions at once.
 
    pop
       A specialized term used to indicate removing an :term:`element`
@@ -2431,6 +2668,14 @@ Glossary
       with the only difference being the calculation done to update
       the best-known distance.
 
+   primary clustering
+      In :term:`hashing`, the tendency in certain
+      :term:`collision resolution`
+      methods to create clustering in sections of the hash table.
+      The classic example is :term:`linear probing`.
+      This tends to happen when a group of keys follow the same
+      :term`probe sequence` during collision resolution.
+
    priority
       A quantity assigned to each of a collection of
       :term:`jobs <job>` or tasks that indicate importance for order
@@ -2453,10 +2698,24 @@ Glossary
       A form of :term:`randomized algorithm` that might yield an
       incorrect result, or that might fail to produce a result.
 
+   probe function
+      In :term:`hashing`, the function used by a
+      :term:`collision resolution` method to calculate where to look
+      next in the :term:`hash table`.
+
+   probe sequence
+      In :term:`hashing`, the series of :term:`slots <slot>` visited
+      by the :term:`probe function` during
+      :term:`collision resolution`.
+
    problem
       A task to be performed.
       It is best thought of as a :term:`function` or a mapping of
       inputs to outputs.
+
+   problem instance
+      A specific selection of values for the parameters to a problem.
+      In other words, a specific set of inputs to a problem.
 
    procedural
       Typically referring to the
@@ -2502,6 +2761,13 @@ Glossary
       We can prove that :math:`P \Rightarrow Q` by proving
       :math:`(\mathrm{not}\ Q) \Rightarrow (\mathrm{not}\ P)`.
 
+   pseudo-random probing
+      In :term:`hashing`, this is a :term:`collision resolution`
+      method that stores a random permutation of the values 1 through
+      the size of the :term:`hash table`.
+      Term :math:`i` of the :term:`probe sequence` is simply the value
+      of position :math:`i` in the permuation.
+
    push
       A specialized term used to indicate inserting an :term:`element`
       onto a :term:`stack`.
@@ -2521,6 +2787,14 @@ Glossary
       Thus, to extend the quadtree concept to more dimensions requires
       a rapid increase in the number of splits (for example, 8 in
       three dimensions).
+
+   quadratic probing
+      In :term:`hashing`, this is a :term:`collision resolution`
+      method that computes term :math:`i` of the
+      :term:`probe sequence` using some quadratic equation
+      :math:`ai^2 _ bi + c` for suitable constants :math:`a, b, c`.
+      The simplest form is simply to use :math:`i^2` as term :math:`i`
+      of the probe sequence.
 
    queue
       A list-like structure in which elements are inserted only at one
@@ -2564,7 +2838,7 @@ Glossary
       file.
 
    random access memory
-      Abbreviated ;term:`RAM`, this is the principle example of
+      Abbreviated :term:`RAM`, this is the principle example of
       :term:`primary storage` in a modern computer.
       Data access times are typically measured in billionths of a
       second (microseconds), which is roughly a million times faster
@@ -2643,7 +2917,7 @@ Glossary
       must also be in :math:`O(f(n))`.
       Reductions are often used to show that certain problems are at
       least as expensive as sorting, or that certain problems are
-      :term:`NP Complete`.
+      :term:`NP-Complete`.
 
    reference
       A value that enables a program to directly access some
@@ -2776,6 +3050,21 @@ Glossary
    search trie
       Any :term:`search tree` that is a :term:`trie`.
 
+   secondary clustering
+      In :term:`hashing`, the tendency in certain
+      :term:`collision resolution`
+      methods to create clustering in sections of the hash table.
+      In :term:`primary clustering`, this is caused by a cluster of
+      keys that don't necessarily hash to the same slot but which
+      following significant portions of the same
+      :term:`probe sequence` during collision resolution.
+      Secondary clustering results from the keys hashing to the same
+      slot of the table (and so a collision resolution method that is
+      not affected by the key value must use the same probe sequence
+      for all such keys).
+      This problem can be resolved by :term:`double hashing` since its
+      probe sequence is determined in part by a second hash function.
+
    secondary key
       A key field in a record such as salary, where a particular key
       value might be duplicated in multiple records. A secondary key
@@ -2839,6 +3128,10 @@ Glossary
       Commonly used heuristics include
       :term:`move-to-front` and :term:`transpose`.
 
+   separate chaining
+      In :term:`hashing`, a synonym for
+      :term:`open hashing <open hash system>`
+
    sequence
       In set notation, a collection of elements with an order, and
       which may contain duplicate-valued elements.
@@ -2862,6 +3155,21 @@ Glossary
    sequential search
       The simplest search algorithm: In an array, simply look at the
       array elements in the order that they appear.
+
+   sequential tree representation
+      A representation that stores a series of node values with the
+      minimum information needed to reconstruct the tree structure.
+      This is a technique for :term:`serializing <serialization>` a
+      tree.
+
+   serialization
+      The process of taking a data structure in memory and
+      representing it as a sequence of bytes.
+      This is sometimes done in order to transmit the data structure
+      across a network or store the data structure in a
+      :term:`stream`, such as on disk.
+      :term:`Deserialization <deserialization>` reconstructs the
+      original data structure from the serialized representation.
 
    set
       A collection of distinguishable :term:`members <member>` or
@@ -2921,6 +3229,9 @@ Glossary
    singly linked list
       A :term:`linked list` implementation variant where each list
       node contains access an pointer only to the next element in the list.
+
+   slot
+      In :term:`hashing`, a position in a :term:`hash table`.
 
    snowplow argument
       An analogy used to give intuition for why :term:`replacement
@@ -3003,9 +3314,6 @@ Glossary
    spatial
       Referring to a position in space.
 
-   spatial data
-      Any object or record that has a position (in space).
-
    spatial application
       An application what has spatial aspects.
       In particular, an application that stores records that need to
@@ -3014,12 +3322,18 @@ Glossary
    spatial attribute
       An attribute of a record that has a position in space, such as
       the coordinate.
+      This is typically in two or more dimensions.
+
+   spatial data
+      Any object or record that has a position (in space).
 
    spatial data structure
-      A data structure designed to support efficient processing when a
+      A :term:`data structure` designed to support efficient
+      processing when a 
       :term:`spatial attribute` is used as the key.
       In particular, a data structure that supports efficient search
-      by location, or finds all records within a given region.
+      by location, or finds all records within a given region in two
+      or more dimensions.
       Examples of spatial data structures to store point data include
       the :term:`bintree`, the :term:`PR quadtree` and the
       :term:`kd tree`.
@@ -3068,6 +3382,14 @@ Glossary
       Other designs make it possible in an attempt to deliver greater
       performance.
 
+   static
+      Something that is not changing (in contrast to :term:`dynamic`).
+      In computer programming, static normally refers to something
+      that happens at compile time.
+      For example, static analysis is analysis of the program's text
+      or structure, as opposed to its run-time behavior.
+      Static binding or static memory allocation occurs at compile time.
+
    Strassen's algorithm
       A :term:`recursive <recursion>` algorithm for matrix
       multiplication. 
@@ -3103,13 +3425,18 @@ Glossary
       Only subtly different from the :term:`Visitor design pattern`,
       where the difference is primarily one of intent rather than
       syntax.
-      The strategy design pattern is focused on encapsulating an activity
-      that is part of a larger process, so that different ways of
-      performing that activity can be substituted.
-      The visitor design pattern is focused on encapsulating an activity that
-      will be performed on all members of a collection so that completely
-      different activities can be substituted within a generic method that
-      accesses all of the collection members.
+      The strategy design pattern is focused on encapsulating an
+      activity that is part of a larger process, so that different
+      ways of performing that activity can be substituted.
+      The visitor design pattern is focused on encapsulating an
+      activity that will be performed on all members of a collection
+      so that completely different activities can be substituted
+      within a generic method that accesses all of the collection
+      members.
+
+   stream
+      The process of delivering content in a
+      :term:`serialized <serialization>` form.
 
    strict partial order
       In set notation, a relation that is :term:`irreflexive`,
@@ -3179,6 +3506,15 @@ Glossary
    tail
       The end of a :term:`list`.
 
+   tombstone
+      In :term:`hashing`, a tombstone is used to mark a :term:`slot`
+      in the :term:`hash table` where a record has been deleted.
+      Its purpose is to allow the :term:`collision resolution` process
+      to probe through that slot (so that records further down the
+      :term:`probe sequence` are not unreachable after deleting the
+      record), while also allowing the slot to be reused by a future
+      insert operation.
+
    topological sort
       The process of laying out the :term:`vertices <vertex>` of a
       :term:`DAG` in a :term:`linear order` such that no vertex
@@ -3193,6 +3529,20 @@ Glossary
       A binary relation on a set where every pair of distinct elements
       in the set are :term:`comparable` (that is, one can determine
       which of the pair is greater than the other).
+
+   Towers of Hanoi problem
+      A standard example of a recursive algorithm.
+      The problem starts with a stack of disks (each with unique size)
+      stacked decreasing order on the left pole, and two additional
+      poles.
+      The problem is to move the disks to the right pole, with the
+      constraints that only one disk can be moved at a time and a
+      disk may never be on top of a smaller disk.
+      For :math:`n` disks, this problem requires :math:`\Theta(2^n)`
+      moves.
+      The standard solution is to move :math:`n-1` disks to the middle
+      pole, move the bottom disk to the right pole, and then move the
+      :math:`n-1` disks on the middle pole to the right pole.
 
    track
       On a :term:`disk drive`, a concentric circle representing all of
@@ -3251,6 +3601,15 @@ Glossary
       :math:`R_1, R_2, ..., R_n`,
       respectively, are :term:`children <child>` of :math:`R`.
 
+   tree traversal
+      A :term:`traversal` performed on a tree.
+      Traditional tree traversals include
+      :term:`preorder <preorder traversal>` and
+      :term:`postorder <postorder traversal>` traversals for both
+      :term:`binary <binary tree>` and :term:`general <general tree>`
+      trees, and :term`inorder traversal` that is most
+      appropriate for a :term:`BST`.
+
    trie
       A form of :term:`search tree` where an internal node represents
       a split in the :term:`key space` at a predetermined location,
@@ -3294,7 +3653,13 @@ Glossary
       done to correct this.
 
    undirected graph
-      A graph whose edges do not have a direction.
+      A :term:`graph` whose :term:`edges <edge>` do not have a direction.
+
+   undirected edge
+      An :term:`edge` that connects two :term:`vertices <vertex>` with
+      no direction between them.
+      Many graph representations will represent such an edge
+      with two :term:`directed edges <directed edge>`.
 
    UNION
       One half of the :term:`UNION/FIND` algorithm for managing
@@ -3311,6 +3676,10 @@ Glossary
       disjoint sets when it is determined that they are members of the
       same :term:`equivalence class` under some
       :term:`equivalence relation`.
+
+   unsolveable problem
+      A problem that can proved impossible to solve on a computer.
+      The classic example is the :term:`halting problem`.
 
    unsorted list
       A :term:`list` where the records stored in the list can appear
@@ -3359,7 +3728,7 @@ Glossary
 
    vector
       In set notation, another term for a :term:`sequence`.
-      As a data structure, the term vector usually used as a synonym
+      As a data structure, the term vector usually used as a snyonym
       for a :term:`dynamic array`.
 
    vertex
@@ -3434,8 +3803,8 @@ Glossary
       that can hold some subset of the total data being processed.
 
    worst case
-      In algorithm analysis, the problem instance from among all
-      problem instances for a given input size :math:`n` that has
+      In algorithm analysis, the :term:`problem instance` from among
+      all problem instances for a given input size :math:`n` that has
       the greatest cost. Note that the worst case is **not** when
       :math:`n` is big, since we are referring to the wost from a
       class of inputs (i.e, those inputs of size :math:`n`).

@@ -67,7 +67,7 @@ values for ``rear`` are needed to distinguish among the :math:`n+1`
 states.
 However, there are only :math:`n` possible values for ``rear`` unless
 we invent a special case for, say, empty queues.
-This is an example of the :term:`Pigeonhole Principle`
+This is an example of the :term:`Pigeonhole Principle`.
 The Pigeonhole Principle states that, given :math:`n` pigeonholes
 and :math:`n+1` pigeons, when all of the pigeons go into the holes we
 can be sure that at least one hole contains more than one pigeon.
@@ -91,7 +91,6 @@ Here is an array-based queue implementation.
    :tag: AQueue1,AQueue2
 
 .. inlineav:: aqueueVarCON ss
-   
    :output: show 
    
 In this implementation, the front of the queue is defined to be toward
@@ -106,7 +105,7 @@ Implementation of all member functions is straightforward.
 
 .. avembed:: Exercises/List/aqueueDequeuePRO.html ka
 
-.. odsascript:: AV/List/aqueueCON.js
+.. odsascript:: DataStructures/CircularQueue.js
 .. odsascript:: AV/List/aqueueFirstCON.js
 .. odsascript:: AV/List/aqueueDriftCON.js
 .. odsascript:: AV/List/aqueueBadCON.js

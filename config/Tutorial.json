@@ -35,6 +35,14 @@
         "long_name": "Using parameters in Eclipse",
         "exercises": {}
       },
+      "Tutorials/webcattools": {
+        "long_name": "Configuring Eclipse For Virginia Tech",
+        "exercises": {}
+      },
+      "Tutorials/debugmethods": {
+        "long_name": "Debugging Methods",
+        "exercises": {}
+      },
       "Tutorials/debug": {
         "long_name": "Debugging in Eclipse",
         "exercises": {}
@@ -43,8 +51,20 @@
         "long_name": "Reading In Input",
         "exercises": {}
       },
-      "Tutorials/webcattools": {
-        "long_name": "Configuring Eclipse For Virginia Tech",
+      "Tutorials/randomaccessfile": {
+        "long_name": "Using the Java RandomAccessFile class",
+        "exercises": {}
+      },
+      "Tutorials/junitstart": {
+        "long_name": "Junit tests and how to use them",
+        "exercises": {}
+      },
+      "Tutorials/junitbasic": {
+        "long_name": "Junit tests and how to use them",
+        "exercises": {}
+      },
+      "Tutorials/junitcoverage": {
+        "long_name": "Junit tests and how to use them",
         "exercises": {}
       }
     }

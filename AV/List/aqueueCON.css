@@ -1,9 +1,9 @@
 #aqueueFirstCON {
-  height: 250px;
+  height: 225px;
 }
 
 #aqueueFirstCON .jsavoutput.jsavline {
-  height: 55px;
+  height: 30px;
 }
 
 #aqueueDriftCON {
@@ -11,7 +11,7 @@
 }
 
 #aqueueDriftCON .jsavoutput.jsavline {
-  height: 75px;
+  height: 55px;
 }
 
 #aqueueBadCON {
@@ -19,15 +19,15 @@
 }
 
 #aqueueBadCON .jsavoutput.jsavline {
-  height: 75px;
+  height: 55px;
 }
 
 #aqueueCircularCON {
-  height: 430px;
+  height: 420px;
 }
 
 #aqueueCircularCON .jsavoutput.jsavline {
-  height: 70px;
+  height: 50px;
 }
 
 #aqueueEmptyCON {
@@ -35,20 +35,13 @@
 }
 
 #aqueueEmptyCON .jsavoutput.jsavline {
-  height: 55px;
+  height: 70px;
 }
 
 #aqueueVarCON {
-  height: 390px;
+  height: 450px;
 }
 
-#AQueueVarCON .jsavoutput.jsavline {
-  height: 40px;
-}
-
-#aqueueVarCON .jsavcode{
-  border: 1px solid;
-  border-color: white; 
-  top: -10px;
-  width:700px;
+#aqueueVarCON .jsavoutput.jsavline {
+  height: 30px;
 }

@@ -4,9 +4,9 @@
   "code_dir": "SourceCode/",
   "code_lang": {"Processing": ["pde"]},
   "module_origin": "http://algoviz.org",
-  "exercise_server": "https://opendsa.cc.vt.edu/",
-  "logging_server": "https://opendsa.cc.vt.edu/",
-  "score_server": "https://opendsa.cc.vt.edu/",
+  "exercise_server": "https://opendsa.cs.vt.edu/",
+  "logging_server": "https://opendsa.cs.vt.edu/",
+  "score_server": "https://opendsa.cs.vt.edu/",
   "build_JSAV": false,
   "allow_anonymous_credit": true,
   "suppress_todo": false,
@@ -82,9 +82,22 @@
       }
     },
     "Graphs": {
-      "Development/GraphIntro": {
+      "Graph/GraphIntro": {
         "long_name": "Introduction and Terminology",
-        "exercises": {}
+        "exercises": {
+          "GraphCalcSumm": {
+            "long_name": "Graph Space Requirements Exercise",
+            "required": true,
+            "points": 2.0,
+            "threshold": 5
+          },
+          "GraphIntroSumm": {
+            "long_name": "Graph Terminology Summary Exercise",
+            "required": true,
+            "points": 2.0,
+            "threshold": 5
+          }
+        }
       },
       "Development/GraphImpl": {
         "long_name": "Graph Implementation",

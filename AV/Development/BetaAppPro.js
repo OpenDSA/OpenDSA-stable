@@ -9,6 +9,7 @@
 		var tell = function (msg, color) { av.umsg(msg, {color: color}); };
 		var incrs = [], $theExpression = $("#expression"), initialArray = [], theExpression, position, ansArray, arraySize, strArr, ansArr;
 		
+		// Function to generate the model solution.
 		function modelSolution(modeljsav) 
 		{
 			var modelArray = modeljsav.ds.array(ansArray);
@@ -24,6 +25,7 @@
 			return modelArray;
 		}
 
+		// Function to initialize the exercise and generate a semi-random expression.
 		function init()
 		{
 			var varArr = ["a", "b", "c", "i", "j", "k", "w", "x", "y", "z"];
@@ -36,34 +38,40 @@
 			strArr = ["(\u03BB"+var1+".("+var1+" "+var1+") (\u03BB"+var2+"."+var2+" "+var3+"))", 
 					  "(\u03BB"+var1+"."+var1+" (\u03BB"+var2+"."+var2+" "+var3+"))",
 					  "\u03BB"+var1+".(\u03BB"+var1+".("+var1+" "+var1+") "+var2+")"];
-			ansArr = [["(^"+var1+".("+var1+" "+var1+") (^"+var2+"."+var2+" "+var3+"))", "(^"+var1+".("+var1+" "+var1+") "+var3+")", "("+var3+" "+var3+")"],
+			ansArr = [["(^"+var1+".("+var1+var1+")(^"+var2+"."+var2+var3+"))", "(^"+var1+".("+var1+var1+")"+var3+")", "("+var3+var3+")"],
+					  ["(^"+var1+"."+var1+"(^"+var2+"."+var2+var3+"))", "(^"+var1+"."+var1+var3+")", String(var3)],
+					  ["^"+var1+".(^"+var1+".("+var1+var1+")"+var2+")", "^"+var1+".("+var2+var2+")"]];
+			appArr = [["(^"+var1+".("+var1+" "+var1+") (^"+var2+"."+var2+" "+var3+"))", "(^"+var1+".("+var1+" "+var1+") "+var3+")", "("+var3+" "+var3+")"],
 					  ["(^"+var1+"."+var1+" (^"+var2+"."+var2+" "+var3+"))", "(^"+var1+"."+var1+" "+var3+")", String(var3)],
 					  ["^"+var1+".(^"+var1+".("+var1+" "+var1+") "+var2+")", "^"+var1+".("+var2+" "+var2+")"]];
 			rnd = Math.floor(Math.random()*3);
 			var htmldata = strArr[rnd];
 			$theExpression.html(htmldata);
-			initialArray = ansArr[rnd];
+			initialArray = appArr[rnd];
 			ansArray = ansArr[rnd];
 			arraySize = ansArray.length;
 			position = 1;
-			jsavArray = av.ds.array(initialArray, {visible: false});
+			jsavArray = av.ds.array(ansArray, {visible: false});
 			return jsavArray;
 		}
 		
+		// Function to produce text for the "Help" button.
 		function help() 
 		{
 			alert("Help");
 		}
 
+		// Function to produce text for the "About" button.
 		function about() 
 		{
 			alert("Proficiency Exercise");
 		}
 
+		// Function to check answer once the "Submit" button is pressed.
 		function submit()
 		{
 			var temp = document.getElementById('answer').value;
-			//temp = temp.replace(/\s+/g, '');
+			temp = temp.replace(/\s+/g, '');
 			document.getElementById('answer').value = "";
 			if(position < ansArray.length)
 			{
@@ -72,7 +80,7 @@
 					jsavArray.highlight(position);
 					jsavArray.unhighlight(position-1);
 					exercise.gradeableStep();
-					$theExpression.html(ansArray[position]);
+					$theExpression.html(initialArray[position]);
 					position++;
 				} else
 				{
@@ -84,6 +92,7 @@
 			}
 		}
 		
+		// Function to check answer once the "Done" button is pressed.
 		function done()
 		{
 			if(position < ansArray.length)
@@ -98,13 +107,14 @@
 			}
 		}
 		
+		// Function to fix exercise if an incorrect submission is entered.
 		function fixState(modeljsav)
 		{
 			if(position < ansArray.length)
 			{
 				jsavArray.highlight(position);
 				jsavArray.unhighlight(position-1);
-				$theExpression.html(ansArray[position]);
+				$theExpression.html(initialArray[position]);
 				position++;
 			} else
 			{

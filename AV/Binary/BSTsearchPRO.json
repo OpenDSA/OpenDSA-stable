@@ -6,6 +6,13 @@
       ".instructLabel": "Instructions:",
       ".instructions": "Use the BST search algorithm to find the key given in the exercise. Starting with the root, click on an empty node to reveal its value and its children. Work your way down the tree as the search algorithm would.",
       "#about": "About"
+    },
+    "fi": {
+      ".avTitle": "Haku binäärisestä hakupuusta",
+      "av_Authors": "Kasper Hellström",
+      ".instructLabel": "Ohjeet:",
+      ".instructions": "Etsi annettua avainta binäärisistä hakupuusta. Haku suoritetaan klikkaamalla jokaisella askeleella sitä piilotettua alipuuta, johon haku etenee.",
+      "#about": "Lisätietoa"
     }
   },
   "params": {

@@ -3,9 +3,9 @@
   "build_dir": "Books",
   "code_dir": "SourceCode/",
   "code_lang": {
-    "C++": ["cpp", "h"],
-    "Java": ["java"],
-    "Processing": ["pde"]
+    "C++":{ "ext": ["cpp", "h"],"label":"C++","lang":"C++"}
+    "Processing": { "ext":["pde"], "label":"Processing","lang":"java"},
+    "Java_Generic": { "ext":["java"], "label":"Java (Generic)","lang":"java"},
   },
   "tabbed_codeinc": false,
   "lang": "en",
@@ -650,7 +650,7 @@
       "Binary/BinaryTreeTraversal": {
         "long_name": "Binary Tree Traversals",
         "exercises": {
-          "BTLeafPROG": {
+          "btLeafPROG": {
             "long_name": "Node Count Programming Exercise",
 	    "remove": true,
             "required": false,
@@ -1618,10 +1618,22 @@
       }
     },
     "Graphs": {
-      "Development/GraphIntro": {
+      "Graph/GraphIntro": {
         "long_name": "Introduction and Terminology",
-	"dispModComp": true,		
-        "exercises": {}
+        "exercises": {
+          "GraphCalcSumm": {
+            "long_name": "Graph Space Requirements Exercise",
+            "required": true,
+            "points": 2.0,
+            "threshold": 5
+          },
+          "GraphIntroSumm": {
+            "long_name": "Graph Terminology Summary Exercise",
+            "required": true,
+            "points": 2.0,
+            "threshold": 5
+          }
+        }
       },
       "Development/GraphImpl": {
         "long_name": "Graph Implementation",

@@ -1,0 +1,44 @@
+{
+  "translations": {
+    "en": {
+    }
+  },
+  "code": {
+    "processing": {
+      "url": "../../../SourceCode/Processing/Lists/LQueue.pde",
+      "lineNumbers": false,
+      "startAfter": "/* *** ODSATag: LQueueEnqueue *** */",
+      "endBefore": "/* *** ODSAendTag: LQueueEnqueue *** */",
+      "tags": {
+        "sig": 2,
+        "setNext": 3,
+        "rear": 4,
+        "size": 5
+      }
+    },
+    "java": {
+      "url": "../../../SourceCode/Java/Lists/LQueue.java",
+      "lineNumbers": false,
+      "startAfter": "/* *** ODSATag: LQueueEnqueue *** */",
+      "endBefore": "/* *** ODSAendTag: LQueueEnqueue *** */",
+      "tags": {
+        "sig": 2,
+        "setNext": 3,
+        "rear": 4,
+        "size": 5
+      }
+    },
+    "java_generic": {
+      "url": "../../../SourceCode/Java_Generic/Lists/LQueue.java",
+      "lineNumbers": false,
+      "startAfter": "/* *** ODSATag: LQueueEnqueue *** */",
+      "endBefore": "/* *** ODSAendTag: LQueueEnqueue *** */",
+      "tags": {
+        "sig": 2,
+        "setNext": 3,
+        "rear": 4,
+        "size": 5
+      }
+    }
+  }
+}

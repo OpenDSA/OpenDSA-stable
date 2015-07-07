@@ -9,8 +9,7 @@
    :satisfies: list ADT
    :topic: Lists
 
-.. odsalink:: AV/List/listADTposCON.css
-.. odsalink:: AV/List/listADTnoteCON.css
+.. odsalink:: AV/List/listADTCON.css
 
 The List ADT
 ============
@@ -36,7 +35,7 @@ So the term "ordered" in this context does **not** mean that the list
 elements are sorted by value.
 (Of course, we can always choose to sort the elements on the list if
 we want, its just that keeping the elements sorted is not an inherent
-property of being a list.
+property of being a list.)
 
 Each list element must have some data type.
 In the simple list implementations discussed in this chapter, all
@@ -96,10 +95,13 @@ But they are  considerably different in approaches and in their
 space/time tradeoffs.
 
 The code below presents our list ADT.
-The data values stored are assumed to be of type ``Object``.
-Languages that support templates (C++) or generics (Java) could put
-more control on the element types, but we will keep this ADT
-simple by just using the ``Object`` type.
+Any implementation for a :term:`container class` such as a list should
+be able to support different data types for the elements.
+One way to do this in Java is to store data values of type
+``Object``.
+Languages that support generics (Java) or templates (C++) give more
+control over the element types.
+
 The comments given with each member function describe what it is
 intended to do.
 However, an explanation of the basic design should help make this
@@ -117,9 +119,13 @@ The intention is that any implementation for this ADT support the
 concept of a current position.
 The current position is where any action such as insertion or deletion
 will take place.
+An alternative design is to factor out position as a separate position
+object, sometimes referred to as an :term:`iterator`.
 
-.. codeinclude:: Lists/ListADT
+.. codeinclude:: Lists/List
    :tag: ListADT
+
+|
 
 .. inlineav:: listADTposCON ss
    :output: show  
@@ -181,7 +187,7 @@ function on the concept of a key, and on
    :tag: Exercise
 
    This exercise ought to get expanded to a much richer set of
-   variantions on the question.
+   variations on the question.
 
 Implementing Lists
 ------------------

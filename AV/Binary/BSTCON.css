@@ -1,5 +1,9 @@
 #BSTsearchCON {
-  height: 340px;
+  height: 360px;
+}
+
+#BSTsearchCON .jsavoutput.jsavline {
+  height: 30px;
 }
 
 #BSTsearchCON .jsavcode{
@@ -7,7 +11,7 @@
 }
 
 #BSTinsertCON {
-  height: 530px;
+  height: 540px;
 }
 
 #BSTinsertCON .jsavtree { 
@@ -18,16 +22,20 @@
   height: 340px;
 }
 
+#BSTdeletemaxCON .jsavoutput.jsavline {
+  height: 30px;
+}
+
 #BSTdeletemaxCON .jsavcode{
   margin-left: 320px;
 }
 
 #BSTremoveCON {
-  height: 700px;
+  height: 710px;
 }
 
-#BSTremoveCON .jsavcode{
-  margin-top: -10px;
+#BSTremoveCON .jsavoutput.jsavline {
+  height: 30px;
 }
 
 #BSTremoveCON .jsavtree { 
@@ -41,13 +49,6 @@
 .rededge { /* Make a tree edge to be red */
   stroke: red;
   stroke-width: 3;
-}
-
-.clearnode { /* Make a node invisible in a slideshow */
-  background-color: #eed;
-  color: #eed;
-  border-color: #eed;
-  box-shadow: 2px 2px 2px rgba(120, 120, 120, 0.0);
 }
 
 .rednode { /* Make a node red */

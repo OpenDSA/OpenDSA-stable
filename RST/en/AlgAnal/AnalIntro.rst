@@ -125,7 +125,8 @@ because the cost depends on the value of :math:`n`
    This algorithm is called the *largest-value sequential search*
    and is illustrated by the following function:
 
-   .. codeinclude:: Misc/Largest
+   .. codeinclude:: Misc/LargestTest
+      :tag: Largest
 
    Here, the size of the problem is ``A.length``,
    the number of integers stored in array ``A``.
@@ -331,3 +332,9 @@ resources consumed by an algorithm.
    exercises) already that do "put in order", with librarary support.
    Alternative implementation: Use an invisible JSAV array to store the
    strings.
+
+.. todo::
+   :type: AV
+
+   To make students more engaged in the previous exercise, we may need a tool that allow students to input two growth rate functions, and then the tool should plot the graph of both functions and mark their crossing point. The student also should be allowed to play with the constant values for both functions and see that this only changes the crossing point but doesn't change which function grows faster than the other. 
+

@@ -1,4 +1,3 @@
-/*global ODSA */
 "use strict";
 // Huffman coding tree shared functions
 // Written by Maoyuan Sun, Rich Episcopo, and Cliff Shaffer
@@ -84,7 +83,7 @@ $(document).ready(function () {
   var layAll = function (trees) {
     var leftSoFar = 30;
     for (var i = 0; i < trees.length; i++) {
-      trees[i].css({"left": leftSoFar, "top": "-40px"});
+      trees[i].css({"left": leftSoFar});
       traverse_color(trees[i].root());
       trees[i].layout();
       leftSoFar += trees[i].element.width() + 50;
@@ -264,35 +263,29 @@ $(document).ready(function () {
 
   // Find and return the leaf node with a specific value
   var findNode = function (node, anValue) {
-    var val = node.freq;
+    var rawval = node.value();
     var temp;
     // Looking for (only) a leaf node that matches
-    if ((val === anValue) && !node.left() && !node.right()) {
-      return node;
-    } else if (!val || node.value() === "jsavnull") {
-      return null;
-    } else {
-      if (node.left()) {
-        temp = findNode(node.left(), anValue);
-        if (temp !== null) {
-          return temp;
-        }
+    if (!node.left() && !node.right()) { // Got a leaf node
+      if (rawval[rawval.length - 1] === anValue) {
+        return node; // Match
+      } else {
+        return null; // Wrong leaf node
       }
-      if (node.right()) {
-        temp = findNode(node.right(), anValue);
-        if (temp !== null) {
-          return temp;
-        }
-      }
-      return null;
     }
+    temp = findNode(node.left(), anValue);
+    if (temp !== null) {
+      return temp;
+    }
+    temp = findNode(node.right(), anValue);
+    return temp;
   };
 
   // find the Huffman codes for all leaf nodes with animation
   var showCodes_animated = function (av, interpret, freqs, chars, codeArr, tree) {
     var aLeaf;
     for (var i = 0; i < freqs.length; i++) {
-      aLeaf = findNode(tree.root(), freqs[i]);
+      aLeaf = findNode(tree.root(), chars[i]);
       tree.root().highlight();
       aLeaf.highlight();
       leafCode(aLeaf);

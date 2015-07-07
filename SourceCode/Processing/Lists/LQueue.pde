@@ -14,10 +14,10 @@ class LQueue implements Queue {
     front = rear = new Link(null);
     size = 0;
   }
+/* *** ODSAendTag: LQueue1 *** */
 
   // Reinitialize queue
   void clear() { init(); }
-/* *** ODSAendTag: LQueue1 *** */
 
   String toString() {
     StringBuffer out = new StringBuffer(size * 4);
@@ -32,7 +32,7 @@ class LQueue implements Queue {
 /* *** ODSATag: LQueueEnqueue *** */
   // Put element on rear
   boolean enqueue(Object it) {
-    rear.setnext(new Link(it, null));
+    rear.setNext(new Link(it, null));
     rear = rear.next();
     size++;
     return true;
@@ -44,7 +44,7 @@ class LQueue implements Queue {
   Object dequeue() {
     if (size == 0) return null;
     Object it = front.next().element(); // Store the value
-    front.setnext(front.next().next()); // Advance front
+    front.setNext(front.next().next()); // Advance front
     if (front.next() == null) rear = front; // Last Object
     size--;
     return it; // Return Object

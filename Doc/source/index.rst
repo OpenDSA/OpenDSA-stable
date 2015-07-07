@@ -11,6 +11,7 @@ Table of Contents
    :maxdepth: 3
 
    Introduction
+   GettingStarted
    InstructorTools
    Configuration
    ModAuthor
@@ -23,6 +24,7 @@ Table of Contents
    Preprocessor
    Backend
    BackendSpecs
+   DatabaseSchemas
    AdminTools
    Client-sideFramework
    QBankUserManual

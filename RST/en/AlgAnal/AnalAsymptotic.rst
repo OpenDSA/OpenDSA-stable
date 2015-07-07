@@ -223,7 +223,7 @@ Simplifying Rules
 
 Once you determine the running-time equation for an algorithm,
 it really is a simple matter to derive the big-Oh
-expressionsfrom the equation.
+expressions from the equation.
 You do not need to resort to the formal definitions of asymptotic
 analysis.
 Instead, you can use the following rules to
@@ -276,3 +276,9 @@ for large :math:`n`.
 
 From now on, we will use these simplifying
 rules when discussing the cost for a program or algorithm.
+
+.. todo::
+   :type: Slideshow
+
+   A visualization that illustrates the meaning of upper bounds and the difference between it and worst cases. We need to emphasize that there is an upper bound to an algorithm in its best, average, and worst cases. We can use the example of sequencial search to illustrate this.
+

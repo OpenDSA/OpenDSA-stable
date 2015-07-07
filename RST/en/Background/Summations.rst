@@ -120,6 +120,13 @@ the summation grows closer to
 
 where :math:`\gamma` is Euler's constant and has the value 0.5772...
 
+
+.. todo::
+   :type: SlideShow
+
+   Provide a slideshow for some of the previous summations to present how we reached the closed form of the summation visually. For example, finding the closed form of :math:`\sum_{i=1}^{n} i` can be easily presented visually using a set of rectangles stacked vetrically for each value of $i$, and then the closed form would be the total surface area of the final shape. 
+
+
 Most of these equalities can be proved easily by a
 :ref:`proof by induction <Proofs>`.
 Unfortunately, induction does not help us derive a closed-form
@@ -164,8 +171,8 @@ base cases.
 
 Recurrence relations are often used to model the cost of recursive
 functions.
-For example, the number of multiplications required by function
-``fact`` of Module :numref:`<Recursion>` for an input of size
+For example, the number of multiplications required by a recursive
+version of the factorial function for an input of size
 :math:`n` will be zero when :math:`n = 0` or :math:`n = 1` (the base
 cases), and it will be one plus the cost of calling ``fact`` on a
 value of :math:`n-1`. 
@@ -262,3 +269,8 @@ definition.
 There are
 :ref:`many more techniques <closed-form solution> <Recurrence>`
 to find closed-form solutions for recurrence relations.
+
+.. todo::
+   :type: SlideShow
+
+   Provide a slideshow to present how we can guess the closed form of some recurrence relations using the unrolling method (using a tree). We can start with only two recurrences $T(n) = T(n-1) + 1$ and $T(n) = T(n-1) + n$   

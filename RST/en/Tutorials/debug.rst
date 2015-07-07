@@ -13,24 +13,33 @@
 Debugging In Eclipse
 ====================
 In this tutorial we will show basic debugging steps. To begin debugging a
-program select the Debug mode by clicking the icon circled in blue below.
+program, select the Debug mode by clicking the icon circled in blue below.
 
 .. odsafig:: Images/Debug1.png
    :width: 600
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Debug view
 
    Figure 1
+
+What Is A Debugger?
+==================
+A debugger is a piece of software that allows a programmer to run their code
+as if it is executing normally, but allowing stops and pauses at any point to
+dump information from the program. It gives unprecendented knowledge to what
+happens in each step of the program. For more information about debuggers refer
+to the entry on 
+`Wikipedia <http://en.wikipedia.org/wiki/Debugger>`__.
 
 Debugging Terms
 ===============
 1. Resume - Resuming will run the code until another breakpoint is hit or until
 the program finishes (see Figure 2 for icon).
 
-2. Step Into - Stepping into will drop you into the next function called for 
-example, stepping into the bst.add() call in the above photo will take you to
+2. Step Into - Stepping into will drop you into the next function called. For 
+example, stepping into the bst.add() call in the above image will take you to
 the bst class and inside the add method (see Figure 2 for icon).
 
 3. Step Over - Stepping Over will execute the current line of code and progress
@@ -46,75 +55,75 @@ window (see Figure 1).
 
 .. odsafig:: Images/DebugList.png
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Debug Steps
 
    Figure 2
 
-*\*Author's note - There are a few more step functions not documented here, to
-learn more about them visit*
+*\*Note - There are a few more step functions not documented here, to
+learn more about them*
 `here <http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftask-stepping.htm>`__.
-*Please note that I have not documented the Stop Icon (Red Square) or the Pause
-Icon (Two Vertical Bars). These are simple enough to understand, Stop will kill
-execution of your program and Pause pauses the program.*
 
 Debugging A Memory Pool
 =======================
-There will be times when you are working with your programs that you may need
-to analyze byte chunks. Doing so can be difficult however, as the computer will
-treat it as a primitive. So how do we meaningfully analyze a chunk of bytes?
-Consider the following code. 
+This section follows very closely with projects like
+`this <http://courses.cs.vt.edu/~cs3114/Fall14/P1.pdf>`__.
+For some programs you may need to analyze byte chunks, in other words for a region
+of memory what does it represent and what information does it contain?
+Doing so can be difficult due to a combination of factors. So how do we
+meaningfully analyze a chunk of bytes? Consider the following code. 
 
 .. codeinclude:: Java/Tutorials/MainByteArrayDebug.java
 
-It spawns a 1000 byte array and then places 1 of
+This program spawns a 1000 byte array and then places 1 of
 27 characters chosen randomly in a position randomly chosen in one of the 1000
-places. Suppose you wanted to evaluate the contents of the memory, how would 
-you do this? Luckily Eclipse has the functionality that can do this. The 
-variable window (shown in Figure 1) will allow you to view the memory dump. 
+places. Suppose you wanted to look at the contents of the byte array. How would 
+you do this?
+Eclipse let's do it with a memory dump in the variable window
+(shown in Figure 1).
 
 .. odsafig:: Images/DebugMemoryPool1.png
    :width: 600
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Debug Steps
 
    Figure 3
 
-By default Eclipse will dump a byte as an integer.
+By default Eclipse will interpret a byte as an integer.
 
 .. odsafig:: Images/DebugMemoryPoolRaw1.png
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Debug Steps
 
    Figure 4
 
-However there are a number of ways to dump the information otherwise. You can 
-open the Preferences window by selecting Window->Preferences (see figure 5). 
-Then you will be able to select the raw dump information. In this case I will 
-choose ASCII text so I can see the character stored at the location.
+However there are a number of other ways to interpret byte values the information. You
+can open the Preferences window by selecting Window->Preferences (see Figure 5).
+Then you will be able to select the raw dump information. In this case I
+chose ASCII text so I can see the byte values interpreted as ASCII characters.
 
 .. odsafig:: Images/DebugMemoryPoolPreferences.png
    :width: 300
    :height: 350
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Debug Steps
 
    Figure 5
 
 Now when we view the memory location we can see the character stored there. We
-can also change our display preferences we can also see the hex value and the
+can also change our display preferences to see the hex value or the
 unsigned value as well.
 
 .. odsafig:: Images/DebugValue1.png
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: ASCII View
 
@@ -122,7 +131,7 @@ unsigned value as well.
 
 .. odsafig:: Images/DebugValue2.png
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Hex View
 
@@ -130,7 +139,7 @@ unsigned value as well.
 
 .. odsafig:: Images/DebugValue3.png
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Unsiged View
 
@@ -138,7 +147,7 @@ unsigned value as well.
 
 .. odsafig:: Images/DebugValue4.png
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: All Three Views
 
@@ -147,18 +156,27 @@ unsigned value as well.
 The Eclipse Console
 ===================
 So you can now view memory, set breakpoints and even step through functions to
-the points you care about. What's next? Well by now you should be familiar with
-gdb. gdb's command line interface is very handy for dumping information quickly
-and programmatically. Eclipse has a similar functionality. Eclipse's Display
-window functions very similarly. If the Display window is not visible you can
-enable it using Window->Show View->Display. Once the Display window is open you
-can turn on autocomplete by right clicking and selecting Content Assist, or by
-hitting CTRL-SPACE. The Display window allows you to write Java code and then
-execute it. This means you can edit and view information programatically.
+the points you care about. gdb's command line interface is very handy for dumping
+information quickly and programmatically when debugging C programs.
+Eclipse has a similar functionality. Eclipse's Display
+window is a debug terminal. If the Display window is not visible you can
+enable it using ``Window->Show View->Display``. Once the Display window is open
+you can turn on autocomplete by right clicking and selecting Content Assist, or
+by hitting CTRL-SPACE (similar to the completion assist Eclipse provides for coding).
+The Display window allows you to write Java code and then execute it. It is a live
+window where you can write code, execute methods and demo code without having to
+recompile.  Anytime you pause your program, you may access local variables,
+change them, and print information out about them. In the below example
+I have chosen to print the String ``loc`` (from the byte array sample code)
+out to the output. While this particular example may not appear useful
+(as the program will print ``loc`` anyway), imagine you are debugging a program.
+You know a bug occurs, now instead of stopping and
+recompiling your program with bug changes, you can rapidly prototype
+your replacement code and test it on the spot to insure success.
 
 .. odsafig:: Images/DebugDisplay1.png
    :align: center
-   :capalign: justify
+   :capalign: center
    :figwidth: 90%
    :alt: Result Of Running Display
 
@@ -166,8 +184,11 @@ execute it. This means you can edit and view information programatically.
 
 Conditional Breakpoints
 =======================
-Often times when troubleshooting you may wish to stop at breakpoint at certain
-times. However adding in additional code to catch those specified conditions
+Sometimes your bug might appear after a lot of processing. you cannot just set a
+breakpoint to a line of code, because that line is executed 10,000 times before
+the bug occurs. What you really want is to stop at a line only when some other
+condition (i.e. a variable being a certain value, or after X amount of times)
+is true. However adding in additional code to catch those specified conditions
 can lead to issues later if you forget to remove the additional code.
 Fortunately many debuggers have the functionality to only stop at breakpoints
 when needed.
@@ -198,6 +219,6 @@ you choose conditional, create an arbitrary boolean expression to satisfy.
    :alt: Breakpoint condition
 
 By making use of conditional breakpoints you can speed up debugging and eliminate
-the chance of accidentally progressing too far. For more information on using
+the chance of accidentally progressing too far. For more information on using,
 breakpoints check out Eclipse's official documentation found
 `here <https://wiki.eclipse.org/FAQ_How_do_I_set_a_conditional_breakpoint%3F>`__.

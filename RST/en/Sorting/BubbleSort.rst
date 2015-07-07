@@ -11,6 +11,8 @@
 
 .. index:: ! Bubble Sort
 
+.. odsalink:: AV/Development/BubbleSortAnalysisCON.css
+
 Bubble Sort
 ===========
 
@@ -73,13 +75,11 @@ Now try for yourself to see if you understand how Bubble Sort works.
 
 .. showhidecontent:: BubbleSortAnalysis
 
-   Determining number of comparisons done by Bubble Sort is easy.
-   Regardless of the arrangement of the values in the array, the number
-   of comparisons made by the inner ``for`` loop on the :math:`i`'th
-   iteration is always :math:`n-i`, leading to a total cost of
+   The following visualization illustrates the running time analysis of
+   Bubble Sort.
 
-   .. math::
-      \sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} \approx n^2/2 = \Theta(n^2).
+   .. inlineav:: BubbleSortAnalysisCON ss
+      :output: show
 
    Thus, Bubble Sort's running time is roughly the same
    in the best, average, and worst cases.
@@ -100,3 +100,4 @@ Insertion Sort.
 
 .. odsascript:: AV/Sorting/bubblesortS1CON.js
 .. odsascript:: AV/Sorting/bubblesortS2CON.js
+.. odsascript:: AV/Development/BubbleSortAnalysisCON.js

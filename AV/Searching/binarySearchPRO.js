@@ -112,10 +112,9 @@ $(document).ready(function () {
 
   // paints the background gray for indices [first, last].
   function paintGrey(array, first, last) {
-    array.addClass(
-      function (index) { return index >= first && index <= last; },
-      "unused"
-    );
+    array.addClass(function (index) {
+      return index >= first && index <= last;
+    }, "unused");
   }
 
   function refLines(av, code, lineTag) {
@@ -142,15 +141,15 @@ $(document).ready(function () {
       keyholder,
       $findLabel,
       pseudo,
-      config = ODSA.UTILS.loadConfig({"av_container": "jsavcontainer"}),
+      config = ODSA.UTILS.loadConfig({"av_container": "jsavcontainer", "default_code": "none"}),
       interpret = config.interpreter,
       code = config.code,
       codeOptions = {after: {element: $(".instructions")}, visible: true},
-      av = new JSAV($("#container"));
+      av = new JSAV($("#container"), {settings: config.getSettings()});
 
   av.recorded(); // we are not recording an AV with an algorithm
 
-  if (PARAMS["JXOP-code"] && code) {
+  if (code) {
     pseudo = av.code($.extend(codeOptions, code));
     pseudo.highlight("highlight");
   }
@@ -159,8 +158,7 @@ $(document).ready(function () {
     window.JSAV_EXERCISE_OPTIONS.feedback = "atend";
   }
 
-  var exercise = av.exercise(modelSolution, initialize, {
-    modelDialog: {width: 700}
-  });
+  var exercise = av.exercise(modelSolution, initialize,
+                             {modelDialog: {width: 700}});
   exercise.reset();
 });
