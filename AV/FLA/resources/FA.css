@@ -2,6 +2,10 @@
 	width: 98%;
 	position: relative;
 }
+.arrayPlace {
+	max-width: 100%;
+    overflow: scroll;
+}
 .start {	
 	font-style: italic;
 	font-weight: bold;
@@ -52,17 +56,21 @@
 .jsavnode {
 	cursor: pointer;
 }
-.jsavedge { 
+.jsavedge {
 	cursor: pointer;
 	stroke: black;
-	stroke-width: 1;
+	stroke-width: 2;
 }
 .testingLambda {
 	stroke-width: 3;
 	stroke: red;
 }
-.edgeSelect {
+.testingShorthand {
 	stroke-width: 3;
+	stroke: orange;
+}
+.edgeSelect {
+	stroke-width: 4;
 }
 .jsavedgelabel {
 	cursor: pointer;

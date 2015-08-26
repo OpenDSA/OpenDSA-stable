@@ -10,6 +10,7 @@
 		square = String.fromCharCode(9633),
 		emptystring;
 	
+	// initialize graph
 	var initGraph = function(opts) {
 		g = jsav.ds.fa($.extend({width: '90%', height: 440, emptystring: square}, opts));
 		emptystring = g.emptystring;
@@ -50,19 +51,24 @@
 		return g;
     };
 
+    // handler for editing edges/transitions
+    // This should be changed to match the interface used in multitapeTest.js
     var labelClickHandler = function(e) {
 		if ($(".jsavgraph").hasClass("editNodes") && !$(".jsavgraph").hasClass("working")) {
-				$(".jsavgraph").addClass("working");
+			var jg = $(".jsavgraph");
+			jg.addClass("working");
 			var self = this;
-				var values = $(this).html().split('<br>');
-				var createForm = '<form id="editedgelabel"><select class="labelmenu" id="edgelabelselect" size="' + values.length + '">'
-				for (var i = 0; i < values.length; i++) {
-					createForm += '<option>' + values[i] + '</option>';
-				}
-				createForm += '</select><br><input type="button" class="labelmenu" id="changetransitionbutton" value="Change transition"><input type="button" class="labelmenu" id="deletetransitionbutton" value="Delete transition"><input type="button" class="labelmenu" id="donelabelbutton" value="Done"></form>'
-			$(createForm).appendTo($('.jsavgraph'));
-			var xBound = $('.jsavgraph').offset().left + $('.jsavgraph').width(),
-				yBound = $('.jsavgraph').offset().top + $('.jsavgraph').height(),
+			var values = $(this).html().split('<br>');
+			// interface for editing individual transitions is as a dropdown menu
+			var createForm = '<form id="editedgelabel"><select class="labelmenu" id="edgelabelselect" size="' + values.length + '">'
+			for (var i = 0; i < values.length; i++) {
+				createForm += '<option>' + values[i] + '</option>';
+			}
+			createForm += '</select><br><input type="button" class="labelmenu" id="changetransitionbutton" value="Change transition"><input type="button" class="labelmenu" id="deletetransitionbutton" value="Delete transition"><input type="button" class="labelmenu" id="donelabelbutton" value="Done"></form>'
+			$(createForm).appendTo(jg);
+			// place menu where the user clicked (adjust positioning near the edges of the window)
+			var xBound = jg.offset().left + jg.width(),
+				yBound = jg.offset().top + jg.height(),
 				xOffset = e.pageX,
 				yOffset = e.pageY,
 				xWidth = $('#editedgelabel').width(),
@@ -74,6 +80,7 @@
 				yOffset -= yHeight;
 			}
 			$('#editedgelabel').offset({top: yOffset, left: xOffset});
+			// function for editing the selected transition
 			var changeTransition = function() {
 				var x = document.getElementById("edgelabelselect").selectedIndex;
 				if (x !== -1) {
@@ -91,16 +98,19 @@
 					}
 				}
 			};
+			// function for deleting the selected transition
 			var deleteTransition = function() {
 				var x = document.getElementById('edgelabelselect').selectedIndex;
 				if (x !== -1) {
 					document.getElementById('edgelabelselect').remove(x);
 					document.getElementById('edgelabelselect').size--;
+					// if all transitions are deleted, close the menu
 					if (document.getElementById('edgelabelselect').size === 0) {
 						$('#donelabelbutton').trigger("click");
 					}
 				}
 			};
+			// applies changes to the transitions and closes the menu
 			var finishEdgeLabel = function() {
 				var newVal = [];
 				for (var j = 0; j < $('#edgelabelselect > option').length; j++) {
@@ -110,7 +120,7 @@
 				$(self).html(newVal);
 				$('#editedgelabel').remove();
 				g.layout({layout: "manual"});
-				console.log(_.map(g._alledges, function(x){return x.weight()}))
+				// console.log(_.map(g._alledges, function(x){return x.weight()}))
 				$('.jsavgraph').removeClass("working");
 				updateAlphabet();
 			};
@@ -118,8 +128,9 @@
 			$('#deletetransitionbutton').click(deleteTransition);
 			$('#donelabelbutton').click(finishEdgeLabel);
 		}
-		};
-		var graphClickHandler = function(e) {
+	};
+	// handler for the graph window
+	var graphClickHandler = function(e) {
 		if ($(".jsavgraph").hasClass("addNodes")) {
 			var newNode = g.addNode(),
 			    nodeX = newNode.element.width()/2.0,
@@ -143,7 +154,9 @@
 			jsav.umsg("Click a node");
 		}
 	};
+	// handler for the nodes of the graph
 	var nodeClickHandler = function(e) {	
+		// editing nodes should be changed to match the interface in multitapeTest.js
 		if ($(".jsavgraph").hasClass("editNodes")) {
 			this.highlight();
 			var input = prompt("Delete state, make state initial, make state final, or give state a label? d, i, f, or l");
@@ -174,9 +187,9 @@
 				}
 			}
    			this.unhighlight();
-			} else if ($(".jsavgraph").hasClass("addEdges")) {
-				this.highlight();
-				if (!$(".jsavgraph").hasClass("working")) {
+		} else if ($(".jsavgraph").hasClass("addEdges")) {
+			this.highlight();
+			if (!$(".jsavgraph").hasClass("working")) {
 				first = this;
 				$('.jsavgraph').addClass("working");
 				jsav.umsg("Select a state to make a transition to");
@@ -223,6 +236,7 @@
 			e.stopPropagation();
 		}
 	};
+	// handler for the edges of the graph
 	var edgeClickHandler = function(e) {
 		if ($('.jsavgraph').hasClass('editNodes')) {
 			this.highlight();
@@ -240,12 +254,13 @@
 	};
 	
     var g = initGraph({layout: "manual"});
-		g.layout();
-		jsav.displayInit();
+	g.layout();
+	jsav.displayInit();
 
-		//===============================
-		var updateAlphabet = function() {
-			g.updateAlphabet();
+	//===============================
+	// updates the alphabets displayed above the graph
+	var updateAlphabet = function() {
+		g.updateAlphabet();
 		$("#alphabet").html("" + Object.keys(g.alphabet).sort());
 		var sa = getTapeAlphabet(g);
 		$('#stackalphabet').html(emptystring + "," + sa.sort());
@@ -257,53 +272,59 @@
 	var addNodesMode = function() {
 		removeEdgeSelect();
 		removeLabelMenu();
-		$(".jsavgraph").removeClass("working");
-		$(".jsavgraph").removeClass("addEdges");
-		$(".jsavgraph").removeClass("moveNodes");
-		$(".jsavgraph").removeClass("editNodes");
-		$(".jsavgraph").addClass("addNodes");
+		var jg = $(".jsavgraph");
+		jg.removeClass("working");
+		jg.removeClass("addEdges");
+		jg.removeClass("moveNodes");
+		jg.removeClass("editNodes");
+		jg.addClass("addNodes");
 		$("#mode").html('Adding nodes');
 		jsav.umsg("Click to add nodes");
 	};
 	var addEdgesMode = function() {
 		removeEdgeSelect();
 		removeLabelMenu();
-		$(".jsavgraph").removeClass("working");
-		$(".jsavgraph").removeClass("addNodes");
-		$(".jsavgraph").removeClass("moveNodes");
-		$(".jsavgraph").removeClass("editNodes");
-		$(".jsavgraph").addClass("addEdges");
+		var jg = $(".jsavgraph");
+		jg.removeClass("working");
+		jg.removeClass("addNodes");
+		jg.removeClass("moveNodes");
+		jg.removeClass("editNodes");
+		jg.addClass("addEdges");
 		$("#mode").html('Adding edges');
 		jsav.umsg("Click a node");
 	};
 	var moveNodesMode = function() {
 		removeEdgeSelect();
 		removeLabelMenu();
-		$(".jsavgraph").removeClass("working");
-		$(".jsavgraph").removeClass("addNodes");
-		$(".jsavgraph").removeClass("addEdges");
-		$(".jsavgraph").removeClass("editNodes");
-		$(".jsavgraph").addClass("moveNodes");
+		var jg = $(".jsavgraph");
+		jg.removeClass("working");
+		jg.removeClass("addNodes");
+		jg.removeClass("addEdges");
+		jg.removeClass("editNodes");
+		jg.addClass("moveNodes");
 		$("#mode").html('Moving nodes');
 		jsav.umsg("Click a node");
 	};
 	var editNodesMode = function() {
-		$(".jsavgraph").removeClass("working");
-		$(".jsavgraph").removeClass("addNodes");
-		$(".jsavgraph").removeClass("addEdges");
-		$(".jsavgraph").removeClass("moveNodes");
-		$(".jsavgraph").addClass("editNodes");
+		var jg = $(".jsavgraph");
+		jg.removeClass("working");
+		jg.removeClass("addNodes");
+		jg.removeClass("addEdges");
+		jg.removeClass("moveNodes");
+		jg.addClass("editNodes");
 		$("#mode").html('Editing nodes and edges');
 		addEdgeSelect();
 		jsav.umsg("Click a node or edge");
 	};
+	// change between editing and not editing (traversal)
 	var changeEditingMode = function() {
 		removeLabelMenu();
-		$(".jsavgraph").removeClass("working");
-		$(".jsavgraph").removeClass("addNodes");
-		$(".jsavgraph").removeClass("addEdges");
-		$(".jsavgraph").removeClass("moveNodes");
-		$('.jsavgraph').removeClass('editNodes');
+		var jg = $(".jsavgraph");
+		jg.removeClass("working");
+		jg.removeClass("addNodes");
+		jg.removeClass("addEdges");
+		jg.removeClass("moveNodes");
+		jg.removeClass('editNodes');
 		removeEdgeSelect();
 		$("#mode").html('Editing');
 		if ($(".notEditing").is(":visible")) {
@@ -315,6 +336,7 @@
 		$('.editing').toggle();
 	};
 
+	// make edges easier to click
 	var addEdgeSelect = function () {
 		var edges = g.edges();
 		for (var next = edges.next(); next; next= edges.next()) {
@@ -340,7 +362,7 @@
 	//====================
 	//traversal
 
-	// ND
+	// traverse on a given input string (can do nondeterministic traversal)
 	var play = function(str) {
 		if (!g.initial) {
 			alert('Please define an initial state');
@@ -359,19 +381,19 @@
 		$("button").hide();			//disable buttons
 		$('#alphabets').hide();
 		$("#mode").html('');
-			$('.jsavcontrols').show();
-			$('.jsavoutput').css({"text-align": "center", 'font-size': '2em', 'font-family': 'monospace'});
+		$('.jsavcontrols').show();
+		$('.jsavoutput').css({"text-align": "center", 'font-size': '2em', 'font-family': 'monospace'});
 		
 		var currentStates = [new Configuration(g.initial, inputString)],
 			cur,
 			counter = 0,
-			configView = [];
+			configView = [];		// configurations to display in the message box
 		for (var j = 0; j < currentStates.length; j++) {
 	   		configView.push(currentStates[j].toString());
 	   	}
 	    jsav.umsg(configView.join(' | '));
 		g.initial.addClass('current');
-			jsav.displayInit();
+		jsav.displayInit();
 		
 		while (true) {
 			if (counter === 500) {
@@ -383,12 +405,14 @@
 		   		currentStates[j].state.removeClass('current');
 		   		currentStates[j].state.removeClass('accepted');
 		   	}
+		   	// get next states
 			cur = traverse(currentStates);
 			if (!cur || cur.length === 0) {
 				break;
 			}
 			currentStates = cur;
 			configView = [];
+			// add highlighting and display
 			for (var j = 0; j < currentStates.length; j++) {
 				currentStates[j].state.addClass('current');
 				if (currentStates[j].state.hasClass('final')) {
@@ -409,6 +433,7 @@
 		jsav.step();
 		jsav.recorded();
 	};
+	// given a list of configurations, returns the set of next configurations
 	var traverse = function(currentStates) {
 		var nextStates = [];
 		for (var j = 0; j < currentStates.length; j++) {
@@ -429,22 +454,25 @@
 				}
 			}
 		}
+		// remove duplicate configurations
 		nextStates = _.uniq(nextStates, function(x) {return x.toID();});
 		return nextStates;
 	};
 	var Configuration = function(state, tape) {
-			this.state = state;
-			this.tape = new Tape(tape);
+		this.state = state;
+		this.tape = new Tape(tape);
+		// toString returns the state value + the 'viewport' of the tape, to be displayed to the user
 		this.toString = function() {
 			return this.state.value() + ' ' + viewTape(this.tape);
 		}
 		this.toID = function() {
-			return this.state.value() + ' ' + this.tape + viewTape(this.tape);
+			// console.log(this.tape.currentIndex);
+			return this.state.value() + ' ' + this.tape + this.tape.currentIndex;
 		}
 	};
 
 
-	// multiple traversal
+	// runs traversal on a single input, with no display
 	var runInput = function(inputString) {
 		var currentStates = [new Configuration(g.initial, inputString)],
 			cur,
@@ -469,6 +497,7 @@
 		}
 		return inputString + '<br>Rejected<br>';
 	};
+	// traverse on multiple inputs
 	var displayTraversals = function () {
 		if (!g.initial) {
 			alert('Please define an initial state');
@@ -486,19 +515,178 @@
 		$('#alphabets').hide();
 		for (var i = 0; i < inputs.length; i++) {
 			travArray.push(runInput(inputs[i]));
-			}
-			var jsavArray = jsav.ds.array(travArray, {element: $('.arrayPlace')});
-			jsavArray.mouseenter(jsavArray.highlight).mouseleave(jsavArray.unhighlight);
-			jsavArray.click(arrayClickHandler);
-			jsavArray.show();
-			jsav.displayInit();
-		};
-		var arrayClickHandler = function (index) {
-			var input = this.value(index).split('<br>')[0];
-			this.hide();
-			play(input);
-		};
+		}
+		var jsavArray = jsav.ds.array(travArray, {element: $('.arrayPlace')});
+		jsavArray.mouseenter(jsavArray.highlight).mouseleave(jsavArray.unhighlight);
+		jsavArray.click(arrayClickHandler);
+		jsavArray.show();
+		jsav.displayInit();
+	};
+	// handler for the array of multiple inputs; clicking on an index provides the trace for that input
+	var arrayClickHandler = function (index) {
+		var input = this.value(index).split('<br>')[0];
+		this.hide();
+		play(input);
+	};
 
+	//======================
+	// Save/Load
+	// save TM as XML
+	var serializeTMToXML = function (graph) {
+		var text = '<?xml version="1.0" encoding="UTF-8"?>';
+	    text = text + "<structure>";
+	    text = text + "<type>turing</type>";
+	    text = text + "<automaton>";
+	    var nodes = graph.nodes();
+	    for (var next = nodes.next(); next; next = nodes.next()) {
+	    	var left = next.position().left;
+		    var top = next.position().top;
+		    var i = next.hasClass("start");
+		    var f = next.hasClass("final");
+		    var label = next.stateLabel();
+		    text = text + '<state id="' + next.value().substring(1) + '" name="' + next.value() + '">';
+		    text = text + '<x>' + left + '</x>';
+		    text = text + '<y>' + top + '</y>';
+		    if (label) {
+		    	text = text + '<label>' + label + '</label>';
+		    }
+		    if (i) {
+		    	text = text + '<initial/>';
+		    }
+		    if (f) {
+		    	text = text + '<final/>';
+		    }
+	    	text = text + '</state>';
+	    }
+	    var edges = graph.edges();
+	    for (var next = edges.next(); next; next = edges.next()) {
+	    	var fromNode = next.start().value().substring(1);
+	    	var toNode = next.end().value().substring(1);
+	    	var w = next.weight().split('<br>');
+	    	for (var i = 0; i < w.length; i++) {
+	    		text = text + '<transition>';
+	    		text = text + '<from>' + fromNode + '</from>';
+	    		text = text + '<to>' + toNode + '</to>';
+	    		var wSplit = w[i].split(":");
+    			if (wSplit[0] === emptystring) {
+    				text = text + '<read/>';
+	    		} else {
+	    			text = text + '<read>' + wSplit[0] + '</read>';
+	    		}
+	    		if (wSplit[1] === emptystring) {
+	    			text = text + '<write/>';
+	    		} else {
+	    			text = text + '<write>' + wSplit[1] + '</write>';
+	    		}
+	    		text = text + '<move>' + wSplit[2] + '</move>';
+	    		text = text + '</transition>';
+	    	}
+	    }
+	    text = text + "</automaton></structure>"
+	    return text;
+	};
+	var save = function () {
+		var downloadData = "text/xml;charset=utf-8," + encodeURIComponent(serializeTMToXML(g));
+    	$('#download').html('<a href="data:' + downloadData + '" target="_blank" download="tm.xml">Download TM</a>');
+    	$('#download a')[0].click();
+	};
+
+	// load a TM from a XML file
+  	var parseFile = function (text) {
+	    var parser,
+	        xmlDoc;
+	    if (window.DOMParser) {
+	      	parser=new DOMParser();
+	      	xmlDoc=parser.parseFromString(text,"text/xml");
+	    } else {
+	      	xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+	      	xmlDoc.async=false;
+	      	xmlDoc.loadXML(text);
+	    }
+	    if (xmlDoc.getElementsByTagName("type")[0].childNodes[0].nodeValue !== 'turing') {
+	      	alert('File does not contain a Turing machine.');
+	      	// clear input
+	      	var loaded = $('#loadbutton');
+	      	loaded.wrap('<form>').closest('form').get(0).reset();
+	      	loaded.unwrap();
+	      	return;
+	    } else if (xmlDoc.getElementsByTagName("tapes")[0] && Number(xmlDoc.getElementsByTagName("tapes")[0].childNodes[0].nodeValue) !== 1) {
+	    	alert('File contains a multitape Turing machine.');
+	    	var loaded = $('#loadbutton');
+	      	loaded.wrap('<form>').closest('form').get(0).reset();
+	      	loaded.unwrap();
+	      	return;
+	    } else {
+	    	if (g) {
+				g.clear();
+				$('.jsavgraph').off();
+			}
+			g = new jsav.ds.fa({width: '90%', height: 440, emptystring: square, layout: "manual"});
+			var nodeMap = {};			// map node IDs to nodes
+	      	var xmlStates = xmlDoc.getElementsByTagName("state");
+	      	xmlStates = _.sortBy(xmlStates, function(x) {return x.id;})
+	      	var xmlTrans = xmlDoc.getElementsByTagName("transition");
+	      	for (var i = 0; i < xmlStates.length; i++) {
+	        	var x = Number(xmlStates[i].getElementsByTagName("x")[0].childNodes[0].nodeValue);
+	        	var y = Number(xmlStates[i].getElementsByTagName("y")[0].childNodes[0].nodeValue);
+	        	var newNode = g.addNode({left: x, top: y});
+	        	var isInitial = xmlStates[i].getElementsByTagName("initial")[0];
+	        	var isFinal = xmlStates[i].getElementsByTagName("final")[0];
+	        	var isLabel = xmlStates[i].getElementsByTagName("label")[0];
+	        	if (isInitial) {
+	        		g.makeInitial(newNode);
+	        	}
+	        	if (isFinal) {
+	        		newNode.addClass('final');
+	        	}
+	        	if (isLabel) {
+	        		newNode.stateLabel(isLabel.childNodes[0].nodeValue);
+	        	}
+	        	nodeMap[xmlStates[i].id] = newNode;
+	      	}
+	      	for (var i = 0; i < xmlTrans.length; i++) {
+	      		var from = xmlTrans[i].getElementsByTagName("from")[0].childNodes[0].nodeValue;
+	      		var to = xmlTrans[i].getElementsByTagName("to")[0].childNodes[0].nodeValue;
+	      		var read = xmlTrans[i].getElementsByTagName("read")[0].childNodes[0];
+	      		var write = xmlTrans[i].getElementsByTagName("write")[0].childNodes[0];
+	      		var move = xmlTrans[i].getElementsByTagName("move")[0].childNodes[0].nodeValue;
+      			if (!read) {
+      				read = square;
+      			} else {
+      				read = read.nodeValue;
+      			}
+      			if (!write) {
+      				write = square;
+      			} else {
+      				write = write.nodeValue;
+      			}
+	      		g.addEdge(nodeMap[from], nodeMap[to], {weight: read + ":" + write + ":" + move});
+	      	}
+	      	g.layout();
+	      	updateAlphabet();
+			$(".jsavgraph").click(graphClickHandler);
+	    	g.click(nodeClickHandler);
+			g.click(edgeClickHandler, {edge: true});
+			$('.jsavedgelabel').click(labelClickHandler);
+			var loaded = $('#loadbutton');
+	      	loaded.wrap('<form>').closest('form').get(0).reset();
+	      	loaded.unwrap();
+	      	return;
+	    }
+	};
+  	var waitForReading = function (reader) {
+    	reader.onloadend = function(event) {
+        	var text = event.target.result;
+        	parseFile(text);
+    	}
+  	};
+  	var load = function () {
+    	var loaded = document.getElementById('loadbutton');
+    	var file = loaded.files[0],
+        	reader = new FileReader();
+    	waitForReading(reader);
+    	reader.readAsText(file);
+  	};
 
 	//======================
 	$('#playbutton').click(function() {play()});
@@ -509,4 +697,6 @@
 	$('#addedgesbutton').click(addEdgesMode);
 	$('#movenodesbutton').click(moveNodesMode);
 	$('#editnodesbutton').click(editNodesMode);
+	$('#savebutton').click(save);
+  	$('#loadbutton').on('change', load);
 }(jQuery));	

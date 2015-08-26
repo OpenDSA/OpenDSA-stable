@@ -4,7 +4,7 @@ TARGET = build
 CSSLINTFLAGS = --quiet --errors=empty-rules,import,errors --warnings=duplicate-background-images,compatible-vendor-prefixes,display-property-grouping,fallback-colors,duplicate-properties,shorthand,gradients,font-sizes,floats,overqualified-elements,import,regex-selectors,rules-count,unqualified-attributes,vendor-prefix,zero-units
 MINIMIZE = java -jar tools/yuicompressor-2.4.7.jar --nomunge
 
-.PHONY: all clean lint csslint jshint min CS2114 CS2114gen CS223 CS5114 CS3114 CS3114notes CS150 OpenDSA test testfi testX IS allBooks nomin pull CPSC270S15 CS2401 COP3530 CS208 ECE252 Tutorial TDDD86_2014 S15 CSCI115
+.PHONY: all clean lint csslint jshint min CS2114 CS2114F15 CS223 CS5114 CS3114 CS3114F15 CS3114notes CS150 OpenDSA test testX IS allBooks nomin pull CPSC270S15 CS2401 COP3530 CS208 ECE252 Tutorial TDDD86F15 TDDC91F15 S15 CSCI115 CS316 CSE017F15
 
 all: lint
 
@@ -96,19 +96,28 @@ nomin:
 	@cp lib/odsaStyle.css lib/odsaStyle-min.css
 	@cp lib/gradebook.css lib/gradebook-min.css
 
-S15: CS2114 ECE252 CPSC270 CSCI204 CS3114 RecurTutor CSCI115 uwosh-pl CS4104S15 CS5114S15
+F15: CS2114F15 CS3114F15 CS316 TDDD86F15 TDDC91F15 TDDI16F15 CSE017F15 CPSC270 COP3530 CISC-187 C2GEN
 
 Tutorial: min
 	python $(CONFIG_SCRIPT) config/Tutorial.json
 
-TDDD86_2014: min
-	python $(CONFIG_SCRIPT) config/TDDD86_2014.json
+TDDD86F15: min
+	python $(CONFIG_SCRIPT) config/TDDD86F15.json
+
+TDDC91F15: min
+	python $(CONFIG_SCRIPT) config/TDDC91F15.json
+
+TDDI16F15: min
+	python $(CONFIG_SCRIPT) config/TDDI16F15.json
 
 RecurTutor: min
 	python $(CONFIG_SCRIPT) config/RecurTutor.json
 
 RecurTutor2: min
 	python $(CONFIG_SCRIPT) config/RecurTutor2.json
+
+CISC-187: min
+	python $(CONFIG_SCRIPT) config/CISC-187.json
 
 CSCI102: min
 	python $(CONFIG_SCRIPT) config/CSCI102.json
@@ -119,9 +128,11 @@ CSCI115: min
 CS150: min
 	python $(CONFIG_SCRIPT) config/CS150.json
 
+CSE017F15: min
+	python $(CONFIG_SCRIPT) config/CSE017F15.json
+
 CPSC270: min
-	python $(CONFIG_SCRIPT) config/CPSC270S15Siochi.json
-	python $(CONFIG_SCRIPT) config/CPSC270S15Flores.json
+	python $(CONFIG_SCRIPT) config/CPSC270F15.json
 
 CSCI204: min
 	python $(CONFIG_SCRIPT) config/CSCI204S15.json
@@ -138,11 +149,14 @@ CSE-A1140: min
 CSE-A1141: min
 	python $(CONFIG_SCRIPT) config/CSE-A1141.json
 
-CS2114: min
-	python $(CONFIG_SCRIPT) config/CS2114.json
+CSE-A1141eng: min
+	python $(CONFIG_SCRIPT) config/CSE-A1141eng.json
 
-CS2114gen: min
-	python $(CONFIG_SCRIPT) config/CS2114gen.json
+CS2114: min
+	python $(CONFIG_SCRIPT) config/CS2114SS215.json
+
+CS2114F15: min
+	python $(CONFIG_SCRIPT) config/CS2114F15.json
 
 CS2401: min
 	python $(CONFIG_SCRIPT) config/CS2401.json
@@ -150,17 +164,18 @@ CS2401: min
 CS3114: min
 	python $(CONFIG_SCRIPT) config/CS3114.json
 
-CS3114AM: min
-	python $(CONFIG_SCRIPT) config/CS3114AM.json
-
-CS3114PM: min
-	python $(CONFIG_SCRIPT) config/CS3114PM.json
+CS3114F15: min
+	python $(CONFIG_SCRIPT) config/CS3114F15Cao.json
+	python $(CONFIG_SCRIPT) config/CS3114F15Barnette.json
 
 CS3114notes: min
 	python $(CONFIG_SCRIPT) s config/CS3114notes.json
 
+CS316: min
+	python $(CONFIG_SCRIPT) config/CS316.json
+
 COP3530: min
-	python $(CONFIG_SCRIPT) config/COP3530.json
+	python $(CONFIG_SCRIPT) config/COP3530F15.json
 
 CS4104S15: min
 	python $(CONFIG_SCRIPT) config/CS4104S15.json

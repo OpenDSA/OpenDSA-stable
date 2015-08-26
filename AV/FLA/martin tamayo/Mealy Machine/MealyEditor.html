@@ -4,7 +4,7 @@
 	<head>
 		<title>Mealy Editor</title>
     	<link rel="stylesheet" href="../../../../JSAV/css/JSAV.css" type="text/css" media="screen" title="no title" charset="utf-8" />
-    	<link rel="stylesheet" href="../../resources/customPrompt.css" type="text/css" />
+    	<link rel="stylesheet" href="../../resources/CustomPrompt.css" type="text/css" />
     	<link rel="stylesheet" href="../../resources/FA.css" type="text/css" />
 	</head>
 	<body>
@@ -17,14 +17,13 @@
       			<div id="dialogueboxfoot"></div>
     		</div>
   		</div>
-		<p align="center" id="multipleTraversals" class="traversalPlace"></p>
+		<p align="center" class="arrayPlace"></p>
 		<button id="begin">Traverse</button>
 		<button id="saveButton">Save</button>
-		<button type="submit" id="submitButton">Load</button>
 		<input type="file" id="loadFile">
 		<div id="av">
-			<button id="undoButton" disabled="true">Undo</button>
-			<button id="redoButton" disabled="true">Redo</button>
+			<button id="undoButton">Undo</button>
+			<button id="redoButton">Redo</button>
 			<button id="nodeButton">Add Nodes</button>
 			<button id="edgeButton">Add Edges</button>
 			<button id="moveButton">Move Nodes</button>
@@ -37,6 +36,7 @@
 		<button id="ndButton">Highlight Nondeterminism</button>
 		<button id="lambdaButton">Highlight &lambda;-Transitions</button>
 		<button id="epsilonButton">&epsilon; Mode</button>
+		<button id="shorthandButton">Enable Shorthand</button>
 		<div>&Sigma;: <span id='alphabet'></span><br>&Lambda;: <span id='mealyOutput'></span></div>
 		<div id='download'></div>
 		
@@ -49,9 +49,9 @@
 		<script src="../../resources/serializableGraph.js"></script>
 		<script src="../../resources/underscore-min.js"></script>
 		<script src="../../resources/FA.js"></script>
-		<script src="../../resources/MealyPrompt.js"></script>
-		<script src="../../resources/MealyCommands.js"></script>
-		<script src="../../resources/TraverseMealy.js"></script>
+		<script src="../../resources/CustomPrompt.js"></script>
+		<script src="../../resources/Commands.js"></script>
+		<script src="../../resources/TraverseTransducer.js"></script>
 		<script src="./MealyEditor.js"></script>
    	</body>
 </html>
