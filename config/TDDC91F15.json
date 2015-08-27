@@ -934,6 +934,13 @@
       },
       "RecurTutor2/BinaryTreeGuidedInfFlw": {
         "long_name": "Binary Tree Guided Information Flow",
+        "sections": {
+          "BTguidedPROG": {
+            "long_name": "Programming Exercie",
+            "showhide": "none",
+            "remove": true
+          }
+        },
         "exercises": {
           "IneffBinaryTreeRangeCON": {
             "long_name": "Inefficient Binary Tree Traversal on Range Slide Show",
