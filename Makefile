@@ -4,7 +4,7 @@ TARGET = build
 CSSLINTFLAGS = --quiet --errors=empty-rules,import,errors --warnings=duplicate-background-images,compatible-vendor-prefixes,display-property-grouping,fallback-colors,duplicate-properties,shorthand,gradients,font-sizes,floats,overqualified-elements,import,regex-selectors,rules-count,unqualified-attributes,vendor-prefix,zero-units
 MINIMIZE = java -jar tools/yuicompressor-2.4.7.jar --nomunge
 
-.PHONY: all clean lint csslint jshint min CS2114 CS2114F15 CS223 CS5114 CS3114 CS3114F15 CS3114notes CS150 OpenDSA test testX IS allBooks nomin pull CPSC270S15 CS2401 COP3530 CS208 ECE252 Tutorial TDDD86F15 TDDC91F15 S15 CSCI115 CS316 CSE017F15
+.PHONY: all clean lint csslint jshint min CS2114 CS2114SS215 CS223 CS5114 CS3114 CS3114F15 CS3114notes CS150 OpenDSA test testX IS allBooks nomin pull CPSC270S15 CS2401 COP3530 CS208 ECE252 Tutorial TDDD86F15 TDDC91F15 S15 CSCI115 CS316 CSE017F15
 
 all: lint
 
@@ -96,7 +96,7 @@ nomin:
 	@cp lib/odsaStyle.css lib/odsaStyle-min.css
 	@cp lib/gradebook.css lib/gradebook-min.css
 
-F15: CS2114F15 CS3114F15 CS316 TDDD86F15 TDDC91F15 TDDI16F15 CSE017F15 CPSC270 COP3530 CISC-187 C2GEN
+F15: CS2114 CS3114F15 CS316 TDDD86F15 TDDC91F15 TDDI16F15 CSE017F15 CPSC270 COP3530 CISC-187 C2GEN CS226JHU
 
 Tutorial: min
 	python $(CONFIG_SCRIPT) config/Tutorial.json
@@ -115,6 +115,9 @@ RecurTutor: min
 
 RecurTutor2: min
 	python $(CONFIG_SCRIPT) config/RecurTutor2.json
+
+CS226JHU: min
+	python $(CONFIG_SCRIPT) config/CS226JHUF15.json -o CS226JHUF15
 
 CISC-187: min
 	python $(CONFIG_SCRIPT) config/CISC-187.json
@@ -152,10 +155,10 @@ CSE-A1141: min
 CSE-A1141eng: min
 	python $(CONFIG_SCRIPT) config/CSE-A1141eng.json
 
-CS2114: min
+CS2114SS215: min
 	python $(CONFIG_SCRIPT) config/CS2114SS215.json
 
-CS2114F15: min
+CS2114: min
 	python $(CONFIG_SCRIPT) config/CS2114F15.json
 
 CS2401: min
