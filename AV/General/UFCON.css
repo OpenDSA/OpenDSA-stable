@@ -6,12 +6,9 @@
   height: 250px;
 }
 
-#ufCON .jsavcanvas{
-  height: 550px;
-}
-
+/* Hack until vertical array width is fixed */
 #ufCON .jsavverticalarray {
-  width: 40px;
+  width: 40px !important;
 }
 
 #ufCON .jsavcode{
