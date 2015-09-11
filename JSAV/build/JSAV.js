@@ -1,6 +1,6 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v1.0.1-7-g9c21375
+ * Version v1.0.1-8-g04435bf
  * Copyright (c) 2011-2015 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
@@ -4129,18 +4129,26 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       $items = $arr.find("li"),
       maxWidth = -1,
       indexed = !!array.options.indexed;
-    if (indexed) {
+    if (indexed) { // position the indices
+      var indexMaxWidth = -1;
       $items.each(function(index, item) {
         var $i = $(this);
         var $indexLabel = $i.find(".jsavindexlabel");
-        maxWidth = Math.max(maxWidth, $indexLabel.innerWidth());
+        indexMaxWidth = Math.max(indexMaxWidth, $indexLabel.innerWidth());
         $indexLabel.css({
           top: $i.innerHeight() / 2 - $indexLabel.outerHeight() / 2
         });
       });
-      $items.css("margin-left", maxWidth);
+      $items.css("margin-left", indexMaxWidth);
     }
-    setArrayWidth(array, $items.last(), options);
+    $items.each(function(index, item) { // get max width of elements
+      maxWidth = Math.max(maxWidth, $(item).outerWidth());
+    });
+    if (maxWidth !== array.element.width()) {
+      // add +1 to reduce problems with different browser zoom levels and
+      // last element ovefflowing from the array container
+      array.css({"width": (maxWidth + 1) + "px"});
+    }
     var arrPos = $arr.position();
     return { width: $arr.outerWidth(), height: $arr.outerHeight(),
               left: arrPos.left, top: arrPos.top };
@@ -8306,7 +8314,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v1.0.1-7-g9c21375";
+  var theVERSION = "v1.0.1-8-g04435bf";
 
   JSAV.version = function() {
     return theVERSION;
