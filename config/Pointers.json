@@ -14,20 +14,8 @@
     "JXOP-debug": "true"
   },
   "chapters": {
-    "Pointers": {
-     "Pointers/Intro": {
-        "long_name": "Pointers Intro",
-        "exercises": { 
-           "pntrSumm1": {
-            "long_name": "Pointers test Exercise",
-            "required": true,
-            "points": 1.0,
-            "threshold": 3,
-            "showhide": "Show"
-          }
-        }
-      },
-      "Pointers/PntrIntro": {
+    "Pointers": {   
+      "Pointers/PointerIntro": {
         "long_name": "Pointers",
         "exercises": { 
           }
