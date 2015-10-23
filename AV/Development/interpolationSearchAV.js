@@ -1,8 +1,5 @@
 $(document).ready(function() {
   "use strict";
-  //////////////////////////////////////////////////////////////////
-  // Start processing here
-  //////////////////////////////////////////////////////////////////
   var av,     // for JSAV library object
       pseudo,
       initialArray,
@@ -25,14 +22,10 @@ $(document).ready(function() {
 
   // Process about button: Pop up a message with an Alert
   function about() {
-    alert(ODSA.AV.aboutstring(interpret(".avTitle"), interpret("av_Authors")));
+    window.alert(ODSA.AV.aboutstring(interpret(".avTitle"), interpret("av_Authors")));
   }
 
   function interpolationSearch(array) {
-    av.ds.array([key], {indexed: false}).css(0, {
-      backgroundColor: "#ddf",
-      border: "none"
-    });
     var arraySize = array.length;
     var modelArray = av.ds.array(array, {indexed: true, layout: "bar", autoresize: false});
 
@@ -72,6 +65,7 @@ $(document).ready(function() {
     });
     drawLine(modelArray, 0, arraySize - 1, modelInterLine);
 
+    av.umsg(interpret("av_start"), {fill: {key: key}});
 
     av._undo = [];
 
@@ -175,22 +169,31 @@ $(document).ready(function() {
 
   // Execute the "Run" button function
   function runIt() {
-    initialArray = ODSA.AV.processArrayValues().sort(function(a, b) {
-      return parseInt(a, 10) - parseInt(b, 10);
-    });
+    initialArray = ODSA.AV.processArrayValues();
 
     // If initialArray is null, the user gave us junk which they need to fix
     if (!initialArray) {
       return;
     }
+
+    // sort the array
+    initialArray = initialArray.sort(function(a, b) { return a - b; });
+
     ODSA.AV.reset(true);
     $("#arrayValues").val(initialArray.join(" "));
-    key = parseInt($("#searchValue").val(), 10) ||
-      initialArray[0] +
-      Math.floor(
-        Math.random() *
-        (initialArray[initialArray.length - 1] - initialArray[0])
-      );
+    key = parseInt($("#searchValue").val(), 10);
+    if (isNaN(key)) {
+      if (Math.random() < 0.33) {
+        // guarantees that the key is found
+        key = initialArray[Math.round(Math.random() * initialArray.length)];
+      } else {
+        key = initialArray[0] +
+          Math.floor(
+            (0.33 + 0.33 * Math.random()) *
+            (initialArray[initialArray.length - 1] - initialArray[0])
+          );
+      }
+    }
     $("#searchValue").val(key);
     av = new JSAV($(".avcontainer"), {settings: settings});
     // Create a new array using the layout the user has selected
