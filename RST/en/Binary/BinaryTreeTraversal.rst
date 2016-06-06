@@ -1,6 +1,6 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2013 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
 .. avmetadata::
@@ -15,6 +15,9 @@
 Binary Tree Traversals
 ======================
 
+Binary Tree Traversals
+----------------------
+
 Often we wish to process a binary tree by "visiting" each of its
 nodes, each time performing a specific action such as printing the
 contents of the node.
@@ -26,6 +29,11 @@ Some applications do not require that the nodes be visited in any
 particular order as long as each node is visited precisely once.
 For other applications, nodes must be visited in an order that
 preserves some relationship.
+
+
+Preorder Traversal
+~~~~~~~~~~~~~~~~~~
+
 For example, we might wish to make sure that we visit any given node
 *before* we visit its children.
 This is called a :term:`preorder traversal`.
@@ -36,6 +44,7 @@ This is called a :term:`preorder traversal`.
    :align: center
 
    A binary tree for traversal examples.
+
 
 .. topic:: Example
 
@@ -49,6 +58,10 @@ This is called a :term:`preorder traversal`.
 
 .. inlineav:: preorderCON ss
    :output: show
+
+
+Postorder Traversal
+~~~~~~~~~~~~~~~~~~~
 
 Alternatively, we might wish to visit each node only
 *after* we visit its children (and their subtrees).
@@ -69,6 +82,10 @@ This is called a :term:`postorder traversal`.
 .. inlineav:: postorderCON ss
    :output: show
 
+
+Inorder Traversal
+~~~~~~~~~~~~~~~~~
+
 An :term:`inorder traversal` first visits the left child
 (including its entire subtree), then visits the node, and finally
 visits the right child (including its entire
@@ -84,6 +101,10 @@ this traversal to print all nodes in ascending order of value.
 
 .. inlineav:: inorderCON ss
    :output: show
+
+
+Implementation
+--------------
 
 Now we will discuss some implementations for the traversals, but we
 need to define a node ADT to work with.
@@ -130,13 +151,25 @@ Postorder and inorder traversals are similar.
 They simply change the order in which the node and its children are
 visited, as appropriate.
 
-Here are some exercises to practice the traversals.
-
 .. avembed:: AV/Binary/btTravInorderPRO.html pe
+
+
+Postorder Traversal Practice
+----------------------------
 
 .. avembed:: AV/Binary/btTravPostorderPRO.html pe
 
+
+Preorder Traversal Practice
+---------------------------
+
 .. avembed:: AV/Binary/btTravPreorderPRO.html pe
+
+
+Summary Questions
+-----------------
+
+.. avembed:: Exercises/Binary/TravSumm.html ka
 
 .. odsascript:: AV/Binary/BinExampCON.js
 .. odsascript:: AV/Binary/inorderCON.js

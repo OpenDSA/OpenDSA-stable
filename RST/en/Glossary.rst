@@ -348,8 +348,9 @@ Glossary
       unuseable memory blocks.
 
    big-Oh notation
-      In algorithm analysis, a shorthand notation for describing the
-      upper bound for an algorithm or problem.
+      In :term:`algorithm analysis`, a shorthand notation for
+      describing the :term:`upper bound` for an :term:`algorithm` or
+      :term:`problem`. 
 
    binary search
       A standard :term:`recursive <recursion>` algorithm for finding
@@ -1651,8 +1652,8 @@ Glossary
       :to-term: lower bound :label: type
       :to-term: upper bound :label: type
 
-      The rate at which the cost
-      of the algorithm grows as the size of its input grows.
+      In :term:`algorithm analysis`, the rate at which the cost
+      of the :term:`algorithm` grows as the size of its input grows.
 
    guided traversal
       A :term:`tree traversal` that does not need to visit every node
@@ -1803,7 +1804,7 @@ Glossary
 
    homogeneity
       In a :term:`container` class, this is the property that all
-      objects stored in the container are of the same class.
+      objects stored in the ncontainer are of the same class.
       For example, if you have a list intended to store Payroll
       records, is it possible for the programmer to insert an integer
       onto the list instead?
@@ -1837,8 +1838,8 @@ Glossary
 
    information theoretic lower bound
       A :term:`lower bound` on the amount of resources needed to solve
-      a problem based on the number of bits of information needed to
-      uniquely specify the answer.
+      a :term:`problem` based on the number of bits of information
+      needed to uniquely specify the answer.
       Sometimes referred to as a "Shannon theoretic lower bound" due
       to Shannon's work on information theory and entropy.
       An example is that sorting has a lower bound of
@@ -2269,11 +2270,16 @@ Glossary
       :term:`space/time tradeoff`.
 
    lower bound
-      In algorithm analysis, the lowest growth rate that
-      an algorithm can have. In practice, this is the fastest-growing
-      function that we know grows no faster than all but a
-      constant number of inputs. It could be a gross under-estimate of
-      the truth.
+      In :term:`algorithm analysis`, a :term:`growth rate` that is
+      always less than or equal to the that of the
+      :term:`algorithm` in question.
+      In practice, this is the fastest-growing function that we know
+      grows no faster than all but a constant number of inputs.
+      It could be a gross under-estimate of the truth.
+      Since the lower bound for the algorithm can be very different
+      for different situations (such as the :term:`best case` or
+      :term:`worst case`), we typically have to specify which
+      situation we are referring to.
 
    lower bounds proof
       :to-term: adversary argument :label: example
@@ -2843,6 +2849,10 @@ Glossary
       It is similar to the :term:`kd tree` which splits alternately in
       each dimension, except that it splits in all dimensions at once.
 
+   point-region quadtree
+      Formal name for what is commonly referred to as a
+      :term:`PR quadtree`.
+
    pop
       A specialized term used to indicate removing an :term:`element`
       from a :term:`stack`. 
@@ -3001,6 +3011,25 @@ Glossary
    problem instance
       A specific selection of values for the parameters to a problem.
       In other words, a specific set of inputs to a problem.
+
+   problem lower bound
+      In :term:`algorithm analysis`, the tightest :term:`lower bound`
+      that we can prove over all :term:`algorithms <algorithm>`
+      for that :term:`problem`.
+      This is often much harder to determine than the
+      `:term:`problem upper bound`.
+      Since the lower bound for the algorithm can be very different
+      for different situations (such as the :term:`best case` or
+      :term:`worst case`), we typically have to specify which
+      situation we are referring to.
+
+   problem upper bound
+      In :term:`algorithm analysis`, the :term:`upper bound` for the
+      best :term:`algorithm` that we know for the :term:`problem`.
+      Since the upper bound for the algorithm can be very different
+      for different situations (such as the :term:`best case` or
+      :term:`worst case`), we typically have to specify which
+      situation we are referring to.
 
    procedural
       Typically referring to the
@@ -3583,7 +3612,7 @@ Glossary
       and search.
       It is a :term:`probabilistic data structure` since it adds the
       additional links using a :term:`probabilistic algorithm`.
-      It can implement a dictionary more efficiently than a
+      It can implement a :term:`dictionary` more efficiently than a
       :term:`BST`, and is roughly as difficult to implement.
 
    slot
@@ -4080,11 +4109,16 @@ Glossary
       :term:`mark array`.
 
    upper bound
-      In :term:`algorithm analysis`, the upper or highest
-      :term:`growth rate` that an :term:`algorithm` can have.
-      In practice, this is the smallest-growing function that we know
+      In :term:`algorithm analysis`, a :term:`growth rate` that is
+      always greater than or equal to the that of the
+      :term:`algorithm` in question.
+      In practice, this is the slowest-growing function that we know
       grows at least as fast as all but a constant number of inputs.
       It could be a gross over-estimate of the truth.
+      Since the upper bound for the algorithm can be very different
+      for different situations (such as the :term:`best case` or
+      :term:`worst case`), we typically have to specify which
+      situation we are referring to.
 
    variable-length coding
       :to-term: Huffman codes :label: example

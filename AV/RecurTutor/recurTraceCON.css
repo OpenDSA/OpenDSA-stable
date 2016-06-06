@@ -1,0 +1,65 @@
+#recurTraceWindCON{
+  height: 270px;
+}
+
+#recurTraceFactCON{
+  height: 500px;
+}
+
+#recurTraceFactCON .jsavcode.bordercolored {
+  border-width: 3px;
+  border-color: red;  
+}
+
+#recurTraceSumCON{
+  height: 530px;
+}
+
+#recurTraceSumCON .jsavoutput.jsavline {
+  height: 30px;
+}
+
+#recurTraceDmnPrntCON {
+  height: 450px;
+}
+
+#recurTraceDmnCntCON{
+  height: 420px;
+}
+
+#recurTraceTOHCON {
+  height: 450px;
+}
+
+.dominocolor{
+  fill:grey;
+}
+
+.tilteddominocolor{
+   fill:lightgray;
+}
+
+.digitstyle{
+  font-size: 15px;
+  text-align: center;
+}
+
+.disk0color{
+  fill:grey;
+}
+
+.disk1color{
+  fill:yellow;
+}
+
+.disk2color{
+  fill:purple;
+}
+
+.disk3color{
+  fill:green;
+}
+
+.polecolor{
+  fill:brown;
+}

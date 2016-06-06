@@ -802,6 +802,12 @@
             "points": 0.0,
             "threshold": 1.0
           },
+          "btLeafPROG": {
+            "long_name": "Node Count Programming Exercise",
+            "required": true,
+            "points": 1.0,
+            "threshold": 1
+          },
           "btTravInorderPRO": {
             "long_name": "Binary Tree Inorder Traversal Exercise",
             "exer_options": { "JXOP-code": "none" },
@@ -1688,12 +1694,12 @@
             "points": 0.0,
             "threshold": 1.0
           },
-          "externalMultiwayMergePRO": {
+          "extMultiMergePRO": {
             "long_name": "Multi-way Merge Proficiency Exercise",
             "required": true,
             "points": 1.0,
             "showhide": "none",
-            "threshold": 1.0
+            "threshold": 0.9
           }
         }
       }
@@ -2104,7 +2110,6 @@
           },
           "TreeIndexing": {
             "long_name": "Tree Indexing Proficiency Exercise",
-            "showhide": "show",
             "required": true,
             "points": 1.0,
             "threshold": 5

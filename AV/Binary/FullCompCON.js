@@ -1,5 +1,5 @@
-"use strict";
 $(document).ready(function () {
+  "use strict";
   var av = new JSAV("FullCompCON", {"animationMode": "none"});
   // Setup first row of trees
   var btTop = 0;
@@ -35,4 +35,6 @@ $(document).ready(function () {
   // Add first row of labels
   var alabel = av.label("(a)", {left: btLeft + 35, top: btTop + 135});
   var blabel = av.label("(b)", {left: btRight + 115, top: btTop + 135});
+  av.displayInit();
+  av.recorded();
 });

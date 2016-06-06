@@ -280,18 +280,6 @@
         }
       }
     },
-    "Advanced Analysis": {
-      "Development/Recurrence": {
-        "long_name": "Solving Recurrence Relations",
-	"dispModComp": true,				
-        "exercises": {}
-      },
-      "Development/AmortAnal": {
-        "long_name": "Amortized Analysis",
-	"dispModComp": true,				
-        "exercises": {}
-      }
-    },
     "Linear Structures": {
       "List/ListIntro": {
         "long_name": "Chapter Introduction: Linear Structures",
@@ -864,6 +852,12 @@
             "points": 0.0,
             "threshold": 1.0
           },
+          "btLeafPROG": {
+            "long_name": "Node Count Programming Exercise",
+            "required": true,
+            "points": 1.0,
+            "threshold": 1
+          },
           "btTravInorderPRO": {
             "long_name": "Binary Tree Inorder Traversal Exercise",
             "exer_options": { "JXOP-code": "none" },
@@ -1190,7 +1184,6 @@
           },
           "TreeIndexing": {
             "long_name": "Tree Indexing Proficiency Exercise",
-            "showhide": "show",
             "required": true,
             "points": 1.0,
             "threshold": 5
@@ -2099,10 +2092,6 @@
       "Development/DynamicProgramming": {
         "long_name": "Dynamic Programming",
 	"dispModComp": true,				
-        "exercises": {}
-      },
-      "Development/Floyd": {
-        "long_name": "All-Pairs Shortest Paths",
         "exercises": {}
       },
       "Development/RandomIntro": {

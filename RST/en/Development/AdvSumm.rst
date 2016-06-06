@@ -5,8 +5,9 @@
 
 .. avmetadata:: 
    :author: Cliff Shaffer
-   :prerequisites:
    :topic: Advanced Analysis
+   
+.. odsalink:: AV/Background/SummationOneToNCON.css
 
 Summation Techniques
 ====================
@@ -16,8 +17,9 @@ Consider the following simple summation.
 .. math::
    \sum_{i=1}^n i.
 
-In Module :numref:`<Proofs>` it was proved by induction that this
-summation has the well-known closed form :math:`n(n+1)/2`.
+An easy :term:`proof by induction <proof by induction> <Proofs>`
+shows that this summation has the well-known closed form
+:math:`n(n+1)/2`.
 But while induction is a good technique for proving that a proposed
 closed-form expression is correct, 
 how do we find a candidate closed-form expression to test in the first
@@ -41,12 +43,8 @@ Having this estimate in hand helps us when trying to determine an
 exact closed-form solution, because we will hopefully recognize if our
 proposed solution is badly wrong.
 
-.. TODO::
-   :type: Image
-
-   Show an image of the heights of the bars filling half the area of
-   the rectangle. Later on, compare hights of bars for other sums,
-   ones that don't add up to :math:`\Theta(n^2)`.
+.. inlineav:: SummationOneToNCON ss
+   :output: show
 
 Let us now consider some ways that we might hit upon an exact equation
 for the closed form solution to this summation.
@@ -368,3 +366,5 @@ pattern in terms of :math:`f(n) - g(n)` or :math:`f(n)/g(n)`.
    .. math::
 
       = (n-1)2^{n+1} + 2.
+	  
+.. odsascript:: AV/Background/SummationOneToNCON.js

@@ -1,0 +1,14 @@
+#LowerBoundCON {
+  height: 485px;
+}
+
+#LowerBoundCON .jsavline{
+  height: 75px;
+}
+
+#LowerBoundCON .jsavhorizontalarray .jsavnode{
+  min-width: 50px !important;
+  max-width: 200px !important;
+  min-height: 35px !important;
+  max-height: 35px !important;
+}

@@ -1,8 +1,8 @@
 /*global ODSA */
-"use strict";
-$(document).ready(function () {
+$(document).ready(function() {
+  "use strict";
   var av_name = "bubblesortS2CON";
-  var interpret = ODSA.UTILS.loadConfig({"av_name": av_name}).interpreter;
+  var interpret = ODSA.UTILS.loadConfig({av_name: av_name}).interpreter;
 
   var theArray2 =  [10, 15, 20, 54, 11, 55, 14, 78];
   var av = new JSAV(av_name);
@@ -10,7 +10,7 @@ $(document).ready(function () {
   var j;
 
   av.umsg(interpret("av_c1"));
-  arr.addClass(arr.size() - 1, "greytext");
+  arr.addClass(arr.size() - 1, "deemph");
   av.displayInit();
   arr.addClass(0, "processing");
   for (j = 1; j < arr.size() - 1; j++) {
@@ -25,7 +25,7 @@ $(document).ready(function () {
     arr.removeClass(j - 1, "processing");
   }
   arr.removeClass(j - 1, "processing");
-  arr.addClass(j - 1, "greytext");
+  arr.addClass(j - 1, "deemph");
   av.umsg(interpret("av_c4"));
   av.recorded();
 });

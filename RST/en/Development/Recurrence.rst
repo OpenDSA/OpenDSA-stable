@@ -5,10 +5,14 @@
 
 .. avmetadata::
    :author: Cliff Shaffer
-   :prerequisites:
+   
+.. odsalink:: AV/Development/AlgAnal/DivideAndConquerRecurrencesCON.css
 
 Solving Recurrence Relations
 ============================
+
+Solving Recurrence Relations
+----------------------------
 
 .. TODO::
    :type: Equation cross-reference
@@ -46,8 +50,9 @@ In particular, typical divide-and-conquer algorithms such as
 Mergesort yield recurrences of a form that fits a pattern for which
 we have a ready solution.
 
+
 Estimating Upper and Lower Bounds
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first approach to solving recurrences is to guess the
 answer and then attempt to prove it correct.
@@ -293,8 +298,9 @@ work.
 
       \frac{\phi^n - (1 - \phi)^n}{\sqrt{5}}.
 
+
 Expanding Recurrences
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Estimating bounds is effective if you only need an approximation to
 the answer.
@@ -358,13 +364,16 @@ A more complex example is given next.
    a power of two.
    At this point, we should use a simple induction proof to verify
    that our solution is indeed correct.
+   
+.. inlineav:: DivideAndConquerRecurrencesCON ss
+   :output: show
 
 .. topic:: Example
 
    Our next example models the cost of the algorithm to build a heap.
-   Recall from Module :numref:`<Heaps>` that to build a heap, we first
-   heapify the two subheaps, then push down the root to its proper
-   position.
+   You should recall that to build a :ref:`heap <heap> <Heaps>`,
+   we first heapify the two subheaps, then push down the root to its
+   proper position.
    The cost is:
 
    .. math::
@@ -395,8 +404,9 @@ A more complex example is given next.
       &=& 4n - 2 \log n - 4.
       \end{eqnarray*}
 
+
 Divide-and-Conquer Recurrences
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The third approach to solving recurrences is to take advantage of
 known theorems that provide the solution for classes of recurrences.
@@ -540,12 +550,12 @@ re-deriving the solution for the recurrence.
    Applying case (2) of the theorem,
    :math:`{\bf T}(n) = \Theta(n \log n)`.
 
+
 Average-Case Analysis of Quicksort
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-In Module :ref:`Quicksort <Quicksort> <Quicksort>`, we determined that the average-case
-analysis of Quicksort had the following recurrence:
+In Module :ref:`Quicksort <Quicksort> <Quicksort>`, we determined that
+the average-case analysis of Quicksort had the following recurrence:
 
 .. math::
 
@@ -622,3 +632,5 @@ for :math:`{\cal H}_{n+1}`, the Harmonic Series.
 From Equation (10) of Module :ref`summation <summation> <Summation>`,
 :math:`{\cal H}_{n+1} = \Theta(\log n)`,
 so the final solution is :math:`\Theta(n \log n)`.
+
+.. odsascript:: AV/Development/AlgAnal/DivideAndConquerRecurrencesCON.js

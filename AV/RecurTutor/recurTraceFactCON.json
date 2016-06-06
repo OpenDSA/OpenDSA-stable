@@ -1,0 +1,388 @@
+{
+  "translations" :{
+    "en": {
+     "sc1": "Suppose that we want to compute the value of factorial(5) using the following recursive factorial implementation.",
+     "sc2": "We can imagine that each recursive call creates a new copy of the code with the passed n value. Below we will show you flow during the winding phase by showing a copy of the code where we replace n in the function with actual value n during that call.",
+     "sc3": "The n=5 copy calls a new copy of the code with n = 4",
+     "sc4": "The n=4 copy calls a new copy of the code with n = 3",
+     "sc5": "The n=3 copy calls a new copy of the code with n = 2",
+     "sc6": "The n=2 copy calls a new copy of the code with n = 1",
+     "sc7": "The base case is now reached. So the function returns a value of 1. We are ready now for the unwinding phase, where the information is passed back. Each copy returns the value computed so far.",
+     "sc8": "The n=2 copy will multiply the return value of the n=1 copy  by 2.",
+     "sc9": "The n=3 copy will multiply the return value of the n=2 copy by 3.",
+     "sc10": "The n=4 copy will multiply the return value of the n=3 copy by 6.",
+     "sc11": "The n=5 copy will multiply the return value of the n=4 copy by 24. This last copy will return the final answer (120). This ends the unwinding phase."
+  }
+ },
+  "code" : {
+      "processing": [
+       {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+        }
+       },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact5.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+       }
+      },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact4.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact3.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+      }
+     },
+     {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact2.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact1.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact2r.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact3r.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact4r.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Processing/RecurTutor/Recfact5r.pde",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      }
+   ],
+   "java": [
+       {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+        }
+       },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact5.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+       }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact4.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact3.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+      }
+     },
+     {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact2.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact1.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact2r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact3r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact4r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact5r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+	  }
+      }
+   ],
+   "java_generic": [
+       {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4
+        }
+       },
+      {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact5.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+       }
+      },
+      {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact4.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact3.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+      }
+     },
+     {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact2.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact1.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact2r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact3r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java_Generic/RecurTutor/Recfact4r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/Java/RecurTutor/Recfact5r.java",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      }
+    ],
+     "c++": [
+       {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+        }
+       },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact5.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+       }
+      },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact4.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact3.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+      }
+     },
+     {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact2.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact1.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact2r.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact3r.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact4r.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      },
+      {
+        "url": "../../../SourceCode/C++/RecurTutor/Recfact5r.cpp",
+        "tags": {
+         "sig": 1,
+         "bc": 2,
+         "bcac": 3,
+         "rc": 4  
+	  }
+      }
+   ]
+   
+  }
+}

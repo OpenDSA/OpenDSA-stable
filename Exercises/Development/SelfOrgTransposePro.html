@@ -7,8 +7,8 @@ Written by Pavel Hovhannisyan and Cliff Shaffer
 <html data-require="math">
 <head>
   <title>Self Organinzing Lists Transpose</title>
-  <script src="../../lib/jquery.min.js"></script>
-  <script src="../../lib/jquery-ui.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
+
   <script src="../../JSAV/lib/jquery.transit.js"></script>
   <script src="../../JSAV/lib/raphael.js"></script>
   <script src="../../ODSAkhan-exercises/khan-exercise.js"></script>
@@ -48,7 +48,7 @@ Written by Pavel Hovhannisyan and Cliff Shaffer
     #reset { margin-right: 20px;}
   </style>
 </head>
-<body>
+  <body data-height="650" data-width="950">
 <script>
   var jsav,                // The JSAV object
     answerArr = [],        // The (internal) array that stores the correct answer
@@ -267,7 +267,7 @@ Written by Pavel Hovhannisyan and Cliff Shaffer
     answerArr[size-1] = "null";
     listArr = answerArr.slice(0);
 
-    search_index = Math.floor((Math.random() * (size - 2)) + 1); 
+    search_index = Math.floor((Math.random() * (size - 2)) + 1);
     search_value = listArr[search_index];
 
     f_reset();
@@ -319,20 +319,20 @@ Written by Pavel Hovhannisyan and Cliff Shaffer
 
 <div class="exercise">
   <div class="vars">
-    <var id="arr_size">randRange(4, 8)</var>
+    <var id="arr_size">Khan.randRange(4, 8)</var>
     <var id="jsav_init">initJSAV(arr_size)</var>
     <var id="search_value">getSearch()</var>
   </div>
 
   <div class="problems">
-    <div> <!-- Suppresses answer box -->
+    <div id="SelfOrgTransposeProp">
       <div id = "xx"></div>
       <div id = "yy"></div>
       <p class="problem" id = "test">
-        Your task in this exercise is to show the behavior for self organizing lists using the transpose method. You will need to 
+        Your task in this exercise is to show the behavior for self organizing lists using the transpose method. You will need to
         demonstrate what happens when you search for the value
-       <b><var>search_value</var></b>. 
-        You will need to manually redirect the pointers of the nodes 
+       <b><var>search_value</var></b>.
+        You will need to manually redirect the pointers of the nodes
         to demonstrate what happens when a node that is being searched is found.
       </p>
       <div class="question">
@@ -364,8 +364,8 @@ Written by Pavel Hovhannisyan and Cliff Shaffer
           the transpose method. Try starting finding the value in the list.
         </p>
         <p>
-          Now you need to make it point to the correct node, and 
-          make the rest of the nodes point to the other 
+          Now you need to make it point to the correct node, and
+          make the rest of the nodes point to the other
           acconrding nodes.
         </p>
       </div>

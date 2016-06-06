@@ -1,6 +1,6 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2013 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
 .. avmetadata::
@@ -8,6 +8,7 @@
    :requires: binary tree terminology
    :satisfies: full binary tree theorem
    :topic: Binary Trees
+.. odsalink:: AV/Binary/UnaryTreeExampleCON.css 
 
 The Full Binary Tree Theorem
 ============================
@@ -53,10 +54,10 @@ space from its internal nodes.
 
    A tree containing many internal nodes and a single leaf.
 
-.. TODO::
-   :type: Figure
+.. inlineav:: UnaryTreeExampleCON dgm
+   :align: center
 
-   Replace with proper figure (OneLeaf).
+   A tree containing many internal nodes and a single leaf.
 
 .. _FullTree:
 
@@ -155,3 +156,5 @@ each suggests a useful way of thinking about binary trees.
    In other words, there are :math:`n-1` non-empty children.
    Because the total number of children is :math:`2n`, the remaining
    :math:`n+1` children must be empty.
+
+.. odsascript:: AV/Binary/UnaryTreeExampleCON.js

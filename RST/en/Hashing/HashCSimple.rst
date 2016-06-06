@@ -5,7 +5,8 @@
 
 .. avmetadata::
    :author: Cliff Shaffer
-   :prerequisites:
+   :requires: open hashing
+   :satisfies: collision resolution
    :topic: Hashing
 
 .. index:: ! collision resolution
@@ -15,12 +16,16 @@
 Collision Resolution
 ====================
 
-We now turn to the most commonly used form of hashing:
-closed hashing with no bucketing, and a collision resolution policy
-that can potentially use any slot in the hash table.
+Collision Resolution
+--------------------
 
-During insertion, the goal of collision resolution is to find a free
-slot in the hash table when the home position for the record is
+We now turn to the most commonly used form of hashing:
+:term:`closed hashing <closed hash system>` with no bucketing, and a
+:term:`collision resolution policy` that can potentially use any slot
+in the hash table.
+
+During insertion, the goal of :term:`collision resolution` is to find
+a free slot in the hash table when the home position for the record is
 already occupied.
 We can view any collision resolution method as generating a sequence
 of hash table slots that can potentially hold the record.
@@ -115,6 +120,10 @@ returns to the home position.
 Can you see any reason why this might not be the best approach
 to collision resolution?
 
+
+The Problem with Linear Probing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 While linear probing is probably
 the first idea that comes to mind when considering collision
 resolution policies, it is not the only one possible.
@@ -138,6 +147,7 @@ worse.
 The objection to primary clustering is that it leads to
 long probe sequences.
 
-.. avembed:: Exercises/Hashing/HashingLinearProbePRO.html ka
+.. avembed:: Exercises/Hashing/HashLinearPPRO.html ka
 
-.. odsascript:: AV/Hashing/linProbeCON.js
+.. odsascript:: AV/Hashing/linProbeCON1.js
+.. odsascript:: AV/Hashing/linProbeCON2.js

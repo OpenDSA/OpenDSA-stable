@@ -38,44 +38,44 @@ jshint:
 	-@jshint lib/gradebook.js
 
 jsav:
-	cp dev/OpenDSA/JSAV/build/JSAV-min.js JSAV/build
-	cp dev/OpenDSA/JSAV/build/JSAV.js JSAV/build
+	cp NewKA/OpenDSA/JSAV/build/JSAV-min.js JSAV/build
+	cp NewKA/OpenDSA/JSAV/build/JSAV.js JSAV/build
 	$(RM) JSAV/lib
-	cp -r dev/OpenDSA/JSAV/lib JSAV/lib
+	cp -r NewKA/OpenDSA/JSAV/lib JSAV/lib
 	$(RM) JSAV/css
-	cp -r dev/OpenDSA/JSAV/css JSAV/css
+	cp -r NewKA/OpenDSA/JSAV/css JSAV/css
 	$(RM) JSAV/extras
-	cp -r dev/OpenDSA/JSAV/extras JSAV/extras
+	cp -r NewKA/OpenDSA/JSAV/extras JSAV/extras
 	$(RM) JSAV/examples
-	cp -r dev/OpenDSA/JSAV/examples JSAV/examples
+	cp -r NewKA/OpenDSA/JSAV/examples JSAV/examples
 
 update: jsav docopy min
 
 docopy:
 	$(RM) AV
-	cp -r dev/OpenDSA/AV AV
+	cp -r NewKA/OpenDSA/AV AV
 	$(RM) DataStructures
-	cp -r dev/OpenDSA/DataStructures DataStructures
+	cp -r NewKA/OpenDSA/DataStructures DataStructures
 	$(RM) config
-	cp -r dev/OpenDSA/config config
+	cp -r NewKA/OpenDSA/config config
 	$(RM) Doc
-	cp -r dev/OpenDSA/Doc Doc
+	cp -r NewKA/OpenDSA/Doc Doc
 	$(RM) Exercises
-	cp -r dev/OpenDSA/Exercises Exercises
+	cp -r NewKA/OpenDSA/Exercises Exercises
 	$(RM) lib
 	mkdir lib
-	-cp dev/OpenDSA/lib/* lib
-	cp -r dev/OpenDSA/lib/codemirror lib/codemirror
+	-cp NewKA/OpenDSA/lib/* lib
+	cp -r NewKA/OpenDSA/lib/CodeMirror-5.5.0 lib/CodeMirror-5.5.0
 	$(RM) lib/*-min.*
 	$(RM) tools
-	cp -r dev/OpenDSA/tools tools
+	cp -r NewKA/OpenDSA/tools tools
 	$(RM) RST
-	cp -r dev/OpenDSA/RST RST
-	$(RM) ODSAkhan-exercises
-	cp -r dev/OpenDSA/ODSAkhan-exercises ODSAkhan-exercises
+	cp -r NewKA/OpenDSA/RST RST
+	$(RM) khan-exercises
+	cp -r NewKA/OpenDSA/khan-exercises khan-exercises
 	$(RM) SourceCode
-	cp -r dev/OpenDSA/SourceCode SourceCode
-	cp dev/OpenDSA/WebServer .
+	cp -r NewKA/OpenDSA/SourceCode SourceCode
+	cp NewKA/OpenDSA/WebServer .
 	- $(RM) Doc/build
 	cd Doc; make
 
@@ -87,13 +87,14 @@ nomin:
 	@cp lib/odsaUtils.js lib/odsaUtils-min.js
 	@cp lib/odsaMOD.js lib/odsaMOD-min.js
 	@cp lib/odsaAV.js lib/odsaAV-min.js
+	@cp lib/odsaKA.js lib/odsaKA-min.js
 	@cp lib/gradebook.js lib/gradebook-min.js
-	@cp ODSAkhan-exercises/khan-exercise.js lib/khan-exercise-min.js
 	@cp lib/registerbook.js lib/registerbook-min.js
 	@cp lib/site.css lib/site-min.css
 	@cat lib/normalize.css lib/odsaAV.css > lib/odsaAV-min.css
 	@cp lib/odsaMOD.css lib/odsaMOD-min.css
 	@cp lib/odsaStyle.css lib/odsaStyle-min.css
+	@cp lib/odsaKA.css lib/odsaKA-min.css
 	@cp lib/gradebook.css lib/gradebook-min.css
 
 F15: CS2114 CS3114F15 CS316 TDDD86F15 TDDC91F15 TDDI16F15 CSE017F15 CPSC270 COP3530 CISC-187 C2GEN CS226JHU CS340 CS260F15
@@ -117,7 +118,7 @@ RecurTutor2: min
 	python $(CONFIG_SCRIPT) config/RecurTutor2.json
 
 CS226JHU: min
-	python $(CONFIG_SCRIPT) config/CS226JHUF15.json -o CS226JHUF15
+	python $(CONFIG_SCRIPT) config/CS226JHU.json -o CS226JHUS16
 
 CISC-187: min
 	python $(CONFIG_SCRIPT) config/CISC-187.json
@@ -159,7 +160,7 @@ CS2114SS215: min
 	python $(CONFIG_SCRIPT) config/CS2114SS215.json
 
 CS2114: min
-	python $(CONFIG_SCRIPT) config/CS2114F15.json
+	python $(CONFIG_SCRIPT) config/CS2114.json
 
 CS2401: min
 	python $(CONFIG_SCRIPT) config/CS2401.json
@@ -175,7 +176,7 @@ CS3114F15: min
 	python $(CONFIG_SCRIPT) config/CS3114F15Barnette.json
 
 CS3114notes: min
-	python $(CONFIG_SCRIPT) s config/CS3114notes.json
+	python $(CONFIG_SCRIPT) -s config/CS3114notes.json
 
 CS316: min
 	python $(CONFIG_SCRIPT) config/CS316.json
@@ -190,7 +191,7 @@ CS4104S15: min
 	python $(CONFIG_SCRIPT) config/CS4104S15.json
 
 CS5114: min
-	python $(CONFIG_SCRIPT) config/CS5114.json
+	python $(CONFIG_SCRIPT) config/CS5114S16.json
 
 CS5114S15: min
 	python $(CONFIG_SCRIPT) config/CS5114S15.json

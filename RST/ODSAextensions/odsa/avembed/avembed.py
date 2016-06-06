@@ -182,6 +182,7 @@ class avembed(Directive):
     url_params['exerciseServer'] = conf.exercise_server
     url_params['loggingServer'] = conf.logging_server
     url_params['scoreServer'] = conf.score_server
+    url_params['localMode'] = str(conf.local_mode).lower()
     url_params['moduleOrigin'] = conf.module_origin
     url_params['module'] = self.options['module']
     url_params['selfLoggingEnabled'] = 'false'
@@ -245,7 +246,7 @@ class avembed(Directive):
       self.options['long_name'] = self.options['exer_name']
 
     if 'showhide' not in self.options:
-      self.options['showhide'] = 'hide'
+      self.options['showhide'] = 'show'
 
     if self.options['showhide'] == "show":
       self.options['show_hide_text'] = langDict["hide"]
@@ -260,8 +261,8 @@ class avembed(Directive):
       self.options['external'] = 'true'
       self.options['av_address'] = self.options['external_url']
 
-    if self.options['showhide'] != "none":
-      self.options['content'] = BUTTON_HTML % (self.options)
+    # if self.options['showhide'] != "none":
+    #   self.options['content'] = BUTTON_HTML % (self.options)
 
     res = CONTAINER_HTML % (self.options)
 

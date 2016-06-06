@@ -1,11 +1,17 @@
 {
   "title": "Test",
+  "tag": "Java;CPP",
   "build_dir": "Books",
   "code_dir": "SourceCode/",
   "code_lang": {
-    "Processing": ["pde"],
-    "Java": ["java"],
-    "C++": ["cpp", "h"]
+    "C++": {
+      "ext": [
+        "cpp",
+        "h"
+      ],
+      "label": "C++",
+      "lang": "C++"
+    }
   },
   "lang": "en",
   "module_origin": "http://algoviz.org",
@@ -21,39 +27,17 @@
   },
   "chapters": {
     "Test": {
-      "AlgAnal/AnalProgram": {
-        "long_name": "Calculating the Running Time of a Program",
-        "sections": {
-          "binsearchpro": {
-            "long_name": "Binary Search Proficiency Exercise",
-            "showhide": "none",
-            "remove": false
-          }
-        },
+      "MKOMohammed/SortNotation": {
+        "long_name": "Sorting Terminology and Notation",
         "exercises": {
-          "binarySearchCON": {
-            "long_name": "Binary Search Algorithm Slideshow",
+          "SortIntroSumm": {
+            "long_name": "Sorting Intro Summary",
             "required": true,
-            "points": 0.0,
-            "threshold": 1.0
-          },
-          "binarySearchPRO": {
-            "long_name": "Binary Search Proficiency Exercise",
-            "required": true,
+            "showhide": "show",
             "points": 1.0,
-            "threshold": 1.0
-          },
-          "AnalProgramSumm": {
-            "long_name": "Program Code Analysis Exercise",
-            "required": true,
-            "points": 1.0,
-            "threshold": 5
+            "threshold": 3
           }
         }
-      },
-      "Development/BalancedTree": {
-        "long_name": "Balanced Trees",
-        "exercises": {}
       }
     },
     "Appendix": {

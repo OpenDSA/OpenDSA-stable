@@ -1,6 +1,6 @@
 /*!
  * JSAV - JavaScript Algorithm Visualization Library
- * Version v1.0.1-8-g04435bf
+ * Version v1.0.1-16-gb99d7b4
  * Copyright (c) 2011-2015 by Ville Karavirta and Cliff Shaffer
  * Released under the MIT license.
  */
@@ -990,7 +990,20 @@ jQuery.cssHooks.borderWidth = {
   
   var dialogBase = '<div class="jsavdialog"></div>',
     $modalElem = null;
-  
+
+  var centerDialog = function($dialog) {
+    var $doc = $(document),
+        $win = $(window),
+        winHeight = $win.height(),
+        winWidth = $win.width(),
+        scrollLeft = $doc.scrollLeft(),
+        scrollTop = $doc.scrollTop();
+    $dialog.css({
+      top: Math.max(scrollTop + (winHeight - $dialog.outerHeight())/2, 0),
+      left: scrollLeft + (winWidth - $dialog.outerWidth())/2
+    });
+  };
+
   u.dialog = function(html, options) {
     // options supported :
     //  - modal (default true)
@@ -1000,11 +1013,11 @@ jQuery.cssHooks.borderWidth = {
     //  - dialogClass
     //  - title
     //  - closeCallback
+    //  - positionCallback
     //  - dialogBase
     //  - dialogRootElement
     options = $.extend({}, {modal: true, closeOnClick: true}, options);
-    var d = {},
-        modal = options.modal,
+    var modal = options.modal,
         $dialog = $(options.dialogBase || dialogBase),
         i, l, attr,
         attrOptions = ["width", "height", "minWidth", "minHeight", "maxWidth", "maxHeight"];
@@ -1027,14 +1040,7 @@ jQuery.cssHooks.borderWidth = {
         $dialog.css(attr, options[attr]);
       }
     }
-    var $doc = $(document),
-      $win = $(window),
-      docHeight = $doc.height(),
-      docWidth = $doc.width(),
-      winHeight = $win.height(),
-      winWidth = $win.width(),
-      scrollLeft = $doc.scrollLeft(),
-      scrollTop = $doc.scrollTop();
+    var winWidth = $(window).width();
     if (!("width" in options)) {
       $dialog.css("width", Math.max(500, winWidth*0.7)); // min width 500px, default 70% of window
     }
@@ -1066,15 +1072,10 @@ jQuery.cssHooks.borderWidth = {
 
     var $dial = $dialog.appendTo(options.dialogRootElement || $("body"));
     $dial.draggable();
-    var center = function() {
-      $dialog.css({
-        top: Math.max(scrollTop + (winHeight - $dialog.outerHeight())/2, 0),
-        left: scrollLeft + (winWidth - $dialog.outerWidth())/2
-      });
-    };
-    center();
+    var position = options.positionCallback || centerDialog;
+    position($dialog);
     $dial.show = function() {
-      center();
+      position($dialog);
       $dial.fadeIn();
     };
     $dial.close = close;
@@ -1670,6 +1671,30 @@ mixkey(math.random(), pool);
     return true;
   };
 
+  // logic for handling anchors like in jQueryUI code
+  var rhorizontal = /left|center|right/,
+      rvertical = /top|center|bottom/;
+  var combineAnchorAndOffsets = function(anchor, offsetLeft, offsetTop) {
+    // for new jQueryUI, we need to combine the offsets into the anchor, and
+    // that's what this function does
+    var pos = ( anchor || "" ).split( " " );
+
+    // if we ony have one anchor, figure out which one it's
+    // default to center for the other
+    if ( pos.length === 1 ) {
+      pos = rhorizontal.test( pos[ 0 ] ) ?
+        pos.concat( [ "center" ] ) :
+        rvertical.test( pos[ 0 ] ) ?
+          [ "center" ].concat( pos ) :
+          [ "center", "center" ];
+    }
+    pos[ 0 ] = rhorizontal.test( pos[ 0 ] ) ? pos[ 0 ] : "center";
+    pos[ 1 ] = rvertical.test( pos[ 1 ] ) ? pos[ 1 ] : "center";
+
+    return pos[0] + (offsetLeft >= 0 ? '+' + offsetLeft : offsetLeft) +
+          ' ' + pos[1] + (offsetTop >= 0 ? '+' + offsetTop : offsetTop);
+  };
+
   // position the given object relative to relElem, taking into account offsets and anchors
   // the move is animated
   var animateToNewRelativePosition = function(jsavobj, relElem, offsetLeft, offsetTop, anchor, myAnchor) {
@@ -1677,10 +1702,9 @@ mixkey(math.random(), pool);
         elemCurPos = el.position();
 
     // use jqueryui to position the el relative to the relElem
-    el.position({my: myAnchor,
+    el.position({my: combineAnchorAndOffsets(myAnchor, offsetLeft, offsetTop),
       at: anchor,
       of: relElem,
-      offset: offsetLeft + " " + offsetTop,
       collision: "none"});
     var elemPos = el.position();
     var elemLeft = elemPos.left;
@@ -1780,10 +1804,9 @@ mixkey(math.random(), pool);
         options.callback(move.left, move.top);
       }
     } else { // set the initial position to the current position (to prevent unnecessary animations)
-      el.position({my: myAnchor,
+      el.position({my: combineAnchorAndOffsets(myAnchor, offsetLeft, offsetTop),
                    at: anchor,
                    of: relElem,
-                   offset: offsetLeft + " " + offsetTop,
                    collision: "none"});
     }
     if (follow) { // if the jsavobj should move along with the target, register it to do so
@@ -5436,7 +5459,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       valtype = typeof(value);
     if (valtype === "object") { valtype = "string"; }
     this.element = el;
-    el.addClass("jsavnode jsavlistnode")
+    el.addClass("jsavnode jsavlistnode" + (this._next ? '' : ' jsavnonext'))
         .attr({"data-value": value, "id": this.id(), "data-value-type": valtype })
         .data("node", this);
     if ("first" in options && options.first) {
@@ -5474,6 +5497,11 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
     }
     if (options && options.edgeLabel) {
       this._edgetonext.label(options.edgeLabel);
+    }
+    if (!oldNext && newNext) {
+      this.element.removeClass('jsavnonext');
+    } else if (oldNext && !newNext) {
+      this.element.addClass('jsavnonext');
     }
     return [oldNext];
   });
@@ -7332,12 +7360,12 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       if (elem) {
         $(elem).click(function(e) {
           e.preventDefault();
-          that.show();
+          that.show(e);
         });
       }
     },
     sproto = Settings.prototype;
-  sproto.show = function() {
+  sproto.show = function(evt) {
     var $cont = $("<div class='jsavsettings'></div>");
     for (var i = 0; i < this.components.length; i++) {
       $cont.append(this.components[i]);
@@ -7359,7 +7387,38 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       translate = JSAV.utils.getInterpreter(JSAV._translations, lang);
     }
     var title = translate("settings");
-    this.dialog = JSAV.utils.dialog($cont, {title: title});
+    var dialogPosition = function($dialog) {
+      // position the settings dialog relative to the settings button
+      // depending on the position of the button, the dialog can be
+      // above or below and left or right of the button
+      var $button = $(evt.target),
+          buttonPos = $button.offset(),
+          $win = $(window),
+          winWidth = $win.width(),
+          winHeight = $win.height(),
+          scrollTop = $win.scrollTop(),
+          scrollLeft = $win.scrollLeft();
+      var leftOfCenter = buttonPos.left - scrollLeft < (winWidth / 2),
+          aboveMiddle = buttonPos.top - scrollTop < (winHeight / 2);
+      $dialog.addClass('arrow-' + (aboveMiddle?'top':'bottom') + '-' +
+                        (leftOfCenter ?'left':'right'));
+      // magic numbers based on the position of the arrow
+      $dialog.css({
+          top: aboveMiddle
+                  ? buttonPos.top + $button.outerHeight() + 8
+                  : buttonPos.top - $dialog.height() - 8,
+          left: leftOfCenter
+                  ? buttonPos.left + $button.outerWidth()/2 - 8
+                  : buttonPos.left - $dialog.width() + $button.outerWidth()/2 + 8
+      });
+    };
+
+    this.dialog = JSAV.utils.dialog($cont, {
+                          title: title,
+                          dialogClass: 'jsavsettings-dialog',
+                          positionCallback: dialogPosition,
+                          width: '500px'
+                        });
   };
   sproto.close = function() {
     if (this.dialog) {
@@ -7818,7 +7877,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
       } else {
         cont.append($reset, $model, $action);
       }
-      $action.position({of: cont.children().last(), at: "right center", my: "left center", offset: "5 -2"});
+      $action.position({of: cont.children().last(), at: "right center", my: "left+5 center-2"});
     }
     // if feedbacktype can be selected, add settings for it
     if (this.options.feedbackSelectable) {
@@ -8314,7 +8373,7 @@ if (typeof Raphael !== "undefined") { // only execute if Raphael is loaded
 */
 (function() {
   if (typeof JSAV === "undefined") { return; }
-  var theVERSION = "v1.0.1-8-g04435bf";
+  var theVERSION = "v1.0.1-16-gb99d7b4";
 
   JSAV.version = function() {
     return theVERSION;

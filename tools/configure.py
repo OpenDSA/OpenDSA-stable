@@ -233,10 +233,7 @@ def generate_index_rst(config, slides=False):
         # Process the Gradebook and Registerbook as well
         if not slides:
             process_module(config, mod_path='Gradebook', index_rst=index_rst)
-            process_module(
-                config, mod_path='RegisterBook', index_rst=index_rst)
-            process_module(
-                config, mod_path='CreateCourse', index_rst=index_rst)
+            process_module(config, mod_path='RegisterBook', index_rst=index_rst)
 
         # If a ToDo file will be generated, append it to index.rst
         if len(todo_list) > 0:
@@ -334,9 +331,22 @@ def initialize_conf_py_options(config, slides):
     options['odsa_dir'] = config.odsa_dir
     options['book_dir'] = config.book_dir
     options['code_dir'] = config.code_dir
+    options['tag'] = config.tag
     options['tabbed_code'] = config.tabbed_codeinc
     options['code_lang'] = json.dumps(config.code_lang)
     options['text_lang'] = json.dumps(config.lang)
+    
+	#Adding multiple tags
+    if config.tag:
+      tags_string = ""
+      tags_array = []
+      tags_array += [a.strip() for a in config.tag.split(';')]
+      for tag in tags_array:
+        tags_string += " -t "+tag 
+      options["tag"] = tags_string
+    else:
+        options["tag"] = ""
+	
     # convert the translation text into unicode sstrings
     tmpSTR = ''
     for k, v in config.text_translated.iteritems():
@@ -349,7 +359,7 @@ def initialize_conf_py_options(config, slides):
     options['eb2root'] = config.rel_build_to_odsa_path
     options['rel_book_output_path'] = config.rel_book_output_path
     options['slides_lib'] = 'hieroglyph' if slides else ''
-
+    options['local_mode'] = str(config.local_mode).title()
     return options
 
 
@@ -394,6 +404,9 @@ def configure(config_file_path, options):
 
     print "Writing files to " + config.book_dir + "\n"
 
+    # local mode option
+    config.local_mode = str(options.local).lower()
+
     # Initialize output directory, create index.rst, and process all of the
     # modules
     initialize_output_directory(config)
@@ -418,6 +431,7 @@ def configure(config_file_path, options):
     # Entries are only added to todo_list if config.suppress_todo is False
     if len(todo_list) > 0:
         generate_todo_rst(config, slides)
+
 
     # Dump num_ref_map to table.json to be used by the Sphinx directives
     with open(config.book_dir + 'table.json', 'w') as num_ref_map_file:
@@ -473,12 +487,10 @@ def configure(config_file_path, options):
 # Code to execute when run as a standalone program
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.add_option("-s", "--slides", help="Causes configure.py to create slides",
-                      dest="slides", action="store_true", default=False)
-    parser.add_option("--dry-run", help="Causes configure.py to configure the book but stop before compiling it",
-                      dest="dry_run", action="store_true", default=False)
-    parser.add_option("-o", help="Accepts a custom directory name instead of using the config file's name.",
-                      dest="output_directory", default=None)
+    parser.add_option("-s", "--slides", help="Causes configure.py to create slides",dest="slides", action="store_true", default=False)
+    parser.add_option("--dry-run", help="Causes configure.py to configure the book but stop before compiling it",dest="dry_run", action="store_true", default=False)
+    parser.add_option("--local", help="Causes the compiled book to work in local mode, which means no communication with the server",dest="local", action="store_true", default=False)
+    parser.add_option("-o", help="Accepts a custom directory name instead of using the config file's name.",dest="output_directory", default=None)
     (options, args) = parser.parse_args()
 
     if options.slides:
@@ -489,7 +501,7 @@ if __name__ == "__main__":
     # Process script arguments
     if len(args) != 1:
         print_err(
-            "Usage: " + sys.argv[0] + " [-s] [--dry-run] config_file_path")
+            "Usage: " + sys.argv[0] + " [-s] [--dry-run] ")
         sys.exit(1)
 
     configure(args[0], options)

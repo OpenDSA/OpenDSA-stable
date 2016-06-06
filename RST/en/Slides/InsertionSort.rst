@@ -5,7 +5,6 @@
 
 .. avmetadata::
    :author: Cliff Shaffer
-   :prerequisites: Sorting
    :topic: Sorting
 
 .. slideconf::
@@ -29,47 +28,16 @@ Insertion Sort
    respect to the first two, and so on.
 
 
-Overview
-========
-
-.. slide:: Title 1  
+.. slide:: Initial Step
    :level: 3 
  
    Consider this start to the process.
 
-   .. inlineav:: InssortCON1 ss
-      :output: show
-
-Overview
-========
-
-.. slide:: Title 2
-   :level: 3
-
-   Next, process the record in position 2.
-   Swap it to the left until it reaches a value smaller than it is.
-
-   .. inlineav:: InssortCON2 ss
+   .. inlineav:: insertionsortCON ss
       :output: show
 
 
-
-Overview
-========
-
-.. slide:: Title 3
-   :level: 3 
-
-   And now the record in position 3.
-
-   .. inlineav:: InssortCON3 ss
-      :output: show
-
-
-Insertion Sort Analysis
-=======================
-
-.. slide:: Title 4
+.. slide:: Analysis
    :level: 3
 
    The body of ``inssort`` consists of two nested
@@ -88,6 +56,5 @@ Insertion Sort Analysis
 
    So, the average case is no better than the worst case in
    its growth rate :num:`Figure #TOH456`.
-
 
    .. odsascript:: AV/Sorting/insertionsortCON.js

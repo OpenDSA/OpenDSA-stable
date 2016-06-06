@@ -1,5 +1,5 @@
-"use strict";
 $(document).ready(function () {
+  "use strict";
   var av = new JSAV("BinDiffCON", {"animationMode": "none"});
   // Setup first row of trees
   var btTop = 0;
@@ -38,5 +38,6 @@ $(document).ready(function () {
   // Add second row of labels
   var clabel = av.label("(c)", {left: btLeft + 40, top: btTop + 105}).show;
   var dlabel = av.label("(d)", {left: btRight + 35, top: btTop + 105}).show;
-
+  av.displayInit();
+  av.recorded();
 });

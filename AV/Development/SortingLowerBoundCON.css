@@ -1,5 +1,5 @@
 #SortingLowerBoundCON {
-  height: 625px;
+  height: 550px;
 }
 .rotated {
   -webkit-transform: rotate(90deg);
@@ -7,4 +7,24 @@
   -ms-transform: rotate(90deg);
   -o-transform: rotate(90deg);
   transform: rotate(90deg);
+}
+.greenNode{
+  fill: green; 
+  opacity: 0.5 !important;
+}
+.redNode{
+  fill: red; 
+  opacity: 0.5 !important; 
+}
+.smallLabel{
+	font-size: 12px; 
+	text-align: center;
+}
+.mediumLabel{
+    font-size: 16px; 
+	text-align: center;	
+}
+orangeFill{
+	fill: orange; 
+	opacity: 0.5 !important;
 }

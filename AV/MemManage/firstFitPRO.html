@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>First Fit Proficiency Exercise</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="../../JSAV/css/JSAV.css" type="text/css" />
+  <link rel="stylesheet" href="../../lib/odsaAV-min.css" type="text/css" />
+  <link rel="stylesheet" href="firstFitPRO.css" type="text/css" />
+</head>
+
+<body>
+<div id="container">
+  <table class="proHeaderTable">
+    <tr>
+      <td class="headerLeft">
+        <input type="button" id="help" name="help" value="Help" />
+      </td>
+      <td class="headerCenter">
+        <p class="jsavexercisecontrols"></p>
+      </td>
+      <td class="headerRight">
+        <input type="button" id="about" name="about" value="About" />
+        <a id="settings" class="jsavsettings" href="#">Settings</a>
+      </td>
+    </tr>
+  </table>
+  <form class="avcontainer">
+    <div class="jsavcanvas">
+      <p class="instructLabel">Instructions:</p>
+      <p class="instructions">
+        For each block size listed in the stack, use the first fit
+        algorithm to find a free block in the memory pool to handle
+        the request.  Select a free block by clicking on some position
+        in the array that corresponds to the free block in the memory
+        pool.  Once you have selected the array element, the freeblock
+        list will be updated.
+      </p>
+      <p align="center">
+        <span class="jsavscore"></span>
+      </p>
+      <p class="jsavoutput jsavline"></p>
+    </div>
+  </form>
+</div> <!-- container -->
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script src="../../JSAV/lib/jquery.transit.js"></script>
+<script src="../../JSAV/lib/raphael.js"></script>
+<script src="../../JSAV/build/JSAV-min.js"></script>
+<script src="../../lib/odsaUtils-min.js"></script>
+<script src="../../lib/odsaAV-min.js"></script>
+<script src="../../JSAV/extras/stack.js"></script>
+<script src="firstFitPRO.js"></script>
+</body>
+</html>

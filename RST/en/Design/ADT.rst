@@ -1,10 +1,11 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2015 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
 .. avmetadata::
    :author: Cliff Shaffer
+   :requires:
    :satisfies: ADT; metaphor
    :topic: Abstract Data Types
 
@@ -12,6 +13,9 @@
 
 Abstract Data Types
 ===================
+
+Abstract Data Types
+-------------------
 
 This module presents terminology and definitions related to techniques
 for managing the tremendous complexity of computer programs.
@@ -63,16 +67,22 @@ However, array can also mean a logical data type composed of a
 (typically homogeneous) collection of data items, with each data item
 identified by an index number.
 It is possible to implement arrays in many different ways besides as a
-block of contiguous memory location.
-This is particularly useful when implementing a
-:ref:`sparse matrix <sparse matrix> <SparseMatrix>`,
-a large two-dimensional array
+block of contiguous memory locations.
+The :ref:`sparse matrix <sparse matrix> <SparseMatrix>`
+refers to a large, two-dimensional array
 that stores only a relatively few non-zero values.
+This is often implemented with a linked structure, or possibly using a
+:ref:`hash table <hash table> <HashIntro>`.
+But it could be implemented with an interface that uses traditional
+row and column indices, thus appearing to the user in the same way
+that it would if it had been implemented as a block of contiguous
+memory locations.
 
-An :term:`abstract data type` (ADT) is the realization of a data type
-as a software component.
-An ADT is defined in terms of a type and a set of operations on that
-type.
+
+An :term:`abstract data type` (ADT) is the specification of a data type
+within some language, independent of an implementation.
+The interface for the ADT is defined in terms of a type and a set of
+operations on that type.
 The behavior of each operation is determined by its inputs and outputs.
 An ADT does not specify *how* the data type is implemented.
 These implementation details are hidden from the user of the ADT and
@@ -249,7 +259,8 @@ Data types have both a :term:`logical form` and a :term:`physical form`.
 The definition of the data type in terms of an ADT is its logical
 form.
 The implementation of the data type as a data structure
-is its physical form. Sometimes you may see the term *concrete implementation*,
+is its physical form.
+Sometimes you might see the term *concrete implementation*,
 but the word concrete is redundant.
 The figure below illustrates this relationship between logical
 and physical forms for data types.
@@ -291,10 +302,6 @@ The interface becomes a form of communication between the two programmers.
    Within the class, a variety of physical implementations for lists
    is possible.
 
-.. odsascript:: AV/Design/ADTCON.js
-
-
 .. avembed:: Exercises/Design/IntroADTSumm.html ka
 
-
-
+.. odsascript:: AV/Design/ADTCON.js

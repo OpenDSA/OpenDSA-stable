@@ -1,59 +1,29 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2013 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
 .. avmetadata::
    :author: Cliff Shaffer
+   :requires: growth rate
    :satisfies: best and worst case
    :topic: Algorithm Analysis
+   
+.. odsalink:: AV/AlgAnal/AnalCasesCON.css
 
 Best, Worst, and Average Cases
 ==============================
 
-Consider the problem of finding the factorial of :math:`n`.
-For this problem, there is only one input of a given "size" (that
-is, there is only a single instance for each size of :math:`n`).
-Now consider the largest-value :term:`sequential search`
-algorithm, which always examines every array value.
-This algorithm works on many inputs of a given size :math:`n`.
-That is, there are many possible arrays of any given size.
-However, no matter what array of size :math:`n` that the algorithm
-looks at, its cost will always be the same in that it always looks at
-every element in the array exactly one time.
+Best, Worst, and Average Cases
+------------------------------
 
-For some algorithms, different inputs of a given size require
-different amounts of time.
-For example, consider the problem of searching an array containing
-:math:`n` integers to find the one with a particular value :math:`K`
-(assume that :math:`K` appears exactly once in the array).
-The :term:`sequential search` algorithm begins
-at the first position in the array and looks at each value in turn
-until :math:`K` is found.
-Once :math:`K` is found, the algorithm stops.
-This is different from the largest-value sequential search algorithm,
-which always examines every array value.
+.. inlineav:: AnalCasesSameCON ss
+   :output: show
 
-There is a wide range of possible running
-times for the sequential search algorithm.
-The first integer in the array could have value :math:`K`,
-and so only one integer is examined.
-In this case the running time is short.
-This is the :term:`best case` for this algorithm, because it is not
-possible for sequential search to look at less than one value.
-Alternatively, if the last position in the array contains :math:`K`,
-then the running time is relatively long, because the algorithm
-must examine :math:`n` values.
-This is the :term:`worst case` for this algorithm, because sequential
-search never looks at more than each of the :math:`n` values in the
-array.
-If we implement sequential search as a program and run it many times
-on many different arrays of size :math:`n`,
-or search for many different values of :math:`K` within the same
-array, we expect the algorithm on average to go halfway through the
-array before finding the value we seek.
-On average, the algorithm examines about :math:`n/2` values.
-We call this the :term:`average case` for this algorithm.
+|
+
+.. inlineav:: AnalCasesDiffCON ss
+   :output: show
 
 When analyzing an algorithm, should we study the best, worst, or
 average case?
@@ -115,8 +85,5 @@ Otherwise, we often desire an average-case analysis if we know enough
 about the distribution of our input to compute the average case.
 If not, then we must resort to worst-case analysis.
 
-.. todo::
-   :type: Slideshow
-
-   A visualization to illustrate the difference between best, average, and worst cases. We may consider the problem of searching and the sequencial search algorithm. A random array of size $n$ is generated to represent a problem instance and then the best case occurs when the target is in the first position, the worst case occurs when the target is in the last position, and the average case occurs when the target is near the middle of the array. 
-
+.. odsascript:: AV/AlgAnal/AnalCasesSameCON.js	  
+.. odsascript:: AV/AlgAnal/AnalCasesDiffCON.js	  

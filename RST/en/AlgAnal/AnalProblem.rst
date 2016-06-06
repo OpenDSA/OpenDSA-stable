@@ -1,6 +1,6 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2013 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
 .. avmetadata::
@@ -9,8 +9,13 @@
    :satisfies: analyzing problems
    :topic: Algorithm Analysis
 
+.. odsalink:: AV/AlgAnal/AnalyzingProblemsCON.css
+
 Analyzing Problems
 ==================
+
+Analyzing Problems
+------------------
 
 You most often use the techniques of "algorithm" analysis to analyze
 an :term:`algorithm`, or the instantiation of an algorithm as a
@@ -22,20 +27,8 @@ problem cannot be worse than the upper bound for the best algorithm
 that we know for that problem.
 But what does it mean to give a :term:`lower bound` for a problem?
 
-Consider a graph of cost over all inputs of a given size :math:`n` for
-some algorithm for a given problem.
-Define :math:`\mathcal{A}` to be the collection of all algorithms that
-solve the problem (theoretically, there are an infinite number of such
-algorithms).
-Now, consider the collection of all the graphs for all of the
-(infinitely many) algorithms in :math:`\mathcal{A}`.
-The worst case lower bound is the *least* of all the
-*highest* points on all the graphs.
-
-.. TODO::
-   :tag: Slideshow
-
-   Present a visualization of the previous paragraph
+.. inlineav:: AnalyzingProblemsCON ss
+   :output: show
 
 It is much easier to show that an algorithm (or program) is in
 :math:`\Omega(f(n))` than it is to show that a problem is in
@@ -104,10 +97,9 @@ If the lower bound for the problem matches the upper bound for the
 algorithm (within a constant factor), then we know that we can find an
 algorithm that is better only by a constant factor.
 
-.. avembed:: Exercises/AlgAnal/AnalProblemSumm.html ka
-
-Notes
------
-
 .. [#] While it is fortunate to know the truth, it is unfortunate that
        sorting is :math:`\Theta(n \log n)` rather than :math:`\Theta(n)`!
+
+.. avembed:: Exercises/AlgAnal/AnalProblemSumm.html ka
+
+.. odsascript:: AV/AlgAnal/AnalyzingProblemsCON.js

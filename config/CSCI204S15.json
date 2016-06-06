@@ -3,8 +3,21 @@
   "build_dir": "Books",
   "code_dir": "SourceCode/",
   "code_lang": {
-    "Processing": ["pde"],
-    "C++": ["cpp", "h"]
+    "Processing": {
+      "ext": [
+        "pde"
+      ],
+      "label": "Processing",
+      "lang": "java"
+    },
+    "C++": {
+      "ext": [
+        "cpp",
+        "h"
+      ],
+      "label": "C++",
+      "lang": "C++"
+    }
   },
   "lang": "en",
   "module_origin": "http://algoviz.org",
@@ -735,6 +748,12 @@
             "required": false,
             "points": 0.0,
             "threshold": 1.0
+          },
+          "btLeafPROG": {
+            "long_name": "Node Count Programming Exercise",
+            "required": true,
+            "points": 1.0,
+            "threshold": 1
           },
           "btTravInorderPRO": {
             "long_name": "Binary Tree Inorder Traversal Exercise",
@@ -1628,12 +1647,12 @@
             "points": 0.0,
             "threshold": 1.0
           },
-          "externalMultiwayMergePRO": {
+          "extMultiMergePRO": {
             "long_name": "Multi-way Merge Proficiency Exercise",
             "required": true,
             "points": 1.0,
             "showhide": "none",
-            "threshold": 1.0
+            "threshold": 0.9
           }
         }
       }

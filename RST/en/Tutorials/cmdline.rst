@@ -1,19 +1,21 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2013 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
 .. avmetadata::
    :author: Jordan Sablan
    :requires:
-   :satisfies:
+   :satisfies: Commmand line
    :topic:
 
 ===================
 Command Line Basics
 ===================
+
 What's A CLI?
 -------------
+
 A Command Line Interface or CLI is a simple text only interface. A user provides
 a command with or without some additional information and then the command is
 exectued.
@@ -58,9 +60,11 @@ is a more in depth explanation of the command. Below is an example of running
 
 4. Further Reading: This was a very brief introduction to the terminal. It was
 included only to give some context to further chapters that make use of
-arguments. For more information feel free to check this resource
-`here <https://help.ubuntu.com/community/UsingTheTerminal>`__.
+arguments. For more information feel free to |external_link|.
 
+.. |external_link| raw:: html
+
+   <a href="https://help.ubuntu.com/community/UsingTheTerminal" target="_blank">check this resource</a>
 
 .. odsafig:: Images/manexample.png
    :width: 500
@@ -71,12 +75,12 @@ arguments. For more information feel free to check this resource
 
    The man command is extremely useful for learning about the syntax/usage of a command
 
-*\*Author's Note: The man command should be available in any GNU-style terminal.
+*\*Note: The man command should be available in any GNU-style terminal.
 If you are using Windows the native Command Prompt does not have a man command.*
 
 |
 
-Give the terminal a try
-=======================
+.. Does not work with new LTI support.
+.. Give the terminal a try.
 
-.. avembed:: AV/Tutorials/terminal.html ka
+.. .. avembed:: AV/Tutorials/terminal.html ka

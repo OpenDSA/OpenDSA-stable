@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>3-sat problem.</title>
-  <script src="../../lib/jquery.min.js"></script>
-  <script src="../../lib/jquery-ui.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
+
   <script src="../../JSAV/lib/jquery.transit.js"></script>
   <script src="../../JSAV/lib/raphael.js"></script>
   <script src="../../ODSAkhan-exercises/khan-exercise.js"></script>
@@ -265,8 +265,8 @@ var ShowSolution = function(){
 
 <div class="exercise">
   <div class="vars">
-    <var id="literalcnt">randRange(4,6)</var>
-    <var id="clausecnt">randRange(8,12)</var>
+    <var id="literalcnt">Khan.randRange(4,6)</var>
+    <var id="clausecnt">Khan.randRange(8,12)</var>
     <var id="JSAV">initJSAV(clausecnt,literalcnt)</var>
   </div>
 

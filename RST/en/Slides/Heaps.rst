@@ -13,16 +13,35 @@
 Heaps
 =====
 
-.. slide:: Complete Trees
+.. slide:: Tree vs. Trie (1)
 
+   .. odsalink:: AV/Development/TreeTrieCON.css
+
+   .. inlineav:: TreeTimelineCON ss
+      :output: show
+
+   .. odsascript:: AV/Development/TreeTimelineCON.js
+
+
+.. slide:: Tree vs. Trie (2)
+
+   .. inlineav:: TrieTimelineCON ss
+      :output: show
+
+   .. odsascript:: AV/Development/TrieTimelineCON.js
+
+
+.. slide:: Complete Trees
+   
+   .. odsalink:: AV/slides.css
+   .. odsalink:: AV/Binary/heapbuildProofCON.css
+  
    .. _BinArray:
 
    .. figure:: Images/BinArray.png
-      :width: 400
+      :width: 300
       :align: center
       :alt: Complete binary tree node numbering
-
-      A complete binary tree of 12 nodes, numbered starting from 0.
 
    .. math::
 
@@ -47,25 +66,35 @@ Heaps
       \hline
       \end{array}
 
+
 .. slide:: Heap insert
 
    .. inlineav:: heapinsertCON ss
       :output: show
+
+   .. odsascript:: DataStructures/binaryheap.js
+   .. odsascript:: AV/Binary/heapinsertCON.js
+
 
 .. slide:: Building a Heap
 
    .. inlineav:: heapbuildCON ss
       :output: show
 
+   .. odsascript:: AV/Binary/heapbuildCON.js
+
+
+.. slide:: Building a Heap Proof
+
+   .. inlineav:: heapbuildProofCON ss
+      :output: show
+
+   .. odsascript:: AV/Binary/heapbuildProofCON.js
+
+
 .. slide:: Delete the maximum value
 
    .. inlineav:: heapmaxCON ss
       :output: show
 
-.. slide:: Delete an arbitrary value
-
-   .. inlineav:: heapdeleteCON ss
-      :output: show
-
-   .. odsascript:: DataStructures/binaryheap.js
-   .. odsascript:: AV/Development/heapsCON.js
+   .. odsascript:: AV/Binary/heapmaxCON.js

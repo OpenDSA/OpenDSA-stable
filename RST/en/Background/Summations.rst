@@ -1,15 +1,21 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2013 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
-.. avmetadata:: 
+.. avmetadata::
    :author: Cliff Shaffer
-   :satisfies: summation; recurrence
+   :satisfies: summation
    :topic: Math Background
 
-Summations and Recurrence Relations
-===================================
+.. odsalink:: AV/Background/SummationOneToNCON.css
+.. odsalink:: AV/Background/SummationTwoPowerICON.css
+
+Summations
+==========
+
+Summations
+----------
 
 Most programs contain loop constructs.
 When analyzing running time costs for programs with loops, we
@@ -50,8 +56,20 @@ is simply the expression "1" summed :math:`n` times
 (remember that :math:`i` ranges from 1 to :math:`n`).
 Because the sum of :math:`n` 1s is :math:`n`,
 the closed-form solution is :math:`n`.
-The following is a list of useful summations,
-along with their closed-form solutions.
+
+Here is an explanation about the closed form solution of one summation
+that you will see many times in this book.
+Since this appears so often, it will help you later if you can get
+comfortable with it.
+
+.. inlineav:: SummationOneToNCON ss
+   :output: show
+
+
+.. inlineav:: SummationTwoPowerICON ss
+   :output: show
+
+Here is a list of useful summations, along with their closed-form solutions.
 
 .. math::
    :label: sum1
@@ -120,157 +138,12 @@ the summation grows closer to
 
 where :math:`\gamma` is Euler's constant and has the value 0.5772...
 
-
-.. todo::
-   :type: SlideShow
-
-   Provide a slideshow for some of the previous summations to present how we reached the closed form of the summation visually. For example, finding the closed form of :math:`\sum_{i=1}^{n} i` can be easily presented visually using a set of rectangles stacked vetrically for each value of $i$, and then the closed form would be the total surface area of the final shape. 
-
-
 Most of these equalities can be proved easily by a
 :ref:`proof by induction <Proofs>`.
 Unfortunately, induction does not help us derive a closed-form
 solution.
-It only confirms when a proposed closed-form solution is correct.
-There are techniques for deriving
-:ref:`closed-form solutions <closed-form solution> <AdvSumm>`.
+Induction only confirms when a proposed closed-form solution is
+correct.
 
-The running time for a recursive algorithm is most easily expressed by
-a recursive expression because the total time for the recursive
-algorithm includes the time to run the recursive
-call(s).
-A :term:`recurrence relation` defines a function by means of an
-expression that includes one or more (smaller) instances of itself.
-A classic example is the recursive definition for the
-factorial function:
-
-.. math::
-
-   n! = (n-1)! \cdot n\ \mbox{for}\ n>1; \quad 1! = 0! = 1.
-
-Another standard example of a recurrence is the Fibonacci
-sequence:
-
-   .. math::
-
-      \mbox{Fib}(n) = \mbox{Fib}(n-1) + \mbox{Fib}(n-2)\ \mbox{for}\ n>2;
-      \quad\mbox{Fib}(1) = \mbox{Fib}(2) = 1.
-
-From this definition, the first seven numbers of the
-Fibonacci sequence are
-
-.. math::
-
-   1, 1, 2, 3, 5, 8,\ \mbox{and}\ 13.
-
-Notice that this definition contains two parts: the general
-definition for :math:`\mbox{Fib}(n)` and the base cases for
-:math:`\mbox{Fib}(1)` and :math:`\mbox{Fib}(2)`. 
-Likewise, the definition for factorial contains a recursive part and
-base cases.
-
-Recurrence relations are often used to model the cost of recursive
-functions.
-For example, the number of multiplications required by a recursive
-version of the factorial function for an input of size
-:math:`n` will be zero when :math:`n = 0` or :math:`n = 1` (the base
-cases), and it will be one plus the cost of calling ``fact`` on a
-value of :math:`n-1`. 
-This can be defined using the following recurrence:
-
-.. math::
-
-   \mathbf{T}(n) = \mathbf{T}(n-1) + 1\ \mbox{for}\ n>1;
-   \quad \mathbf{T}(0) = \mathbf{T}(1) = 0.
-
-As with summations, we typically wish to replace the recurrence
-relation with a closed-form solution.
-One approach is to expand the recurrence by replacing any
-occurrences of :math:`\mathbf{T}` on the right-hand side with its
-definition.
-
-.. _FactRecurSol:
-
-.. topic:: Example
-
-   If we expand the recurrence
-   :math:`\mathbf{T}(n) = \mathbf{T}(n-1) + 1`, we get 
-
-   .. math::
-
-      \begin{eqnarray*}
-      \mathbf{T}(n) &=& \mathbf{T}(n-1) + 1\\
-      &=& (\mathbf{T}(n-2) + 1) + 1.\\
-      \end{eqnarray*}
-
-   We can expand the recurrence as many steps as we like, but the goal is 
-   to detect some pattern that will permit us to rewrite the recurrence
-   in terms of a summation.
-   In this example, we might notice that
-
-   .. math::
-
-      \mathbf{T}(n-2) + 1) + 1 = \mathbf{T}(n-2) + 2
-
-   and if we expand the recurrence again, we get
-
-   .. math::
-
-      \mathbf{T}(n) = \mathbf{T}(n-2) + 2 = \mathbf{T}(n-3) + 1 + 2 =
-      \mathbf{T}(n-3) + 3
-
-   which generalizes to the pattern
-   :math:`\mathbf{T}(n) = \mathbf{T}(n-i) + i`.
-   We might conclude that
-
-   .. math::
-
-      \begin{eqnarray*}
-      \mathbf{T}(n) &=& \mathbf{T}(n - (n-1)) + (n - 1)\\
-      &=& \mathbf{T}(1) + n-1\\
-      &=& n-1.
-     \end{eqnarray*}
-
-   Because we have merely guessed at a pattern and not actually proved
-   that this is the correct closed form solution, we should use an
-   :ref:`induction proof <FactRecurProof>` to complete the process.
-
-.. topic:: Example
-
-   A slightly more complicated recurrence is
-
-   .. math::
-
-      \mathbf{T}(n) = \mathbf{T}(n-1) + n; \quad \mathbf{T}(1) = 1.
-
-   Expanding this recurrence a few steps, we get
-
-   .. math::
-
-      \begin{eqnarray*}
-      \mathbf{T}(n) &=& \mathbf{T}(n-1) + n\\
-      &=& \mathbf{T}(n-2) + (n-1) + n\\
-      &=& \mathbf{T}(n-3) + (n-2) + (n-1) + n.\\
-      \end{eqnarray*}
-
-   We should then observe that this recurrence appears to have a
-   pattern that leads to
-
-   .. math::
-
-      \begin{eqnarray*}
-      \mathbf{T}(n) &=& \mathbf{T}(n-(n-1)) + (n-(n-2)) + \cdots + (n-1) + n\\
-      &=& 1 + 2 + \cdots + (n-1) + n.
-      \end{eqnarray*}
-
-   This is equivalent to the summation :math:`\sum_{i=1}^n i`,
-   for which we already know the closed-form solution.
-
-There are
-:ref:`many more techniques <closed-form solution> <Recurrence>`
-to find closed-form solutions for recurrence relations.
-
-.. todo::
-   :type: SlideShow
-
-   Provide a slideshow to present how we can guess the closed form of some recurrence relations using the unrolling method (using a tree). We can start with only two recurrences $T(n) = T(n-1) + 1$ and $T(n) = T(n-1) + n$   
+.. odsascript:: AV/Background/SummationOneToNCON.js
+.. odsascript:: AV/Background/SummationTwoPowerICON.js

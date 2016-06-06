@@ -1,8 +1,8 @@
-"use strict";
-
 /* global LAMBDA : true */
 
-$(document).ready( function() {
+( function() {
+
+    "use strict";
 
     // types of lambda expressions:
     // 1: variable
@@ -32,10 +32,12 @@ $(document).ready( function() {
 	}
     }
 
-    function getRndExp(depth,minDepth,maxDepth,allowed,bound) {
+    function getRndExp(depth,minDepth,maxDepth,allowed,bound,inputType) {
 	var type;
 	var v;
-	if (depth >= maxDepth) {
+	if ( inputType ) {
+	    type = inputType;
+	} else if (depth >= maxDepth) {
 	    type = 1;  
 	} else if (depth < minDepth) {
 	    type = getRnd(2,3);
@@ -80,11 +82,11 @@ $(document).ready( function() {
 					    );
 	}
     }
-    
-    LAMBDA.getRndExp = getRndExp;
-    LAMBDA.getRndExp2 = getRndExp2;
-    LAMBDA.getRnd = getRnd;
+
+    window.LAMBDA.getRndExp = getRndExp;
+    window.LAMBDA.getRndExp2 = getRndExp2;
+    window.LAMBDA.getRnd = getRnd;
 
 
-});
+})();
 

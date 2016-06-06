@@ -1,0 +1,39 @@
+.jsavnode .jsavvalue { /* This will get the array cell values to center vertically */
+  height: 30px;
+}
+
+#varindexCON {
+ margin-left: auto;
+ margin-right: auto;
+ height: 250px;
+}
+
+#linindexCON .jsavnode{
+  line-height: 30px !important;
+  min-width: 45px !important;
+  max-width: 45px !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+}
+
+#linindexCON {
+ margin-left: auto;
+ margin-right: auto;
+ height: 350px;
+}
+
+.jsavarray .jsavindex {
+border-radius: 0 !important;
+}
+
+svg{
+  stroke-width: 1;
+}
+
+#varindexCON .jsavlabel {
+	z-index: 900;
+}
+
+#linindexCON .jsavlabel {
+	z-index: 900;
+}

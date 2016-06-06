@@ -1,25 +1,27 @@
 .. This file is part of the OpenDSA eTextbook project. See
 .. http://algoviz.org/OpenDSA for more details.
-.. Copyright (c) 2012-2013 by the OpenDSA Project Contributors, and
+.. Copyright (c) 2012-2016 by the OpenDSA Project Contributors, and
 .. distributed under an MIT open source license.
 
 .. avmetadata::
    :author: Jordan Sablan
    :requires: 
-   :satisfies: 
+   :satisfies: debugging
    :topic:
 
 ========================
 Common Debugging Methods
 ========================
-When tracking down bugs in your code there are a number of methods that
+
+When tracking down bugs in your code, there are a number of methods that
 programmers can make use of. These methods all have different strengths, but
 the main goal of each is to help narrow down where the bugs exist and why they
 cause problems.
 
 
-Method 1: Print Debugging
-=========================
+Print Debugging
+~~~~~~~~~~~~~~~
+
 I frequently use this method to help me track down bugs in my code. The main
 idea is simple. Print out as much information as poissible in every stage of
 your program. By doing so we can see at every stage of the program how our
@@ -32,9 +34,11 @@ it will have to be removed later on
 2. Depending on how much data the program prints, it may be flooded with so much
 information that it becomes difficult to gain any meaning from it
 
-Method 2: Rubber Duck Debugging
-===============================
-Rubber Duck Debugging has become very popular through the programming industry.
+
+Rubber Duck Debugging
+~~~~~~~~~~~~~~~~~~~~~
+
+Rubber Duck Debugging has become popular through the programming industry.
 Rubber Duck Debugging focuses on making the programmer carefully examine each
 line of their code and not just assume that it does what they expect, but explain
 how it works. In order to use Rubber Duck Debugging a programmer should make use
@@ -43,11 +47,16 @@ through each line of their code and explain it to the duck as if it were a
 normal person with no programming experience. Rubber Duck Debugging is only as
 effective as the thought put into it, however. When making use of the technique
 be sure to be thorough in your explanations and to consider every possible case.
-For an example of Rubber Duck Debugging read this
-`blog <http://blog.codinghorror.com/rubber-duck-problem-solving/>`__.
+For an example of Rubber Duck Debugging read |external_link|.
 
-Method 3: Wolf Fence Debugging
-==============================
+.. |external_link| raw:: html
+
+   <a href="http://blog.codinghorror.com/rubber-duck-problem-solving/" target = "_blank">this blog</a>
+
+
+Wolf Fence Debugging
+~~~~~~~~~~~~~~~~~~~~
+
 Imagine there is only one wolf in Alaska. How would you find him? The most
 effective way would be to fence Alaska in half and wait for the wolf to "howl."
 When you know which half has the wolf split it and again wait.
@@ -58,17 +67,14 @@ the problem has been found. The method is particularly useful when used in
 conjunction with Exceptions as the stack trace can show each line of code called
 leading to the actual Exception being thrown.
 
-Print Debugging vs Source Debugging
-===================================
-Choosing between source code debugging and print based debugging can be difficult
-at times. There are many different advantages and disadvantages to each method,
-however, in my personal experience I find it easiest to use print based
-debugging to troubleshoot quick problems (i.e. what value is this method returning)
-or to help give a more detailed context for source level debugging. For exmaple,
-in a recent project, I encountered an exception. While the exception provided
-a very detailed message and even gave the line of code that caused the error, it
-still did not provide the information needed. I made use of a print statement to
-ensure that that the data being used was as expected. When the data had been
-verified, I had to use the source level debugger to give more information. That
-being said printing the information made it easier to find the cause of the issue.
 
+Print Debugging vs Source Debugging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choosing between source code debugging and print based debugging can be difficult
+at times.
+There are advantages and disadvantages to each method.
+Generally, print-based debugging can conveniently give you a small
+amount of targetted information (that is, you know what you want).
+Otherwise, source-level debugging makes it easy to explore what is
+going on with your code.

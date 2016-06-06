@@ -1,0 +1,8 @@
+/* Styling for HuffProofCON.js / HuffProof.rst static image */
+#HuffProofCON{
+  height: 250px;
+}
+
+.jsavlabel{
+  z-index:1000;
+}
